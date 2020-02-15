@@ -1,0 +1,96 @@
+<?php
+namespace Abs\JVPkg\Database\Seeds;
+
+use App\Permission;
+use Illuminate\Database\Seeder;
+
+class JVPkgPermissionSeeder extends Seeder {
+	/**
+	 * Run the database seeds.
+	 *
+	 * @return void
+	 */
+	public function run() {
+		$permissions = [
+			//Journals
+			[
+				'display_order' => 99,
+				'parent' => null,
+				'name' => 'journals',
+				'display_name' => 'Journals',
+			],
+			[
+				'display_order' => 1,
+				'parent' => 'journals',
+				'name' => 'add-journal',
+				'display_name' => 'Add',
+			],
+			[
+				'display_order' => 2,
+				'parent' => 'journals',
+				'name' => 'delete-journal',
+				'display_name' => 'Edit',
+			],
+			[
+				'display_order' => 3,
+				'parent' => 'journals',
+				'name' => 'delete-journal',
+				'display_name' => 'Delete',
+			],
+
+			//Journal Voucher Types
+			[
+				'display_order' => 99,
+				'parent' => null,
+				'name' => 'journal-voucher-types',
+				'display_name' => 'Journal Voucher Types',
+			],
+			[
+				'display_order' => 1,
+				'parent' => 'journal-voucher-types',
+				'name' => 'add-journal-voucher-type',
+				'display_name' => 'Add',
+			],
+			[
+				'display_order' => 2,
+				'parent' => 'journal-voucher-types',
+				'name' => 'delete-journal-voucher-type',
+				'display_name' => 'Edit',
+			],
+			[
+				'display_order' => 3,
+				'parent' => 'journal-voucher-types',
+				'name' => 'delete-journal-voucher-type',
+				'display_name' => 'Delete',
+			],
+
+			//Journal Voucher
+			[
+				'display_order' => 99,
+				'parent' => null,
+				'name' => 'journal-vouchers',
+				'display_name' => 'Journal Vouchers',
+			],
+			[
+				'display_order' => 1,
+				'parent' => 'journal-vouchers',
+				'name' => 'add-journal-voucher',
+				'display_name' => 'Add',
+			],
+			[
+				'display_order' => 2,
+				'parent' => 'journal-vouchers',
+				'name' => 'delete-journal-voucher',
+				'display_name' => 'Edit',
+			],
+			[
+				'display_order' => 3,
+				'parent' => 'journal-vouchers',
+				'name' => 'delete-journal-voucher',
+				'display_name' => 'Delete',
+			],
+
+		];
+		Permission::createFromArrays($permissions);
+	}
+}
