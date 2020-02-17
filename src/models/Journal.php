@@ -15,8 +15,8 @@ class Journal extends Model {
 	public $timestamps = true;
 	protected $fillable = [
 		'name',
-		'delivery_time',
-		'charge',
+		'description',
+		'company_id',
 	];
 
 	public static function createFromObject($record_data) {

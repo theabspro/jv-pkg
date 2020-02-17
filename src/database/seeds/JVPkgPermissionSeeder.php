@@ -28,7 +28,7 @@ class JVPkgPermissionSeeder extends Seeder {
 			[
 				'display_order' => 2,
 				'parent' => 'journals',
-				'name' => 'delete-journal',
+				'name' => 'edit-journal',
 				'display_name' => 'Edit',
 			],
 			[
@@ -54,7 +54,7 @@ class JVPkgPermissionSeeder extends Seeder {
 			[
 				'display_order' => 2,
 				'parent' => 'journal-voucher-types',
-				'name' => 'delete-journal-voucher-type',
+				'name' => 'edit-journal-voucher-type',
 				'display_name' => 'Edit',
 			],
 			[
@@ -80,7 +80,7 @@ class JVPkgPermissionSeeder extends Seeder {
 			[
 				'display_order' => 2,
 				'parent' => 'journal-vouchers',
-				'name' => 'delete-journal-voucher',
+				'name' => 'edit-journal-voucher',
 				'display_name' => 'Edit',
 			],
 			[

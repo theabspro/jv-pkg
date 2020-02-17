@@ -1,13 +1,14 @@
 app.component('journalList', {
     templateUrl: journal_list_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location) {
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect, $element) {
         $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
+        self.add_permission = self.hasPermission('add-journal');
         var table_scroll;
         table_scroll = $('.page-main-content').height() - 37;
         var dataTable = $('#journals_list').DataTable({
-            "dom": dom_structure,
+            "dom": cndn_dom_structure,
             "language": {
                 // "search": "",
                 // "searchPlaceholder": "Search",
@@ -36,23 +37,19 @@ app.component('journalList', {
             scrollY: table_scroll + "px",
             scrollCollapse: true,
             ajax: {
-                url: url(laravel_routes['getJournalList']),
+                url: laravel_routes['getJournalList'],
                 type: "GET",
                 dataType: "json",
                 data: function(d) {
-                    d.journal_code = $('#journal_code').val();
-                    d.journal_name = $('#journal_name').val();
-                    d.mobile_no = $('#mobile_no').val();
-                    d.email = $('#email').val();
+                    d.name = $('#journal_name').val();
+                    d.status = $('#status').val();
                 },
             },
 
             columns: [
                 { data: 'action', class: 'action', name: 'action', searchable: false },
-                { data: 'code', name: 'journals.code' },
                 { data: 'name', name: 'journals.name' },
-                { data: 'mobile_no', name: 'journals.mobile_no' },
-                { data: 'email', name: 'journals.email' },
+                { data: 'description', name: 'journals.description' },
             ],
             "infoCallback": function(settings, start, end, max, total, pre) {
                 $('#table_info').html(total)
@@ -81,17 +78,14 @@ app.component('journalList', {
         $scope.deleteConfirm = function() {
             $id = $('#journal_id').val();
             $http.get(
-                journal_delete_data_url + '/' + $id,
+                laravel_routes['deleteJournal'], {
+                    params: {
+                        id: $id,
+                    }
+                }
             ).then(function(response) {
                 if (response.data.success) {
-                    $noty = new Noty({
-                        type: 'success',
-                        layout: 'topRight',
-                        text: 'Journal Deleted Successfully',
-                    }).show();
-                    setTimeout(function() {
-                        $noty.close();
-                    }, 3000);
+                    custom_noty('success', 'Journal Deleted Successfully');
                     $('#journals_list').DataTable().ajax.reload(function(json) {});
                     $location.path('/jv-pkg/journal/list');
                 }
@@ -99,23 +93,34 @@ app.component('journalList', {
         }
 
         //FOR FILTER
-        $('#journal_code').on('keyup', function() {
-            dataTables.fnFilter();
+        self.status = [
+            { id: '', name: 'Select Status' },
+            { id: '1', name: 'Active' },
+            { id: '0', name: 'Inactive' },
+        ];
+        $element.find('input').on('keydown', function(ev) {
+            ev.stopPropagation();
         });
+        $scope.clearSearchTerm = function() {
+            $scope.searchTerm = '';
+        };
+        /* Modal Md Select Hide */
+        $('.modal').bind('click', function(event) {
+            if ($('.md-select-menu-container').hasClass('md-active')) {
+                $mdSelect.hide();
+            }
+        });
+
         $('#journal_name').on('keyup', function() {
             dataTables.fnFilter();
         });
-        $('#mobile_no').on('keyup', function() {
+        $scope.onSelectedStatus = function(val) {
+            $("#status").val(val);
             dataTables.fnFilter();
-        });
-        $('#email').on('keyup', function() {
-            dataTables.fnFilter();
-        });
+        }
         $scope.reset_filter = function() {
             $("#journal_name").val('');
-            $("#journal_code").val('');
-            $("#mobile_no").val('');
-            $("#email").val('');
+            $("#status").val('');
             dataTables.fnFilter();
         }
 
@@ -127,22 +132,21 @@ app.component('journalList', {
 app.component('journalForm', {
     templateUrl: journal_form_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
-        get_form_data_url = typeof($routeParams.id) == 'undefined' ? journal_get_form_data_url : journal_get_form_data_url + '/' + $routeParams.id;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.angular_routes = angular_routes;
         $http.get(
-            get_form_data_url
+            laravel_routes['getJournalFormData'], {
+                params: {
+                    id: typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
+                }
+            }
         ).then(function(response) {
-            // console.log(response);
+            console.log(response);
             self.journal = response.data.journal;
-            self.address = response.data.address;
-            self.country_list = response.data.country_list;
             self.action = response.data.action;
             $rootScope.loading = false;
             if (self.action == 'Edit') {
-                $scope.onSelectedCountry(self.address.country_id);
-                $scope.onSelectedState(self.address.state_id);
                 if (self.journal.deleted_at) {
                     self.switch_value = 'Inactive';
                 } else {
@@ -150,8 +154,6 @@ app.component('journalForm', {
                 }
             } else {
                 self.switch_value = 'Active';
-                self.state_list = [{ 'id': '', 'name': 'Select State' }];
-                self.city_list = [{ 'id': '', 'name': 'Select City' }];
             }
         });
 
@@ -170,109 +172,19 @@ app.component('journalForm', {
         $scope.btnNxt = function() {}
         $scope.prev = function() {}
 
-        //SELECT STATE BASED COUNTRY
-        $scope.onSelectedCountry = function(id) {
-            journal_get_state_by_country = vendor_get_state_by_country;
-            $http.post(
-                journal_get_state_by_country, { 'country_id': id }
-            ).then(function(response) {
-                // console.log(response);
-                self.state_list = response.data.state_list;
-            });
-        }
-
-        //SELECT CITY BASED STATE
-        $scope.onSelectedState = function(id) {
-            journal_get_city_by_state = vendor_get_city_by_state
-            $http.post(
-                journal_get_city_by_state, { 'state_id': id }
-            ).then(function(response) {
-                // console.log(response);
-                self.city_list = response.data.city_list;
-            });
-        }
-
         var form_id = '#form';
         var v = jQuery(form_id).validate({
             ignore: '',
             rules: {
-                'code': {
-                    required: true,
-                    minlength: 3,
-                    maxlength: 255,
-                },
                 'name': {
                     required: true,
                     minlength: 3,
-                    maxlength: 255,
+                    maxlength: 64,
                 },
-                'cust_group': {
-                    maxlength: 100,
-                },
-                'gst_number': {
-                    required: true,
-                    maxlength: 100,
-                },
-                'dimension': {
-                    maxlength: 50,
-                },
-                'address': {
-                    required: true,
-                    minlength: 5,
-                    maxlength: 250,
-                },
-                'address_line1': {
+                'description': {
                     minlength: 3,
                     maxlength: 255,
                 },
-                'address_line2': {
-                    minlength: 3,
-                    maxlength: 255,
-                },
-                // 'pincode': {
-                //     required: true,
-                //     minlength: 6,
-                //     maxlength: 6,
-                // },
-            },
-            messages: {
-                'code': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                'name': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                'cust_group': {
-                    maxlength: 'Maximum of 100 charaters',
-                },
-                'dimension': {
-                    maxlength: 'Maximum of 50 charaters',
-                },
-                'gst_number': {
-                    maxlength: 'Maximum of 25 charaters',
-                },
-                'email': {
-                    maxlength: 'Maximum of 100 charaters',
-                },
-                'address_line1': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                'address_line2': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                // 'pincode': {
-                //     maxlength: 'Maximum of 6 charaters',
-                // },
-            },
-            invalidHandler: function(event, validator) {
-                $noty = new Noty({
-                    type: 'error',
-                    layout: 'topRight',
-                    text: 'You have errors,Please check all tabs'
-                }).show();
-                setTimeout(function() {
-                    $noty.close();
-                }, 3000)
             },
             submitHandler: function(form) {
                 let formData = new FormData($(form_id)[0]);
@@ -286,14 +198,7 @@ app.component('journalForm', {
                     })
                     .done(function(res) {
                         if (res.success == true) {
-                            $noty = new Noty({
-                                type: 'success',
-                                layout: 'topRight',
-                                text: res.message,
-                            }).show();
-                            setTimeout(function() {
-                                $noty.close();
-                            }, 3000);
+                            custom_noty('success', res.message);
                             $location.path('/jv-pkg/journal/list');
                             $scope.$apply();
                         } else {
@@ -303,14 +208,7 @@ app.component('journalForm', {
                                 for (var i in res.errors) {
                                     errors += '<li>' + res.errors[i] + '</li>';
                                 }
-                                $noty = new Noty({
-                                    type: 'error',
-                                    layout: 'topRight',
-                                    text: errors
-                                }).show();
-                                setTimeout(function() {
-                                    $noty.close();
-                                }, 3000);
+                                custom_noty('error', errors);
                             } else {
                                 $('#submit').button('reset');
                                 $location.path('/jv-pkg/journal/list');
@@ -320,14 +218,7 @@ app.component('journalForm', {
                     })
                     .fail(function(xhr) {
                         $('#submit').button('reset');
-                        $noty = new Noty({
-                            type: 'error',
-                            layout: 'topRight',
-                            text: 'Something went wrong at server',
-                        }).show();
-                        setTimeout(function() {
-                            $noty.close();
-                        }, 3000);
+                        custom_noty('error', 'Something went wrong at server');
                     });
             }
         });
