@@ -142,7 +142,7 @@ app.component('journalForm', {
                 }
             }
         ).then(function(response) {
-            console.log(response);
+            // console.log(response);
             self.journal = response.data.journal;
             self.action = response.data.action;
             $rootScope.loading = false;
@@ -156,21 +156,6 @@ app.component('journalForm', {
                 self.switch_value = 'Active';
             }
         });
-
-        /* Tab Funtion */
-        $('.btn-nxt').on("click", function() {
-            $('.cndn-tabs li.active').next().children('a').trigger("click");
-            tabPaneFooter();
-        });
-        $('.btn-prev').on("click", function() {
-            $('.cndn-tabs li.active').prev().children('a').trigger("click");
-            tabPaneFooter();
-        });
-        $('.btn-pills').on("click", function() {
-            tabPaneFooter();
-        });
-        $scope.btnNxt = function() {}
-        $scope.prev = function() {}
 
         var form_id = '#form';
         var v = jQuery(form_id).validate({

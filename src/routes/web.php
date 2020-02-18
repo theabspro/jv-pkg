@@ -1,7 +1,7 @@
 <?php
 
 Route::group(['namespace' => 'Abs\JVPkg', 'middleware' => ['web', 'auth'], 'prefix' => 'jv-pkg'], function () {
-	//FAQs
+	//JOURNAL VOUCHER
 	Route::get('/journal-vouchers/get-list', 'JournalVoucherController@getJournalVoucherList')->name('getJournalVoucherList');
 	Route::get('/journal-voucher/get-form-data', 'JournalVoucherController@getJournalVoucherFormData')->name('getJournalVoucherFormData');
 	Route::post('/journal-voucher/save', 'JournalVoucherController@saveJournalVoucher')->name('saveJournalVoucher');
@@ -12,4 +12,10 @@ Route::group(['namespace' => 'Abs\JVPkg', 'middleware' => ['web', 'auth'], 'pref
 	Route::get('/journal/get-form-data', 'JournalController@getJournalFormData')->name('getJournalFormData');
 	Route::post('/journal/save', 'JournalController@saveJournal')->name('saveJournal');
 	Route::get('/journal/delete', 'JournalController@deleteJournal')->name('deleteJournal');
+
+	//JV TYPES
+	Route::get('/jv-types/get-list', 'JVTypeController@getJVTypeList')->name('getJvTypeList');
+	Route::get('/jv-types/get-form-data', 'JVTypeController@getJVTypeFormData')->name('getJVTypeFormData');
+	Route::post('/jv-types/save', 'JVTypeController@saveJvType')->name('saveJvType');
+	// Route::get('/jv-types/delete', 'JVTypeController@deletegetJVType')->name('deletegetJVType');
 });

@@ -4,10 +4,11 @@ app.component('jvTypeList', {
         $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
+        self.add_permission = self.hasPermission('add-journal-voucher-type');
         var table_scroll;
         table_scroll = $('.page-main-content').height() - 37;
         var dataTable = $('#jv_types_list').DataTable({
-            "dom": dom_structure,
+            "dom": cndn_dom_structure,
             "language": {
                 // "search": "",
                 // "searchPlaceholder": "Search",
@@ -36,7 +37,7 @@ app.component('jvTypeList', {
             scrollY: table_scroll + "px",
             scrollCollapse: true,
             ajax: {
-                url: url(laravel_routes['getJvTypeList']),
+                url: laravel_routes['getJvTypeList'],
                 type: "GET",
                 dataType: "json",
                 data: function(d) {
@@ -52,6 +53,7 @@ app.component('jvTypeList', {
                 { data: 'code', name: 'jv_types.code' },
                 { data: 'name', name: 'jv_types.name' },
                 { data: 'mobile_no', name: 'jv_types.mobile_no' },
+                { data: 'email', name: 'jv_types.email' },
                 { data: 'email', name: 'jv_types.email' },
             ],
             "infoCallback": function(settings, start, end, max, total, pre) {
@@ -127,22 +129,24 @@ app.component('jvTypeList', {
 app.component('jvTypeForm', {
     templateUrl: jv_type_form_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
-        get_form_data_url = typeof($routeParams.id) == 'undefined' ? jv_type_get_form_data_url : jv_type_get_form_data_url + '/' + $routeParams.id;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.angular_routes = angular_routes;
         $http.get(
-            get_form_data_url
+            laravel_routes['getJVTypeFormData'], {
+                params: {
+                    id: typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
+                }
+            }
         ).then(function(response) {
-            // console.log(response);
+            console.log(response);
             self.jv_type = response.data.jv_type;
-            self.address = response.data.address;
-            self.country_list = response.data.country_list;
+            self.extras = response.data.extras;
             self.action = response.data.action;
+
+            self.jv_field = response.data.jv_field;
             $rootScope.loading = false;
             if (self.action == 'Edit') {
-                $scope.onSelectedCountry(self.address.country_id);
-                $scope.onSelectedState(self.address.state_id);
                 if (self.jv_type.deleted_at) {
                     self.switch_value = 'Inactive';
                 } else {
@@ -150,8 +154,6 @@ app.component('jvTypeForm', {
                 }
             } else {
                 self.switch_value = 'Active';
-                self.state_list = [{ 'id': '', 'name': 'Select State' }];
-                self.city_list = [{ 'id': '', 'name': 'Select City' }];
             }
         });
 
@@ -170,113 +172,95 @@ app.component('jvTypeForm', {
         $scope.btnNxt = function() {}
         $scope.prev = function() {}
 
-        //SELECT STATE BASED COUNTRY
-        $scope.onSelectedCountry = function(id) {
-            jv_type_get_state_by_country = vendor_get_state_by_country;
-            $http.post(
-                jv_type_get_state_by_country, { 'country_id': id }
-            ).then(function(response) {
-                // console.log(response);
-                self.state_list = response.data.state_list;
-            });
+        //ON CHANGED IS OPEN 
+        $scope.onChangedIsOpen = function(value, index) {
+            if (value == 'Yes') {
+                if (index == 0) {
+                    self.IsOpenYes0 = true;
+                }
+                if (index == 1) {
+                    self.IsOpenYes1 = true;
+                }
+                if (index == 2) {
+                    self.IsOpenYes2 = true;
+                }
+            } else {
+                if (index == 0) {
+                    self.IsOpenYes0 = false;
+                    $("#value0").removeClass('required');
+                }
+                if (index == 1) {
+                    self.IsOpenYes1 = false;
+                    $("#value1").removeClass('required');
+                }
+                if (index == 2) {
+                    self.IsOpenYes2 = false;
+                    $("#value2").removeClass('required');
+                }
+            }
         }
 
-        //SELECT CITY BASED STATE
-        $scope.onSelectedState = function(id) {
-            jv_type_get_city_by_state = vendor_get_city_by_state
-            $http.post(
-                jv_type_get_city_by_state, { 'state_id': id }
-            ).then(function(response) {
-                // console.log(response);
-                self.city_list = response.data.city_list;
-            });
+        //ON CHANGED IS EDITABLE
+        $scope.onChangedIsEditable = function(value, index) {
+            if (value == 'Yes') {
+                if (index == 0) {
+                    self.isEditableYes0 = true;
+                    $("#value0").addClass('required');
+                }
+                if (index == 1) {
+                    self.isEditableYes1 = true;
+                    $("#value1").addClass('required');
+                }
+                if (index == 2) {
+                    self.isEditableYes2 = true;
+                    $("#value2").addClass('required');
+                }
+            } else {
+                if (index == 0) {
+                    self.isEditableYes0 = false;
+                    $("#value0").removeClass('required');
+                }
+                if (index == 1) {
+                    self.isEditableYes1 = false;
+                    $("#value1").removeClass('required');
+                }
+                if (index == 2) {
+                    self.isEditableYes2 = false;
+                    $("#value2").removeClass('required');
+                }
+            }
         }
 
         var form_id = '#form';
         var v = jQuery(form_id).validate({
             ignore: '',
             rules: {
-                'code': {
-                    required: true,
-                    minlength: 3,
-                    maxlength: 255,
-                },
                 'name': {
                     required: true,
                     minlength: 3,
-                    maxlength: 255,
+                    maxlength: 64,
                 },
-                'cust_group': {
-                    maxlength: 100,
-                },
-                'gst_number': {
+                'short_name': {
                     required: true,
-                    maxlength: 100,
+                    minlength: 2,
+                    maxlength: 24,
                 },
-                'dimension': {
-                    maxlength: 50,
-                },
-                'address': {
+                'initial_status_id': {
                     required: true,
-                    minlength: 5,
-                    maxlength: 250,
                 },
-                'address_line1': {
-                    minlength: 3,
-                    maxlength: 255,
+                'final_approved_status_id': {
+                    required: true,
                 },
-                'address_line2': {
-                    minlength: 3,
-                    maxlength: 255,
+                'approval_type_id': {
+                    required: true,
                 },
-                // 'pincode': {
-                //     required: true,
-                //     minlength: 6,
-                //     maxlength: 6,
-                // },
-            },
-            messages: {
-                'code': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                'name': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                'cust_group': {
-                    maxlength: 'Maximum of 100 charaters',
-                },
-                'dimension': {
-                    maxlength: 'Maximum of 50 charaters',
-                },
-                'gst_number': {
-                    maxlength: 'Maximum of 25 charaters',
-                },
-                'email': {
-                    maxlength: 'Maximum of 100 charaters',
-                },
-                'address_line1': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                'address_line2': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                // 'pincode': {
-                //     maxlength: 'Maximum of 6 charaters',
-                // },
             },
             invalidHandler: function(event, validator) {
-                $noty = new Noty({
-                    type: 'error',
-                    layout: 'topRight',
-                    text: 'You have errors,Please check all tabs'
-                }).show();
-                setTimeout(function() {
-                    $noty.close();
-                }, 3000)
+                custom_noty('error', 'You have errors, Please check all tabs');
             },
             submitHandler: function(form) {
                 let formData = new FormData($(form_id)[0]);
-                $('#submit').button('loading');
+                $('.submit').button('loading');
                 $.ajax({
                         url: laravel_routes['saveJvType'],
                         method: "POST",
@@ -286,48 +270,27 @@ app.component('jvTypeForm', {
                     })
                     .done(function(res) {
                         if (res.success == true) {
-                            $noty = new Noty({
-                                type: 'success',
-                                layout: 'topRight',
-                                text: res.message,
-                            }).show();
-                            setTimeout(function() {
-                                $noty.close();
-                            }, 3000);
+                            custom_noty('success', res.message);
                             $location.path('/jv-pkg/jv-type/list');
                             $scope.$apply();
                         } else {
                             if (!res.success == true) {
-                                $('#submit').button('reset');
+                                $('.submit').button('reset');
                                 var errors = '';
                                 for (var i in res.errors) {
                                     errors += '<li>' + res.errors[i] + '</li>';
                                 }
-                                $noty = new Noty({
-                                    type: 'error',
-                                    layout: 'topRight',
-                                    text: errors
-                                }).show();
-                                setTimeout(function() {
-                                    $noty.close();
-                                }, 3000);
+                                custom_noty('error', errors);
                             } else {
-                                $('#submit').button('reset');
+                                $('.submit').button('reset');
                                 $location.path('/jv-pkg/jv-type/list');
                                 $scope.$apply();
                             }
                         }
                     })
                     .fail(function(xhr) {
-                        $('#submit').button('reset');
-                        $noty = new Noty({
-                            type: 'error',
-                            layout: 'topRight',
-                            text: 'Something went wrong at server',
-                        }).show();
-                        setTimeout(function() {
-                            $noty.close();
-                        }, 3000);
+                        $('.submit').button('reset');
+                        custom_noty('error', 'Something went wrong at server');
                     });
             }
         });

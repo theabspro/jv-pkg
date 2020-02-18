@@ -1,8 +1,13 @@
 <?php
 
 namespace Abs\JVPkg;
+use Abs\ApprovalPkg\ApprovalType;
+use Abs\ApprovalPkg\ApprovalTypeStatus;
 use Abs\Basic\Attachment;
+use Abs\JVPkg\Journal;
 use Abs\JVPkg\JournalVoucher;
+use Abs\JVPkg\JVType;
+use App\Config;
 use App\Http\Controllers\Controller;
 use Auth;
 use Carbon\Carbon;
@@ -14,54 +19,36 @@ use Yajra\Datatables\Datatables;
 
 class JVTypeController extends Controller {
 
-	private $company_id;
 	public function __construct() {
 		$this->data['theme'] = config('custom.admin_theme');
-		$this->company_id = config('custom.company_id');
 	}
 
-	public function getJournalVouchers(Request $request) {
-		$this->data['journal_vouchers'] = JournalVoucher::
-			select([
-			'journal_vouchers.question',
-			'journal_vouchers.answer',
-		])
-			->where('journal_vouchers.company_id', $this->company_id)
-			->orderby('journal_vouchers.display_order', 'asc')
-			->get()
-		;
-		$this->data['success'] = true;
-
-		return response()->json($this->data);
-
-	}
-
-	public function getJournalVoucherList(Request $request) {
-		$journal_vouchers = JournalVoucher::withTrashed()
+	public function getJvTypeList(Request $request) {
+		$jv_types = JVType::withTrashed()
 			->select([
-				'journal_vouchers.*',
-				DB::raw('IF(journal_vouchers.deleted_at IS NULL, "Active","Inactive") as status'),
+				'jv_types.*',
+				DB::raw('IF(jv_types.deleted_at IS NULL, "Active","Inactive") as status'),
 			])
-			->where('journal_vouchers.company_id', $this->company_id)
+			->where('jv_types.company_id', Auth::user()->company_id)
 		/*->where(function ($query) use ($request) {
 				if (!empty($request->question)) {
-					$query->where('journal_vouchers.question', 'LIKE', '%' . $request->question . '%');
+					$query->where('jv_types.question', 'LIKE', '%' . $request->question . '%');
 				}
 			})*/
-			->orderby('journal_vouchers.id', 'desc');
+			->orderby('jv_types.id', 'desc');
 
-		return Datatables::of($journal_vouchers)
-			->addColumn('name', function ($journal_vouchers) {
-				$status = $journal_vouchers->status == 'Active' ? 'green' : 'red';
-				return '<span class="status-indicator ' . $status . '"></span>' . $journal_vouchers->name;
+		return Datatables::of($jv_types)
+			->addColumn('name', function ($jv_types) {
+				$status = $jv_types->status == 'Active' ? 'green' : 'red';
+				return '<span class="status-indicator ' . $status . '"></span>' . $jv_types->name;
 			})
-			->addColumn('action', function ($journal_vouchers) {
+			->addColumn('action', function ($jv_types) {
 				$img1 = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow.svg');
 				$img1_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow-active.svg');
 				$img_delete = asset('public/themes/' . $this->data['theme'] . '/img/content/table/delete-default.svg');
 				$img_delete_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/delete-active.svg');
 				$output = '';
-				$output .= '<a href="#!/jv-pkg/journal-voucher/edit/' . $journal_vouchers->id . '" id = "" ><img src="' . $img1 . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img1_active . '" onmouseout=this.src="' . $img1 . '"></a>
+				$output .= '<a href="#!/jv-pkg/journal-voucher/edit/' . $jv_types->id . '" id = "" ><img src="' . $img1 . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img1_active . '" onmouseout=this.src="' . $img1 . '"></a>
 					<a href="javascript:;" data-toggle="modal" data-target="#journal-voucher-delete-modal" onclick="angular.element(this).scope().deleteJournalVoucher(' . $journal_vouchers->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>
 					';
 				return $output;
@@ -69,27 +56,36 @@ class JVTypeController extends Controller {
 			->make(true);
 	}
 
-	public function getJournalVoucherFormData(Request $r) {
-		$id = $r->id;
+	public function getJVTypeFormData(Request $request) {
+		$id = $request->id;
 		if (!$id) {
-			$journal_voucher = new JournalVoucher;
-			$attachment = new Attachment;
+			$jv_type = new JVType;
+			$jv_field = [
+				['is_open' => 'No', 'is_editable' => 'No'],
+				['is_open' => 'No', 'is_editable' => 'No'],
+				['is_open' => 'No', 'is_editable' => 'No'],
+			];
 			$action = 'Add';
 		} else {
-			$journal_voucher = JournalVoucher::withTrashed()->find($id);
-			$attachment = Attachment::where('id', $journal_voucher->logo_id)->first();
+			$jv_type = JVType::withTrashed()->find($id);
 			$action = 'Edit';
 		}
-		$this->data['journal_voucher'] = $journal_voucher;
-		$this->data['attachment'] = $attachment;
+		$this->data['jv_type'] = $jv_type;
 		$this->data['action'] = $action;
 		$this->data['theme'];
+		$this->data['extras'] = [
+			'approval_type_status_list' => ApprovalTypeStatus::select('id', 'status')->get(),
+			'approval_type_list' => ApprovalType::select('id', 'name')->get(),
+			'journal_list' => Journal::select('id', 'name')->get(),
+			'jv_account_type_list' => Config::select('id', 'name')->where('config_type_id', 27)->get(),
+		];
 
+		$this->data['jv_field'] = $jv_field;
 		return response()->json($this->data);
 	}
 
-	public function saveJournalVoucher(Request $request) {
-		//dd($request->all());
+	public function saveJvType(Request $request) {
+		dd($request->all());
 		try {
 			$error_messages = [
 				'name.required' => 'Name is Required',
@@ -112,12 +108,12 @@ class JVTypeController extends Controller {
 
 			DB::beginTransaction();
 			if (!$request->id) {
-				$journal_voucher = new JournalVoucher;
+				$journal_voucher = new JVType;
 				$journal_voucher->created_by_id = Auth::user()->id;
 				$journal_voucher->created_at = Carbon::now();
 				$journal_voucher->updated_at = NULL;
 			} else {
-				$journal_voucher = JournalVoucher::withTrashed()->find($request->id);
+				$journal_voucher = JVType::withTrashed()->find($request->id);
 				$journal_voucher->updated_by_id = Auth::user()->id;
 				$journal_voucher->updated_at = Carbon::now();
 			}
