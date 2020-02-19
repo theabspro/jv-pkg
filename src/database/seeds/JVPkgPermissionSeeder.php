@@ -60,6 +60,12 @@ class JVPkgPermissionSeeder extends Seeder {
 			[
 				'display_order' => 3,
 				'parent' => 'journal-voucher-types',
+				'name' => 'view-journal-voucher-type',
+				'display_name' => 'View',
+			],
+			[
+				'display_order' => 4,
+				'parent' => 'journal-voucher-types',
 				'name' => 'delete-journal-voucher-type',
 				'display_name' => 'Delete',
 			],

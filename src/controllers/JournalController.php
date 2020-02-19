@@ -91,6 +91,8 @@ class JournalController extends Controller {
 			$validator = Validator::make($request->all(), [
 				'name' => [
 					'required:true',
+					'min:3',
+					'max:64',
 					'unique:journals,name,' . $request->id . ',id,company_id,' . Auth::user()->company_id,
 				],
 				'description' => 'nullable|max:255',

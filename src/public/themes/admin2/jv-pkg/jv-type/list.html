@@ -6,7 +6,7 @@
                     <h1 class="title type-2">JV Types</h1>
                 </div><!-- Page Header Content -->
                 <div class="page-header-content button-block">
-                    <button class="btn btn-bordered" data-toggle="modal" data-target="#journal_voucher-filter-modal"><i class="icon ion-md-funnel"></i>Filter</button>
+                    <button class="btn btn-bordered" data-toggle="modal" data-target="#jv-type-filter-modal"><i class="icon ion-md-funnel"></i>Filter</button>
                 </div><!-- Page Header Content -->
             </div><!-- Page Header Content Left -->
             <div class="page-header-content-right">
@@ -52,7 +52,7 @@
     </div><!-- Page Main Content -->
 </div><!-- Content Wrap -->
 <!-- Filter Modal -->
-<div class="modal fade filter" id="journal_voucher-filter-modal" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade filter" id="jv-type-filter-modal" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -64,30 +64,74 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>JournalVoucher Code</label>
-                                <input type="text" class="form-control" id="journal_voucher_code" name="journal_voucher_code" placeholder="Enter JournalVoucher Code" autocomplete="off">
+                                <label>JV Type Name</label>
+                                <input type="text" class="form-control" id="name" name="name" placeholder="Enter JV Type Name" autocomplete="off">
                             </div><!-- Field -->
                         </div><!-- Column -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>JournalVoucher Name</label>
-                                <input type="text" class="form-control" id="journal_voucher_name" name="journal_voucher_name" placeholder="Enter JournalVoucher Name" autocomplete="off">
+                                <label>Short Name</label>
+                                <input type="text" class="form-control" id="short_name" name="short_name" placeholder="Enter Short Name" autocomplete="off">
                             </div><!-- Field -->
                         </div><!-- Column -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Mobile Number</label>
-                                <input type="text" class="form-control" id="mobile_no" name="mobile_no" placeholder="Enter Mobile Number" autocomplete="off">
+                                <label>Journal</label>
+                                <md-select ng-model="$ctrl.journal" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Journal" ng-change="onSelectedJournal($ctrl.journal)">
+                                    <md-select-header class="demo-select-header">
+                                        <input ng-model="searchTerm" type="search" placeholder="Search for a Journal" class="demo-header-searchbox md-text">
+                                    </md-select-header>
+                                    <md-optgroup>
+                                        <md-option ng-value="journal.id" ng-repeat="journal in $ctrl.extras.journal_list | filter:searchTerm">{{journal.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" class="form-control type-sm" name="journal_name" id="journal_name" value="">
                             </div><!-- Field -->
                         </div><!-- Column -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Email</label>
-                                <input type="text" class="form-control" id="email" name="email" placeholder="Enter Email" autocomplete="off">
+                                <label>From Account</label>
+                                <md-select ng-model="$ctrl.from_account" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select From Account" ng-change="onSelectedFromAccount($ctrl.from_account)">
+                                    <md-select-header class="demo-select-header">
+                                        <input ng-model="searchTerm1" type="search" placeholder="Search for a From Account" class="demo-header-searchbox md-text">
+                                    </md-select-header>
+                                    <md-optgroup>
+                                        <md-option ng-value="account.id" ng-repeat="account in $ctrl.extras.jv_account_type_list | filter:searchTerm1">{{account.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" class="form-control type-sm" name="from_account" id="from_account" value="">
                             </div><!-- Field -->
                         </div><!-- Column -->
                         <div class="col-md-6">
-                            <button type="button" class="btn btn-rose" ng-click="reset_filter()">Reset Filter</button>
+                            <div class="form-group">
+                                <label>To Account</label>
+                                <md-select ng-model="$ctrl.to_account" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select To Account" ng-change="onSelectedToAccount($ctrl.to_account)">
+                                    <md-select-header class="demo-select-header">
+                                        <input ng-model="searchTerm2" type="search" placeholder="Search for a To Account" class="demo-header-searchbox md-text">
+                                    </md-select-header>
+                                    <md-optgroup>
+                                        <md-option ng-value="account.id" ng-repeat="account in $ctrl.extras.jv_account_type_list | filter:searchTerm2">{{account.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" class="form-control type-sm" name="to_account" id="to_account" value="">
+                            </div><!-- Field -->
+                        </div><!-- Column -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <md-select ng-model="$ctrl.status" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Status" ng-change="onSelectedStatus($ctrl.status)">
+                                    <md-select-header class="demo-select-header">
+                                        <input ng-model="searchTerm3" type="search" placeholder="Search for a From Account" class="demo-header-searchbox md-text">
+                                    </md-select-header>
+                                    <md-optgroup>
+                                        <md-option ng-value="status.id" ng-repeat="status in $ctrl.extras.status | filter:searchTerm3">{{status.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" class="form-control type-sm" name="status" id="status" value="">
+                            </div><!-- Field -->
+                        </div><!-- Column -->
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-rose" ng-click="reset_filter();$ctrl.to_account='';$ctrl.from_account='';$ctrl.journal='';$ctrl.status='';">Reset Filter</button>
                         </div>
                     </div><!-- Row -->
                 </div><!-- Modal Form -->
@@ -96,7 +140,7 @@
     </div><!-- Modal Dialog -->
 </div><!-- Modal -->
 <!-- Modal -->
-<div class="modal fade alert-modal failure" id="delete_journal_voucher" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade alert-modal failure" id="delete_jv_type" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -105,7 +149,7 @@
             <div class="modal-body">
                 <h5>Delete</h5>
                 <p>You can’t retrive the data again, Are you sure you want to delete? </p>
-                <input type="hidden" name="journal_voucher_id" id="journal_voucher_id" value="">
+                <input type="hidden" name="jv_type_id" id="jv_type_id" value="">
                 <button class="btn btn-grey" data-dismiss="modal" aria-label="Close">Cancel</button>
                 <button class="btn btn-rose" ng-click="deleteConfirm()" type="button" data-dismiss="modal" aria-label="Close">Yes</button>
             </div>

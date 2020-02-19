@@ -17,5 +17,7 @@ Route::group(['namespace' => 'Abs\JVPkg', 'middleware' => ['web', 'auth'], 'pref
 	Route::get('/jv-types/get-list', 'JVTypeController@getJVTypeList')->name('getJvTypeList');
 	Route::get('/jv-types/get-form-data', 'JVTypeController@getJVTypeFormData')->name('getJVTypeFormData');
 	Route::post('/jv-types/save', 'JVTypeController@saveJvType')->name('saveJvType');
-	// Route::get('/jv-types/delete', 'JVTypeController@deletegetJVType')->name('deletegetJVType');
+	Route::get('/jv-types/delete', 'JVTypeController@deleteJvType')->name('deleteJvType');
+	Route::get('/jv-types/view', 'JVTypeController@getJVTypeView')->name('getJVTypeView');
+	Route::get('/jv-types/get-filter', 'JVTypeController@getJvFilterData')->name('getJvFilterData');
 });

@@ -1,0 +1,148 @@
+Content Wrap -->
+<div class="content-wrap cndn-wrap">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-inner">
+            <div class="page-header-content-left">
+                <div class="page-header-content button-block">
+                    <a href="#!/jv-pkg/jv-type/list" type="button" class="btn-back btn-img">
+                        <img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" />
+                    </a>
+                </div><!-- Page Header Content -->
+                <div class="page-header-content title-block">
+                    <h1 class="title"><b>{{$ctrl.action}} JV Type</b></h1>
+                    <p class="subtitle">
+                        <a href="#!/jv-pkg/jv-type/list">
+                            JV Type List
+                        </a> /
+                        {{$ctrl.action}}
+                    </p>
+                </div><!-- Page Header Content -->
+            </div><!-- Page Header Content Left -->
+        </div><!-- Page Header Inner -->
+    </div><!-- Page Header -->
+    <!-- Page Main Content -->
+    <div class="page-main-content form-content type2">
+        <form id="form" autocomplete="off">
+            <input type="hidden" name="id" value="{{$ctrl.jv_type.id}}">
+            <div class="page-tab-form pb-70">
+                <div class="tab-form-wrap">
+                    <div class="tab-form-header">
+                        <div class="tab-header">
+                            <!-- Filters -->
+                            <div class="isotope-filters animated" data-animation="fadeInLeft" data-animation-delay="300">
+                                <ul class="nav nav-pills cndn-tabs">
+                                    <li class="active">
+                                        <a class="filter active" data-target="#general-information" data-toggle="tab" aria-expanded="true">
+                                            General Information
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a data-target="#field-configuration" data-toggle="tab" aria-expanded="true" class="filter">
+                                            Field Configuration
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div><!-- Filters -->
+                        </div><!-- Tab Header -->
+                    </div><!-- Tab Form Header -->
+                    <div class="tab-form-body">
+                        <div class="tab-content">
+                            <!-- TAB PANEL -->
+                            <div class="tab-pane fade in active" id="general-information" data-animation="fadeInUp" data-animation-delay="300">
+                                <div class="tab-pane-wrap">
+                                    <div class="row">
+                                        <ul>
+                                            <li>
+                                                <span> JV Type Name</span>
+                                                <span class="info">{{$ctrl.jv_type.name}}</span>
+                                            </li>
+                                            <li>
+                                                <span> Short Name</span>
+                                                <span class="info">{{$ctrl.jv_type.short_name}}</span>
+                                            </li>
+                                            <li>
+                                                <span>Approval Flow Type</span>
+                                                <span class="info">{{$ctrl.jv_type.approval_type.name}}</span>
+                                            </li>
+                                            <li>
+                                                <span>Initial Status</span>
+                                                <span class="info">{{$ctrl.jv_type.approval_type_initial_status.status}}</span>
+                                            </li>
+                                            <li>
+                                                <span>Final Approved Status</span>
+                                                <span class="info">{{$ctrl.jv_type.approval_type_final_status.status}}</span>
+                                            </li>
+                                            <li>
+                                                <span>Active Status</span>
+                                                <span class="info">{{$ctrl.jv_type.deleted_at ? 'Inactive': 'Active'}}</span>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-pane-footer">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <a class="btn btn-secondary btn-nxt">
+                                                        Next
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div><!-- Tab Footer -->
+                                    </div><!-- Row -->
+                                </div><!-- Tab Pane Wrap -->
+                            </div><!-- Tabe Pane -->
+                            <div class="tab-pane fade" id="field-configuration" data-animation="fadeInUp" data-animation-delay="300">
+                                <div class="tab-pane-wrap">
+                                    <div class="row">
+                                        <div class="col-md-10">
+                                            <div class="table-responsive">
+                                                <table class="table table-form">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Title</th>
+                                                            <th>Is Open</th>
+                                                            <th>Editable</th>
+                                                            <th>Value</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr ng-repeat="(key, jv_field) in $ctrl.jv_fields">
+                                                            <td>
+                                                                <label>{{jv_field.title}}</label>
+                                                            </td>
+                                                            <td>
+                                                                {{ jv_field.is_open == 1 ? 'Yes': 'No'}}
+                                                            </td>
+                                                            <td>
+                                                                {{ jv_field.is_editable == 1 ? 'Yes': 'No'}}
+                                                            </td>
+                                                            <td>
+                                                                {{ jv_field.is_editable == 1 ? jv_field.value:'--'}}
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td colspan="4">
+                                                            </td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div><!-- Table Responsive -->
+                                        </div><!-- Column -->
+                                        <div class="tab-pane-footer">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <a class="btn btn-secondary btn-prev">Previous</a>
+                                                </div>
+                                            </div>
+                                        </div><!-- Tab Footer -->
+                                    </div><!-- Row -->
+                                </div><!-- Tab Pane Wrap -->
+                            </div><!-- Tabe Pane -->
+                        </div><!-- Tab Content -->
+                    </div><!-- Tab Form Body -->
+                </div><!-- Tab Form Wrap -->
+            </div><!-- Page Form -->
+        </form>
+    </div><!-- Page Main Content -->
+</div><!-- Content Wrap

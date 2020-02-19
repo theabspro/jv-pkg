@@ -1,6 +1,6 @@
 app.component('jvTypeList', {
     templateUrl: jv_type_list_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location) {
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element, $mdSelect) {
         $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
@@ -41,20 +41,22 @@ app.component('jvTypeList', {
                 type: "GET",
                 dataType: "json",
                 data: function(d) {
-                    d.jv_type_code = $('#jv_type_code').val();
-                    d.jv_type_name = $('#jv_type_name').val();
-                    d.mobile_no = $('#mobile_no').val();
-                    d.email = $('#email').val();
+                    d.name = $('#name').val();
+                    d.short_name = $('#short_name').val();
+                    d.journal_name = $("#journal_name").val();
+                    d.from_account = $("#from_account").val();
+                    d.to_account = $("#to_account").val();
+                    d.status = $("#status").val();
                 },
             },
 
             columns: [
                 { data: 'action', class: 'action', name: 'action', searchable: false },
-                { data: 'code', name: 'jv_types.code' },
                 { data: 'name', name: 'jv_types.name' },
-                { data: 'mobile_no', name: 'jv_types.mobile_no' },
-                { data: 'email', name: 'jv_types.email' },
-                { data: 'email', name: 'jv_types.email' },
+                { data: 'short_name', name: 'jv_types.short_name' },
+                { data: 'journal', name: 'journals.name' },
+                { data: 'from_account', name: 'from_ac.name' },
+                { data: 'to_account', name: 'to_ac.name' },
             ],
             "infoCallback": function(settings, start, end, max, total, pre) {
                 $('#table_info').html(total)
@@ -83,17 +85,14 @@ app.component('jvTypeList', {
         $scope.deleteConfirm = function() {
             $id = $('#jv_type_id').val();
             $http.get(
-                jv_type_delete_data_url + '/' + $id,
+                laravel_routes['deleteJvType'], {
+                    params: {
+                        id: $id,
+                    }
+                }
             ).then(function(response) {
                 if (response.data.success) {
-                    $noty = new Noty({
-                        type: 'success',
-                        layout: 'topRight',
-                        text: 'JV Type Deleted Successfully',
-                    }).show();
-                    setTimeout(function() {
-                        $noty.close();
-                    }, 3000);
+                    custom_noty('success', 'JV Type Deleted Successfully');
                     $('#jv_types_list').DataTable().ajax.reload(function(json) {});
                     $location.path('/jv-pkg/jv-type/list');
                 }
@@ -101,23 +100,56 @@ app.component('jvTypeList', {
         }
 
         //FOR FILTER
-        $('#jv_type_code').on('keyup', function() {
+        $http.get(
+            laravel_routes['getJvFilterData']
+        ).then(function(response) {
+            // console.log(response);
+            self.extras = response.data.extras;
+        });
+        $element.find('input').on('keydown', function(ev) {
+            ev.stopPropagation();
+        });
+        $scope.clearSearchTerm = function() {
+            $scope.searchTerm = '';
+            $scope.searchTerm1 = '';
+            $scope.searchTerm2 = '';
+            $scope.searchTerm3 = '';
+        };
+        /* Modal Md Select Hide */
+        $('.modal').bind('click', function(event) {
+            if ($('.md-select-menu-container').hasClass('md-active')) {
+                $mdSelect.hide();
+            }
+        });
+        $('#name').on('keyup', function() {
             dataTables.fnFilter();
         });
-        $('#jv_type_name').on('keyup', function() {
+        $('#short_name').on('keyup', function() {
             dataTables.fnFilter();
         });
-        $('#mobile_no').on('keyup', function() {
+        $scope.onSelectedJournal = function(id) {
+            $('#journal_name').val(id);
             dataTables.fnFilter();
-        });
-        $('#email').on('keyup', function() {
+        }
+        $scope.onSelectedFromAccount = function(id) {
+            $('#from_account').val(id);
             dataTables.fnFilter();
-        });
+        }
+        $scope.onSelectedToAccount = function(id) {
+            $('#to_account').val(id);
+            dataTables.fnFilter();
+        }
+        $scope.onSelectedStatus = function(id) {
+            $('#status').val(id);
+            dataTables.fnFilter();
+        }
         $scope.reset_filter = function() {
-            $("#jv_type_name").val('');
-            $("#jv_type_code").val('');
-            $("#mobile_no").val('');
-            $("#email").val('');
+            $("#name").val('');
+            $("#short_name").val('');
+            $("#journal_name").val('');
+            $("#from_account").val('');
+            $("#to_account").val('');
+            $("#status").val('');
             dataTables.fnFilter();
         }
 
@@ -128,7 +160,7 @@ app.component('jvTypeList', {
 //------------------------------------------------------------------------------------------------------------------------
 app.component('jvTypeForm', {
     templateUrl: jv_type_form_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.angular_routes = angular_routes;
@@ -143,8 +175,7 @@ app.component('jvTypeForm', {
             self.jv_type = response.data.jv_type;
             self.extras = response.data.extras;
             self.action = response.data.action;
-
-            self.jv_field = response.data.jv_field;
+            self.jv_fields = response.data.jv_field;
             $rootScope.loading = false;
             if (self.action == 'Edit') {
                 if (self.jv_type.deleted_at) {
@@ -152,6 +183,24 @@ app.component('jvTypeForm', {
                 } else {
                     self.switch_value = 'Active';
                 }
+                angular.forEach(self.jv_fields, function(value, key) {
+                    if (value.is_open == 1) {
+                        var is_open = 'Yes';
+                        self.jv_fields[key].is_open = 'Yes';
+                    } else {
+                        var is_open = 'No';
+                        self.jv_fields[key].is_open = 'No';
+                    }
+                    $scope.onChangedIsOpen(is_open, key);
+                    if (value.is_editable == 1) {
+                        var is_editable = 'Yes';
+                        self.jv_fields[key].is_editable = 'Yes';
+                    } else {
+                        var is_editable = 'No';
+                        self.jv_fields[key].is_editable = 'No';
+                    }
+                    $scope.onChangedIsEditable(is_editable, key);
+                });
             } else {
                 self.switch_value = 'Active';
             }
@@ -172,6 +221,15 @@ app.component('jvTypeForm', {
         $scope.btnNxt = function() {}
         $scope.prev = function() {}
 
+        $element.find('input').on('keydown', function(ev) {
+            ev.stopPropagation();
+        });
+        $scope.clearSearchTerm = function() {
+            $scope.searchTerm = '';
+            $scope.searchTerm1 = '';
+            $scope.searchTerm2 = '';
+        };
+
         //ON CHANGED IS OPEN 
         $scope.onChangedIsOpen = function(value, index) {
             if (value == 'Yes') {
@@ -187,14 +245,17 @@ app.component('jvTypeForm', {
             } else {
                 if (index == 0) {
                     self.IsOpenYes0 = false;
+                    self.isEditableYes0 = false;
                     $("#value0").removeClass('required');
                 }
                 if (index == 1) {
                     self.IsOpenYes1 = false;
+                    self.isEditableYes1 = false;
                     $("#value1").removeClass('required');
                 }
                 if (index == 2) {
                     self.IsOpenYes2 = false;
+                    self.isEditableYes2 = false;
                     $("#value2").removeClass('required');
                 }
             }
@@ -294,5 +355,42 @@ app.component('jvTypeForm', {
                     });
             }
         });
+    }
+});
+//------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------
+app.component('jvTypeView', {
+    templateUrl: jv_type_view_template_url,
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
+        var self = this;
+        self.hasPermission = HelperService.hasPermission;
+        self.angular_routes = angular_routes;
+        $http.get(
+            laravel_routes['getJVTypeView'], {
+                params: {
+                    id: $routeParams.id,
+                }
+            }
+        ).then(function(response) {
+            console.log(response);
+            self.jv_type = response.data.jv_type;
+            self.jv_fields = response.data.jv_fields;
+            self.action = response.data.action;
+        });
+
+        /* Tab Funtion */
+        $('.btn-nxt').on("click", function() {
+            $('.cndn-tabs li.active').next().children('a').trigger("click");
+            tabPaneFooter();
+        });
+        $('.btn-prev').on("click", function() {
+            $('.cndn-tabs li.active').prev().children('a').trigger("click");
+            tabPaneFooter();
+        });
+        $('.btn-pills').on("click", function() {
+            tabPaneFooter();
+        });
+        $scope.btnNxt = function() {}
+        $scope.prev = function() {}
     }
 });

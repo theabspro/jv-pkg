@@ -3,16 +3,14 @@
 namespace Abs\JVPkg;
 use Abs\ApprovalPkg\ApprovalType;
 use Abs\ApprovalPkg\ApprovalTypeStatus;
-use Abs\Basic\Attachment;
 use Abs\JVPkg\Journal;
-use Abs\JVPkg\JournalVoucher;
 use Abs\JVPkg\JVType;
 use App\Config;
 use App\Http\Controllers\Controller;
 use Auth;
 use Carbon\Carbon;
 use DB;
-use File;
+use Entrust;
 use Illuminate\Http\Request;
 use Validator;
 use Yajra\Datatables\Datatables;
@@ -23,34 +21,105 @@ class JVTypeController extends Controller {
 		$this->data['theme'] = config('custom.admin_theme');
 	}
 
+	public function getJvFilterData() {
+		$this->data['extras'] = [
+			'status' => [
+				['id' => '', 'name' => 'Select Status'],
+				['id' => '1', 'name' => 'Active'],
+				['id' => '0', 'name' => 'Inactive'],
+			],
+			'journal_list' => Journal::select('id', 'name')->get(),
+			'jv_account_type_list' => Config::select('id', 'name')->where('config_type_id', 27)->get(),
+		];
+
+		return response()->json($this->data);
+	}
+
 	public function getJvTypeList(Request $request) {
 		$jv_types = JVType::withTrashed()
 			->select([
-				'jv_types.*',
+				'jv_types.id',
+				'jv_types.name',
+				'jv_types.short_name',
+				DB::raw('COALESCE(journals.name,"--") as journal'),
+				DB::raw('COALESCE(from_ac.name,"--") as from_account'),
+				DB::raw('COALESCE(to_ac.name,"--") as to_account'),
 				DB::raw('IF(jv_types.deleted_at IS NULL, "Active","Inactive") as status'),
 			])
-			->where('jv_types.company_id', Auth::user()->company_id)
-		/*->where(function ($query) use ($request) {
-				if (!empty($request->question)) {
-					$query->where('jv_types.question', 'LIKE', '%' . $request->question . '%');
+			->leftJoin('jv_type_field as journal', function ($join) {
+				$join->on('journal.jv_type_id', 'jv_types.id')
+					->where('journal.field_id', 1420);
+			})
+			->leftJoin('journals', 'journals.id', 'journal.value')
+			->leftJoin('jv_type_field as from_account', function ($join) {
+				$join->on('from_account.jv_type_id', 'jv_types.id')
+					->where('from_account.field_id', 1421);
+			})
+			->leftJoin('configs as from_ac', 'from_ac.id', 'from_account.value')
+			->leftJoin('jv_type_field as to_account', function ($join) {
+				$join->on('to_account.jv_type_id', 'jv_types.id')
+					->where('to_account.field_id', 1422);
+			})
+			->leftJoin('configs as to_ac', 'to_ac.id', 'to_account.value')
+			->where(function ($query) use ($request) {
+				if (!empty($request->name)) {
+					$query->where('jv_types.name', 'LIKE', '%' . $request->name . '%');
 				}
-			})*/
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->short_name)) {
+					$query->where('jv_types.short_name', 'LIKE', '%' . $request->short_name . '%');
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->journal_name)) {
+					$query->where('journals.id', $request->journal_name);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->from_account)) {
+					$query->where('from_ac.id', $request->from_account);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->to_account)) {
+					$query->where('to_ac.id', $request->to_account);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if ($request->status == '1') {
+					$query->whereNull('jv_types.deleted_at');
+				} else if ($request->status == '0') {
+					$query->whereNotNull('jv_types.deleted_at');
+				}
+			})
+			->where('jv_types.company_id', Auth::user()->company_id)
 			->orderby('jv_types.id', 'desc');
 
 		return Datatables::of($jv_types)
-			->addColumn('name', function ($jv_types) {
-				$status = $jv_types->status == 'Active' ? 'green' : 'red';
-				return '<span class="status-indicator ' . $status . '"></span>' . $jv_types->name;
+			->addColumn('name', function ($jv_type) {
+				$status = $jv_type->status == 'Active' ? 'green' : 'red';
+				return '<span class="status-indicator ' . $status . '"></span>' . $jv_type->name;
 			})
-			->addColumn('action', function ($jv_types) {
-				$img1 = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow.svg');
-				$img1_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow-active.svg');
+			->addColumn('action', function ($jv_type) {
+				$img_edit = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow.svg');
+				$img_edit_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow-active.svg');
+				$img_view = asset('public/themes/' . $this->data['theme'] . '/img/content/table/eye.svg');
+				$img_view_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/eye-active.svg');
 				$img_delete = asset('public/themes/' . $this->data['theme'] . '/img/content/table/delete-default.svg');
 				$img_delete_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/delete-active.svg');
+
 				$output = '';
-				$output .= '<a href="#!/jv-pkg/journal-voucher/edit/' . $jv_types->id . '" id = "" ><img src="' . $img1 . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img1_active . '" onmouseout=this.src="' . $img1 . '"></a>
-					<a href="javascript:;" data-toggle="modal" data-target="#journal-voucher-delete-modal" onclick="angular.element(this).scope().deleteJournalVoucher(' . $journal_vouchers->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>
+				if (Entrust::can('edit-journal-voucher-type')) {
+					$output .= '<a href="#!/jv-pkg/jv-type/edit/' . $jv_type->id . '" id = "" ><img src="' . $img_edit . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img_edit_active . '" onmouseout=this.src="' . $img_edit . '"></a>';
+				}
+				if (Entrust::can('view-journal-voucher-type')) {
+					$output .= '<a href="#!/jv-pkg/jv-type/view/' . $jv_type->id . '" id = "" ><img src="' . $img_view . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img_view_active . '" onmouseout=this.src="' . $img_view . '"></a>';
+				}
+				if (Entrust::can('delete-journal-voucher-type')) {
+					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#delete_jv_type" onclick="angular.element(this).scope().deleteJvType(' . $jv_type->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>
 					';
+				}
 				return $output;
 			})
 			->make(true);
@@ -69,6 +138,9 @@ class JVTypeController extends Controller {
 		} else {
 			$jv_type = JVType::withTrashed()->find($id);
 			$action = 'Edit';
+			$jv_field = DB::table('jv_type_field')
+				->where('jv_type_id', $id)
+				->get();
 		}
 		$this->data['jv_type'] = $jv_type;
 		$this->data['action'] = $action;
@@ -84,23 +156,66 @@ class JVTypeController extends Controller {
 		return response()->json($this->data);
 	}
 
+	public function getJVTypeView(Request $request) {
+		$id = $request->id;
+		$this->data['jv_type'] = $jv_type = JVType::with([
+			'approvalType',
+			'approvalTypeInitialStatus',
+			'approvalTypeFinalStatus',
+		])->find($id);
+		$this->data['action'] = 'View';
+
+		$this->data['jv_fields'] = $jv_fields = DB::table('jv_type_field')->select(
+			'jv_type_field.*',
+			'journals.name as journals',
+			// 'from_account.name as value',
+			'title.name as title',
+			DB::raw('(CASE WHEN jv_type_field.field_id= 1420
+			 THEN journals.name WHEN jv_type_field.field_id= 1421
+			 THEN from_account.name WHEN jv_type_field.field_id= 1422
+			 THEN from_account.name
+			 ELSE "--" END) as value')
+		)
+			->leftJoin('journals', 'journals.id', 'jv_type_field.value')
+			->leftJoin('configs as from_account', 'from_account.id', 'jv_type_field.value')
+			->leftJoin('configs as title', 'title.id', 'jv_type_field.field_id')
+			->where('jv_type_field.jv_type_id', $id)->get();
+
+		return response()->json($this->data);
+	}
+
 	public function saveJvType(Request $request) {
-		dd($request->all());
+		// dd($request->all());
 		try {
 			$error_messages = [
 				'name.required' => 'Name is Required',
 				'name.unique' => 'Name is already taken',
-				'delivery_time.required' => 'Delivery Time is Required',
-				'charge.required' => 'Charge is Required',
+				'name.min' => 'Name is Minimum 3 Charachers',
+				'name.max' => 'Name is Maximum 64 Charachers',
+				'short_name.required' => 'Name is Required',
+				'short_name.unique' => 'Name is already taken',
+				'short_name.min' => 'Name is Minimum 3 Charachers',
+				'short_name.max' => 'Name is Maximum 24 Charachers',
+				'approval_type_id.required' => 'Approval Flow Type is Required',
+				'initial_status_id.required' => 'Initial Status is Required',
+				'final_approved_status_id.required' => 'Final Approved Status is Required',
 			];
 			$validator = Validator::make($request->all(), [
 				'name' => [
 					'required:true',
-					'unique:journal_vouchers,name,' . $request->id . ',id,company_id,' . Auth::user()->company_id,
+					'min:3',
+					'max:64',
+					'unique:jv_types,name,' . $request->id . ',id,company_id,' . Auth::user()->company_id,
 				],
-				'delivery_time' => 'required',
-				'charge' => 'required',
-				'logo_id' => 'mimes:jpeg,jpg,png,gif,ico,bmp,svg|nullable|max:10000',
+				'short_name' => [
+					'required:true',
+					'min:2',
+					'max:24',
+					'unique:jv_types,short_name,' . $request->id . ',id,company_id,' . Auth::user()->company_id,
+				],
+				'approval_type_id' => 'required',
+				'initial_status_id' => 'required',
+				'final_approved_status_id' => 'required',
 			], $error_messages);
 			if ($validator->fails()) {
 				return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
@@ -108,68 +223,75 @@ class JVTypeController extends Controller {
 
 			DB::beginTransaction();
 			if (!$request->id) {
-				$journal_voucher = new JVType;
-				$journal_voucher->created_by_id = Auth::user()->id;
-				$journal_voucher->created_at = Carbon::now();
-				$journal_voucher->updated_at = NULL;
+				$jv_type = new JVType;
+				$jv_type->created_by_id = Auth::user()->id;
+				$jv_type->created_at = Carbon::now();
+				$jv_type->updated_at = NULL;
 			} else {
-				$journal_voucher = JVType::withTrashed()->find($request->id);
-				$journal_voucher->updated_by_id = Auth::user()->id;
-				$journal_voucher->updated_at = Carbon::now();
+				$jv_type = JVType::withTrashed()->find($request->id);
+				$jv_type->updated_by_id = Auth::user()->id;
+				$jv_type->updated_at = Carbon::now();
 			}
-			$journal_voucher->fill($request->all());
-			$journal_voucher->company_id = Auth::user()->company_id;
+			$jv_type->fill($request->all());
+			$jv_type->company_id = Auth::user()->company_id;
 			if ($request->status == 'Inactive') {
-				$journal_voucher->deleted_at = Carbon::now();
-				$journal_voucher->deleted_by_id = Auth::user()->id;
+				$jv_type->deleted_at = Carbon::now();
+				$jv_type->deleted_by_id = Auth::user()->id;
 			} else {
-				$journal_voucher->deleted_by_id = NULL;
-				$journal_voucher->deleted_at = NULL;
+				$jv_type->deleted_by_id = NULL;
+				$jv_type->deleted_at = NULL;
 			}
-			$journal_voucher->save();
+			$jv_type->save();
 
-			if (!empty($request->logo_id)) {
-				if (!File::exists(public_path() . '/themes/' . config('custom.admin_theme') . '/img/journal_voucher_logo')) {
-					File::makeDirectory(public_path() . '/themes/' . config('custom.admin_theme') . '/img/journal_voucher_logo', 0777, true);
-				}
+			if (!empty($request->jv_fields)) {
+				foreach ($request->jv_fields as $jv_field) {
+					if ($jv_field['is_open'] == 'No') {
+						$is_open = 0;
+						$is_editable = 0;
+						$jv_field['value'] = NULL;
+					} else {
+						$is_open = 1;
+						if ($jv_field['is_editable'] == 'No' || empty($jv_field['is_editable'])) {
+							$is_editable = 0;
+							$jv_field['value'] = NULL;
+						} else {
+							$is_editable = 1;
+						}
+					}
 
-				$attacement = $request->logo_id;
-				$remove_previous_attachment = Attachment::where([
-					'entity_id' => $request->id,
-					'attachment_of_id' => 20,
-				])->first();
-				if (!empty($remove_previous_attachment)) {
-					$remove = $remove_previous_attachment->forceDelete();
-					$img_path = public_path() . '/themes/' . config('custom.admin_theme') . '/img/journal_voucher_logo/' . $remove_previous_attachment->name;
-					if (File::exists($img_path)) {
-						File::delete($img_path);
+					if (!$request->id) {
+						$jv_field_types = DB::table('jv_type_field')->insert([
+							'jv_type_id' => $jv_type->id,
+							'field_id' => $jv_field['field_id'],
+							'is_open' => $is_open,
+							'is_editable' => $is_editable,
+							'value' => $jv_field['value'],
+						]);
+					} else {
+						$jv_field_types = DB::table('jv_type_field')
+							->where([
+								'jv_type_id' => $request->id,
+								'field_id' => $jv_field['field_id'],
+							])
+							->update([
+								'is_open' => $is_open,
+								'is_editable' => $is_editable,
+								'value' => $jv_field['value'],
+							]);
 					}
 				}
-				$random_file_name = $journal_voucher->id . '_journal_voucher_file_' . rand(0, 1000) . '.';
-				$extension = $attacement->getClientOriginalExtension();
-				$attacement->move(public_path() . '/themes/' . config('custom.admin_theme') . '/img/journal_voucher_logo', $random_file_name . $extension);
-
-				$attachment = new Attachment;
-				$attachment->company_id = Auth::user()->company_id;
-				$attachment->attachment_of_id = 20; //User
-				$attachment->attachment_type_id = 40; //Primary
-				$attachment->entity_id = $journal_voucher->id;
-				$attachment->name = $random_file_name . $extension;
-				$attachment->save();
-				$journal_voucher->logo_id = $attachment->id;
-				$journal_voucher->save();
 			}
 
 			DB::commit();
 			if (!($request->id)) {
 				return response()->json([
 					'success' => true,
-					'message' => 'Journal Voucher Added Successfully',
+					'message' => 'JV Type Added Successfully',
 				]);
 			} else {
 				return response()->json([
 					'success' => true,
-					'message' => 'Journal Voucher Updated Successfully',
+					'message' => 'JV Type Updated Successfully',
 				]);
 			}
 		} catch (Exceprion $e) {
@@ -181,17 +303,15 @@ class JVTypeController extends Controller {
 		}
 	}
 
-	public function deleteJournalVoucher(Request $request) {
+	public function deleteJvType(Request $request) {
 		DB::beginTransaction();
 		try {
-			$journal_voucher = JournalVoucher::withTrashed()->where('id', $request->id)->first();
-			if (!is_null($journal_voucher->logo_id)) {
-				Attachment::where('company_id', Auth::user()->company_id)->where('attachment_of_id', 20)->where('entity_id', $request->id)->forceDelete();
+			$jv_type = JVType::withTrashed()->where('id', $request->id)->forceDelete();
+			if ($jv_type) {
+				$jv_field_types = DB::table('jv_type_field')->where('jv_type_id', $request->id)->delete();
+				DB::commit();
+				return response()->json(['success' => true, 'message' => 'JV Type Deleted Successfully']);
 			}
-			JournalVoucher::withTrashed()->where('id', $request->id)->forceDelete();
-
-			DB::commit();
-			return response()->json(['success' => true, 'message' => 'Journal Voucher Deleted Successfully']);
 		} catch (Exception $e) {
 			DB::rollBack();
 			return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);

@@ -33,6 +33,10 @@
 	        template: '<jv-type-form></jv-type-form>',
 	        title: 'Edit JV Type',
 	    }).
+	    when('/jv-pkg/jv-type/view/:id', {
+	        template: '<jv-type-view></jv-type-view>',
+	        title: 'View JV Type',
+	    }).
 
 	    when('/jv-pkg/journal-voucher/list', {
 	        template: '<journal-voucher-list></journal-voucher-list>',
@@ -54,6 +58,7 @@
 
     var jv_type_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-type/list.html')}}";
     var jv_type_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-type/form.html')}}";
+    var jv_type_view_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-type/view.html')}}";
 
     var journal_voucher_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/list.html')}}";
     var journal_voucher_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/form.html')}}";

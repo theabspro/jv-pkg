@@ -15,9 +15,22 @@ class JVType extends Model {
 	public $timestamps = true;
 	protected $fillable = [
 		'name',
-		'delivery_time',
-		'charge',
+		'short_name',
+		'initial_status_id',
+		'final_approved_status_id',
+		'approval_type_id',
+		'company_id',
 	];
+
+	public function approvalType() {
+		return $this->belongsTo('Abs\ApprovalPkg\ApprovalType', 'approval_type_id');
+	}
+	public function approvalTypeInitialStatus() {
+		return $this->belongsTo('Abs\ApprovalPkg\ApprovalTypeStatus', 'initial_status_id');
+	}
+	public function approvalTypeFinalStatus() {
+		return $this->belongsTo('Abs\ApprovalPkg\ApprovalTypeStatus', 'final_approved_status_id');
+	}
 
 	public static function createFromObject($record_data) {
 
