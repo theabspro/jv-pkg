@@ -48,9 +48,9 @@ class JournalVouchersC extends Migration {
 				$table->foreign('receipt_id')->references('id')->on('receipts')->onDelete('SET NULL')->onUpdate('cascade');
 				$table->foreign('invoice_id')->references('id')->on('Invoices')->onDelete('SET NULL')->onUpdate('cascade');
 				$table->foreign('from_outlet_id')->references('id')->on('outlets')->onDelete('SET NULL')->onUpdate('cascade');
-				$table->foreign('from_sbu_id')->references('id')->on('sbus')->onDelete('SET NULL')->onUpdate('cascade');
+				// $table->foreign('from_sbu_id')->references('id')->on('sbus')->onDelete('SET NULL')->onUpdate('cascade');
 				$table->foreign('to_outlet_id')->references('id')->on('outlets')->onDelete('SET NULL')->onUpdate('cascade');
-				$table->foreign('to_sbu_id')->references('id')->on('sbus')->onDelete('SET NULL')->onUpdate('cascade');
+				// $table->foreign('to_sbu_id')->references('id')->on('sbus')->onDelete('SET NULL')->onUpdate('cascade');
 
 				$table->foreign('status_id')->references('id')->on('approval_type_statuses')->onDelete('CASCADE')->onUpdate('cascade');
 				$table->foreign('created_by_id')->references('id')->on('users')->onDelete('SET NULL')->onUpdate('cascade');
