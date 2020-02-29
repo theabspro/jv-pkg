@@ -8,6 +8,7 @@
 	app.config(['$routeProvider', function($routeProvider) {
 
 	    $routeProvider.
+	    //JOURNAL
 	    when('/jv-pkg/journal/list', {
 	        template: '<journal-list></journal-list>',
 	        title: 'Journals',
@@ -21,6 +22,7 @@
 	        title: 'Edit Journal',
 	    }).
 
+	    //JV TYPES
 	    when('/jv-pkg/jv-type/list', {
 	        template: '<jv-type-list></jv-type-list>',
 	        title: 'JV Types',
@@ -38,6 +40,7 @@
 	        title: 'View JV Type',
 	    }).
 
+	    //JOURNAL VOUCHER
 	    when('/jv-pkg/journal-voucher/list', {
 	        template: '<journal-voucher-list></journal-voucher-list>',
 	        title: 'Journal Vouchers',
@@ -52,14 +55,16 @@
 	    });
 	}]);
 
-
+	//JOURNALS
     var journal_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal/list.html')}}";
     var journal_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal/form.html')}}";
 
+	//JV TYPES
     var jv_type_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-type/list.html')}}";
     var jv_type_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-type/form.html')}}";
     var jv_type_view_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-type/view.html')}}";
 
+    //JOURNAL VOUCHER
     var journal_voucher_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/list.html')}}";
     var journal_voucher_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/form.html')}}";
 </script>
