@@ -5,14 +5,14 @@
         <div class="page-header-inner">
             <div class="page-header-content-left">
                 <div class="page-header-content button-block">
-                    <a href="#!/jv-pkg/journal_voucher/list" type="button" class="btn-back btn-img">
+                    <a href="#!/jv-pkg/journal-voucher/list" type="button" class="btn-back btn-img">
                         <img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" />
                     </a>
                 </div><!-- Page Header Content -->
                 <div class="page-header-content title-block">
                     <h1 class="title"><b>{{$ctrl.action}} Journal Voucher</b></h1>
                     <p class="subtitle">
-                        <a href="#!/jv-pkg/journal_voucher/list">
+                        <a href="#!/jv-pkg/journal-voucher/list">
                             Journal Voucher List
                         </a> /
                         {{$ctrl.action}}
@@ -34,12 +34,22 @@
                                 <ul class="nav nav-pills cndn-tabs">
                                     <li class="active">
                                         <a class="filter active" data-target="#general-information" data-toggle="tab" aria-expanded="true">
-                                            General Information
+                                            General Info
                                         </a>
                                     </li>
                                     <li>
                                         <a data-target="#address-details" data-toggle="tab" aria-expanded="true" class="filter">
-                                            Address Details
+                                            From Account
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a data-target="#address-details" data-toggle="tab" aria-expanded="true" class="filter">
+                                            To Account
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a data-target="#address-details" data-toggle="tab" aria-expanded="true" class="filter">
+                                            Amount
                                         </a>
                                     </li>
                                 </ul>
@@ -55,73 +65,30 @@
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
                                                 <label>
-                                                    Journal Voucher Code
+                                                    Type
                                                     <sup class="mandatory">*</sup>
                                                 </label>
-                                                <input type="text" class="form-control required" ng-model="$ctrl.journal_voucher.code" name="code" placeholder="Enter JournalVoucher Code" />
+                                                <md-select ng-model="$ctrl.journal_voucher.type_id" ng-change="onSelectedJVType($ctrl.journal_voucher.type_id)" placeholder="Select JV Type" data-md-container-class="selectdemoSelectHeader">
+                                                    <md-select-header class="demo-select-header ng-hide">
+                                                        <input ng-model="searchJournalVoucherGroup" type="search" placeholder="Search JV Type" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                                    </md-select-header>
+                                                    <md-optgroup label="JournalVoucher Group List">
+                                                        <md-option ng-value="jv_type.id" ng-repeat="jv_type in $ctrl.jv_type_list | filter:searchTravel">
+                                                            {{jv_type.short_name}}
+                                                        </md-option>
+                                                    </md-optgroup>
+                                                </md-select>
+                                                <input type="hidden" name="type_id" value='{{$ctrl.journal_voucher.type_id}}' class="required">
                                             </div><!-- Feild -->
-                                        </div><!-- Column -->
+                                        </div>
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
                                                 <label>
-                                                    Journal Voucher Name
+                                                    Journal Name
                                                     <sup class="mandatory">*</sup>
                                                 </label>
-                                                <input type="text" class="form-control required" ng-model="$ctrl.journal_voucher.name" name="name" placeholder="Enter JournalVoucher Name" />
+                                                <p>{{$ctrl.journal_voucher.journals.name}}</p>
                                             </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>
-                                                    GST Number
-                                                    <sup class="mandatory">*</sup>
-                                                </label>
-                                                <input type="text" class="form-control required" ng-model="$ctrl.journal_voucher.gst_number" name="gst_number" placeholder="Enter GST Number" />
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>Mobile Number</label>
-                                                <input type="text" class="form-control" ng-model="$ctrl.journal_voucher.mobile_no" name="mobile_no" placeholder="Enter Mobile Number" />
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>Email</label>
-                                                <input type="text" class="form-control" ng-model="$ctrl.journal_voucher.email" name="email" placeholder="Enter Email" />
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>JournalVoucher Group</label>
-                                                <input type="text" class="form-control" ng-model="$ctrl.journal_voucher.cust_group" name="cust_group" placeholder="Enter JournalVoucher Group" />
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>Dimension</label>
-                                                <input type="text" class="form-control" ng-model="$ctrl.journal_voucher.dimension" name="dimension" placeholder="Enter Dimension" />
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label>AXAPTA Location ID</label>
-                                                <input type="text" class="form-control" name="axapta_location_id" ng-model="$ctrl.journal_voucher.axapta_location_id" placeholder="Enter AXAPTA Location ID">
-                                            </div><!-- Field -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>
-                                                    Active Status
-                                                    <sup class="mandatory">*</sup>
-                                                </label>
-                                                <div class="tab-switch">
-                                                    <md-switch ng-model="$ctrl.switch_value" aria-label="Switch 1" ng-true-value="'Inactive'" ng-false-value="'Active'" class="md-warn">
-                                                        {{ $ctrl.switch_value }}
-                                                    </md-switch>
-                                                    <input type="hidden" name="status" value="{{$ctrl.switch_value}}">
-                                                </div>
-                                            </div><!-- Form Group -->
                                         </div><!-- Column -->
                                         <div class="tab-pane-footer">
                                             <div class="row">

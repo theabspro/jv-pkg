@@ -32,6 +32,10 @@ class JVType extends Model {
 		return $this->belongsTo('Abs\ApprovalPkg\ApprovalTypeStatus', 'final_approved_status_id');
 	}
 
+	public function jvTypeField() {
+		return $this->belongsToMany('App\Config', 'jv_type_id', 'field_id')->withPivot(['is_open', 'is_editable', 'value']);
+	}
+
 	public static function createFromObject($record_data) {
 
 		$errors = [];

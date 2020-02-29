@@ -14,9 +14,22 @@ class JournalVoucher extends Model {
 	protected $table = 'journal_vouchers';
 	public $timestamps = true;
 	protected $fillable = [
-		'name',
-		'delivery_time',
-		'charge',
+		'number',
+		'type_id',
+		'date',
+		'voucher_number',
+		'from_account_type_id',
+		'from_account_id',
+		'to_account_type_id',
+		'to_account_id',
+		'receipt_id',
+		'invoice_id',
+		'from_outlet_id',
+		'from_sbu_id',
+		'to_outlet_id',
+		'to_sbu_id',
+		'amount',
+		'status_id',
 	];
 
 	public static function createFromObject($record_data) {

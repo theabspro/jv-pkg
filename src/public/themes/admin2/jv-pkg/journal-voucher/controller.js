@@ -7,7 +7,7 @@ app.component('journalVoucherList', {
         var table_scroll;
         table_scroll = $('.page-main-content').height() - 37;
         var dataTable = $('#journal_vouchers_list').DataTable({
-            "dom": dom_structure,
+            "dom": cndn_dom_structure,
             "language": {
                 // "search": "",
                 // "searchPlaceholder": "Search",
@@ -36,7 +36,7 @@ app.component('journalVoucherList', {
             scrollY: table_scroll + "px",
             scrollCollapse: true,
             ajax: {
-                url: url(laravel_routes['getJournalVoucherList']),
+                url: laravel_routes['getJournalVoucherList'],
                 type: "GET",
                 dataType: "json",
                 data: function(d) {
@@ -49,10 +49,15 @@ app.component('journalVoucherList', {
 
             columns: [
                 { data: 'action', class: 'action', name: 'action', searchable: false },
-                { data: 'code', name: 'journal_vouchers.code' },
-                { data: 'name', name: 'journal_vouchers.name' },
-                { data: 'mobile_no', name: 'journal_vouchers.mobile_no' },
-                { data: 'email', name: 'journal_vouchers.email' },
+                { data: 'number', name: 'journal_vouchers.number', searchable: true },
+                { data: 'jv_date', searchable: false },
+                { data: 'jv_type', name: 'journal_vouchers.type_id', searchable: false },
+                { data: 'from_account_type', name: 'from_account_types.name', searchable: false },
+                { data: 'from_ac_code', searchable: false },
+                { data: 'to_account_type', name: 'to_account_types.name', searchable: false },
+                { data: 'to_ac_code', searchable: false },
+                { data: 'amount', name: 'journal_vouchers.amount', searchable: false },
+                { data: 'jv_status', name: 'approval_type_statuses.status', searchable: false },
             ],
             "infoCallback": function(settings, start, end, max, total, pre) {
                 $('#table_info').html(total)
@@ -127,15 +132,19 @@ app.component('journalVoucherList', {
 app.component('journalVoucherForm', {
     templateUrl: journal_voucher_form_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
-        get_form_data_url = typeof($routeParams.id) == 'undefined' ? journal_voucher_get_form_data_url : journal_voucher_get_form_data_url + '/' + $routeParams.id;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.angular_routes = angular_routes;
-        $http.get(
-            get_form_data_url
-        ).then(function(response) {
+        $http({
+            url: laravel_routes['getJournalVoucherFormData'],
+            method: "GET",
+            params: {
+                'id': typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
+            }
+        }).then(function(response) {
             // console.log(response);
             self.journal_voucher = response.data.journal_voucher;
+            self.jv_type_list = response.data.jv_type_list;
             self.address = response.data.address;
             self.country_list = response.data.country_list;
             self.action = response.data.action;
@@ -169,6 +178,20 @@ app.component('journalVoucherForm', {
         });
         $scope.btnNxt = function() {}
         $scope.prev = function() {}
+
+        //SELECT JV TYPE GET JOURNAL NAME 
+        $scope.onSelectedJVType = function ($id) {
+            $http.get(
+                laravel_routes['jvTypes'], {
+                    params: {
+                        id: $id,
+                    }
+                }
+            ).then(function(response) {
+                console.log(response.data);
+                // if (response.data.journal) {}
+            });
+        }
 
         //SELECT STATE BASED COUNTRY
         $scope.onSelectedCountry = function(id) {
