@@ -61,6 +61,10 @@ app.component('journalList', {
         });
         $('.dataTables_length select').select2();
 
+        $('.refresh_table').on("click", function() {
+            $('#journals_list').DataTable().ajax.reload();
+        });
+
         $scope.clear_search = function() {
             $('#search_journal').val('');
             $('#journals_list').DataTable().search('').draw();

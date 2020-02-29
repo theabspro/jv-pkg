@@ -72,6 +72,9 @@ app.component('jvTypeList', {
             $('#search_jv_type').val('');
             $('#jv_types_list').DataTable().search('').draw();
         }
+        $('.refresh_table').on("click", function() {
+            $('#jv_types_list').DataTable().ajax.reload();
+        });
 
         var dataTables = $('#jv_types_list').dataTable();
         $("#search_jv_type").keyup(function() {
@@ -184,7 +187,7 @@ app.component('jvTypeForm', {
                     self.switch_value = 'Active';
                 }
                 angular.forEach(self.jv_fields, function(value, key) {
-                    console.log(value, key);
+                    // console.log(value, key);
                     if (value.is_open == 1) {
                         var is_open = 'Yes';
                         self.jv_fields[key].is_open = 'Yes';

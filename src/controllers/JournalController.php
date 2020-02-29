@@ -52,7 +52,7 @@ class JournalController extends Controller {
 				$img_delete_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/delete-active.svg');
 				$output = '';
 				if (Entrust::can('edit-journal')) {
-					$output .= '<a href="#!/jv-pkg/journal/edit/' . $journal->id . '" id = "" ><img src="' . $img1 . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img1_active . '" onmouseout=this.src="' . $img1 . '"></a>';
+					$output .= '<a href="#!/jv-pkg/journal/edit/' . $journal->id . '" id = "" title="Edit"><img src="' . $img1 . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img1_active . '" onmouseout=this.src="' . $img1 . '"></a>';
 				}
 				if (Entrust::can('delete-journal')) {
 					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#journal-delete-modal" onclick="angular.element(this).scope().deleteJournal(' . $journal->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>';

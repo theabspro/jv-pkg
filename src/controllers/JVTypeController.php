@@ -111,11 +111,11 @@ class JVTypeController extends Controller {
 
 				$output = '';
 				if (Entrust::can('edit-journal-voucher-type')) {
-					$output .= '<a href="#!/jv-pkg/jv-type/edit/' . $jv_type->id . '" id = "" ><img src="' . $img_edit . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img_edit_active . '" onmouseout=this.src="' . $img_edit . '"></a>';
+					$output .= '<a href="#!/jv-pkg/jv-type/edit/' . $jv_type->id . '" id = "" title="Edit"><img src="' . $img_edit . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img_edit_active . '" onmouseout=this.src="' . $img_edit . '"></a>';
 				}
-				if (Entrust::can('view-journal-voucher-type')) {
-					$output .= '<a href="#!/jv-pkg/jv-type/view/' . $jv_type->id . '" id = "" ><img src="' . $img_view . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img_view_active . '" onmouseout=this.src="' . $img_view . '"></a>';
-				}
+				// if (Entrust::can('view-journal-voucher-type')) {
+				// 	$output .= '<a href="#!/jv-pkg/jv-type/view/' . $jv_type->id . '" id = "" title="View"><img src="' . $img_view . '" alt="View" class="img-responsive" onmouseover=this.src="' . $img_view_active . '" onmouseout=this.src="' . $img_view . '"></a>';
+				// }
 				if (Entrust::can('delete-journal-voucher-type')) {
 					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#delete_jv_type" onclick="angular.element(this).scope().deleteJvType(' . $jv_type->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>
 					';
