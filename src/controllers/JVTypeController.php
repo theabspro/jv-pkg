@@ -130,9 +130,9 @@ class JVTypeController extends Controller {
 		if (!$id) {
 			$jv_type = new JVType;
 			$jv_field = [
-				['is_open' => 'No', 'is_editable' => 'No'],
-				['is_open' => 'No', 'is_editable' => 'No'],
-				['is_open' => 'No', 'is_editable' => 'No'],
+				['is_open' => 'Yes', 'is_editable' => 'Yes'],
+				['is_open' => 'Yes', 'is_editable' => 'Yes'],
+				['is_open' => 'Yes', 'is_editable' => 'Yes'],
 			];
 			$action = 'Add';
 		} else {
@@ -245,17 +245,18 @@ class JVTypeController extends Controller {
 
 			if (!empty($request->jv_fields)) {
 				foreach ($request->jv_fields as $jv_field) {
-					if ($jv_field['is_open'] == 'No') {
-						$is_open = 0;
-						$is_editable = 0;
+					// dd($jv_field);
+					if ($jv_field['is_open'] == 'Yes') {
+						$is_open = 1;
+						$is_editable = 1;
 						$jv_field['value'] = NULL;
 					} else {
-						$is_open = 1;
-						if ($jv_field['is_editable'] == 'No' || empty($jv_field['is_editable'])) {
-							$is_editable = 0;
+						$is_open = 0;
+						if ($jv_field['is_editable'] == 'Yes' || empty($jv_field['is_editable'])) {
+							$is_editable = 1;
 							$jv_field['value'] = NULL;
 						} else {
-							$is_editable = 1;
+							$is_editable = 0;
 						}
 					}
 

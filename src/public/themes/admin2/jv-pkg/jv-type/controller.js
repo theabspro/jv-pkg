@@ -171,7 +171,7 @@ app.component('jvTypeForm', {
                 }
             }
         ).then(function(response) {
-            console.log(response);
+            // console.log(response);
             self.jv_type = response.data.jv_type;
             self.extras = response.data.extras;
             self.action = response.data.action;
@@ -184,6 +184,7 @@ app.component('jvTypeForm', {
                     self.switch_value = 'Active';
                 }
                 angular.forEach(self.jv_fields, function(value, key) {
+                    console.log(value, key);
                     if (value.is_open == 1) {
                         var is_open = 'Yes';
                         self.jv_fields[key].is_open = 'Yes';
@@ -232,7 +233,7 @@ app.component('jvTypeForm', {
 
         //ON CHANGED IS OPEN 
         $scope.onChangedIsOpen = function(value, index) {
-            if (value == 'Yes') {
+            if (value == 'No') {
                 if (index == 0) {
                     self.IsOpenYes0 = true;
                 }
@@ -263,7 +264,7 @@ app.component('jvTypeForm', {
 
         //ON CHANGED IS EDITABLE
         $scope.onChangedIsEditable = function(value, index) {
-            if (value == 'Yes') {
+            if (value == 'No') {
                 if (index == 0) {
                     self.isEditableYes0 = true;
                     $("#value0").addClass('required');
