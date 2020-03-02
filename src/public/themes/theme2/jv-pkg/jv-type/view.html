@@ -62,16 +62,16 @@
                                                 <span class="grid-col-value">{{$ctrl.jv_type.short_name}}</span>
                                             </li>
                                             <li class="grid-col-3">
-                                                <span class="grid-col-label">Approval Flow Type</span>
-                                                <span class="grid-col-value">{{$ctrl.jv_type.approval_type.name}}</span>
-                                            </li class="grid-col-3">
-                                            <li class="grid-col-3">
                                                 <span class="grid-col-label">Initial Status</span>
-                                                <span class="grid-col-value">{{$ctrl.jv_type.approval_type_initial_status.status}}</span>
+                                                <span class="grid-col-value">{{$ctrl.jv_type.approval_type_initial_status ? $ctrl.jv_type.approval_type_initial_status.status: '--'}}</span>
                                             </li>
                                             <li class="grid-col-3">
                                                 <span class="grid-col-label">Final Approved Status</span>
-                                                <span class="grid-col-value">{{$ctrl.jv_type.approval_type_final_status.status}}</span>
+                                                <span class="grid-col-value">{{$ctrl.jv_type.approval_type_final_status ? $ctrl.jv_type.approval_type_final_status.status: '--'}}</span>
+                                            </li>
+                                            <li class="grid-col-3">
+                                                <span class="grid-col-label">Approval Type</span>
+                                                <span class="grid-col-value">{{$ctrl.jv_type.approval_type.name ? $ctrl.jv_type.approval_type.name: '--'}}</span>
                                             </li>
                                             <li class="grid-col-3">
                                                 <span class="grid-col-label">Active Status</span>
