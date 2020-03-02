@@ -158,7 +158,7 @@ class JVTypeController extends Controller {
 
 	public function getJVTypeView(Request $request) {
 		$id = $request->id;
-		$this->data['jv_type'] = $jv_type = JVType::with([
+		$this->data['jv_type'] = $jv_type = JVType::withTrashed()->with([
 			'approvalType',
 			'approvalTypeInitialStatus',
 			'approvalTypeFinalStatus',
