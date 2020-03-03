@@ -73,7 +73,7 @@
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
                                                 <label>Approval Type <sup class="mandatory">*</sup></label>
-                                                <md-select ng-model="$ctrl.jv_type.approval_type_id" md-on-close="clearSearchTerm()" ng-change=onSelectedApprovalType($ctrl.jv_type.approval_type_id) data-md-container-class="selectdemoSelectHeader" placeholder="Select Approval Type">
+                                                <md-select ng-model="$ctrl.jv_type.approval_type_id" md-on-close="clearSearchTerm()" ng-change="onSelectedApprovalType($ctrl.jv_type.approval_type_id);$ctrl.jv_type.initial_status_id='';$ctrl.jv_type.final_approved_status_id=''" data-md-container-class="selectdemoSelectHeader" placeholder="Select Approval Type">
                                                     <md-select-header class="demo-select-header">
                                                         <input ng-model="searchTerm" type="search" placeholder="Search for a Approval Type" class="demo-header-searchbox md-text">
                                                     </md-select-header>

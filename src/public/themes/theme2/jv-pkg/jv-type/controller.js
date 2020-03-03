@@ -236,7 +236,7 @@ app.component('jvTypeForm', {
         };
 
         $scope.onSelectedApprovalType = function(id) {
-            console.log(id);
+            // console.log(id);
             $http.get(
                 laravel_routes['getApprovalStatus'], {
                     params: {
