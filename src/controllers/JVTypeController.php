@@ -2,7 +2,6 @@
 
 namespace Abs\JVPkg;
 use Abs\ApprovalPkg\ApprovalType;
-use Abs\ApprovalPkg\ApprovalTypeStatus;
 use Abs\JVPkg\Journal;
 use Abs\JVPkg\JVType;
 use App\Config;
@@ -146,7 +145,7 @@ class JVTypeController extends Controller {
 		$this->data['action'] = $action;
 		$this->data['theme'];
 		$this->data['extras'] = [
-			'approval_type_status_list' => ApprovalTypeStatus::select('id', 'status')->get(),
+			// 'approval_type_status_list' => ApprovalTypeStatus::select('id', 'status')->get(),
 			'approval_type_list' => ApprovalType::select('id', 'name')->get(),
 			'journal_list' => Journal::select('id', 'name')->get(),
 			'jv_account_type_list' => Config::select('id', 'name')->where('config_type_id', 27)->get(),

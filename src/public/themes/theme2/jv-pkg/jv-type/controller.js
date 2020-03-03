@@ -205,6 +205,7 @@ app.component('jvTypeForm', {
                     }
                     $scope.onChangedIsEditable(is_editable, key);
                 });
+                $scope.onSelectedApprovalType(self.jv_type.approval_type_id);
             } else {
                 self.switch_value = 'Active';
             }
@@ -233,6 +234,20 @@ app.component('jvTypeForm', {
             $scope.searchTerm1 = '';
             $scope.searchTerm2 = '';
         };
+
+        $scope.onSelectedApprovalType = function(id) {
+            console.log(id);
+            $http.get(
+                laravel_routes['getApprovalStatus'], {
+                    params: {
+                        id: id,
+                    }
+                }
+            ).then(function(response) {
+                // console.log(response);
+                self.approval_type_status_list = response.data.approval_type_status_list;
+            });
+        }
 
         //ON CHANGED IS OPEN 
         $scope.onChangedIsOpen = function(value, index) {
