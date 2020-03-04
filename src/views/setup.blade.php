@@ -52,6 +52,20 @@
 	    when('/jv-pkg/journal-voucher/edit/:id', {
 	        template: '<journal-voucher-form></journal-voucher-form>',
 	        title: 'Edit Journal Voucher',
+	    }).
+
+	     //LEDGER
+	    when('/jv-pkg/ledger/list', {
+	        template: '<ledger-list></ledger-list>',
+	        title: 'Ledgers',
+	    }).
+	    when('/jv-pkg/ledger/add', {
+	        template: '<ledger-form></ledger-form>',
+	        title: 'Add Ledger',
+	    }).
+	    when('/jv-pkg/ledger/edit/:id', {
+	        template: '<ledger-form></ledger-form>',
+	        title: 'Edit Ledger',
 	    });
 	}]);
 
@@ -67,7 +81,12 @@
     //JOURNAL VOUCHER
     var journal_voucher_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/list.html')}}";
     var journal_voucher_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/form.html')}}";
+
+    //LEDGER
+    var ledger_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/ledger/list.html')}}";
+    var ledger_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/ledger/form.html')}}";
 </script>
 <script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal/controller.js')}}"></script>
 <script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-type/controller.js')}}"></script>
 <script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/controller.js')}}"></script>
+<script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/ledger/controller.js')}}"></script>

@@ -96,6 +96,32 @@ class JVPkgPermissionSeeder extends Seeder {
 				'display_name' => 'Delete',
 			],
 
+			//Ledgers
+			[
+				'display_order' => 99,
+				'parent' => null,
+				'name' => 'ledgers',
+				'display_name' => 'Ledgers',
+			],
+			[
+				'display_order' => 1,
+				'parent' => 'ledgers',
+				'name' => 'add-ledger',
+				'display_name' => 'Add',
+			],
+			[
+				'display_order' => 2,
+				'parent' => 'ledgers',
+				'name' => 'edit-ledger',
+				'display_name' => 'Edit',
+			],
+			[
+				'display_order' => 3,
+				'parent' => 'ledgers',
+				'name' => 'delete-ledger',
+				'display_name' => 'Delete',
+			],
+
 		];
 		Permission::createFromArrays($permissions);
 	}

@@ -21,4 +21,10 @@ Route::group(['namespace' => 'Abs\JVPkg', 'middleware' => ['web', 'auth'], 'pref
 	Route::get('/jv-types/delete', 'JVTypeController@deleteJvType')->name('deleteJvType');
 	Route::get('/jv-types/view', 'JVTypeController@getJVTypeView')->name('getJVTypeView');
 	Route::get('/jv-types/get-filter', 'JVTypeController@getJvFilterData')->name('getJvFilterData');
+
+	//LEDGERS
+	Route::get('/ledger/get-list', 'LedgerController@getLedgerList')->name('getLedgerList');
+	Route::get('/ledger/get-form-data', 'LedgerController@getLedgerFormData')->name('getLedgerFormData');
+	Route::post('/ledger/save', 'LedgerController@saveLedger')->name('saveLedger');
+	Route::get('/ledger/delete', 'LedgerController@deleteLedger')->name('deleteLedger');
 });
