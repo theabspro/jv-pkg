@@ -46,7 +46,7 @@ class JournalVouchersC extends Migration {
 				$table->foreign('to_account_type_id')->references('id')->on('configs')->onDelete('SET NULL')->onUpdate('cascade');
 
 				$table->foreign('receipt_id')->references('id')->on('receipts')->onDelete('SET NULL')->onUpdate('cascade');
-				$table->foreign('invoice_id')->references('id')->on('Invoices')->onDelete('SET NULL')->onUpdate('cascade');
+				$table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('SET NULL')->onUpdate('cascade');
 				$table->foreign('from_outlet_id')->references('id')->on('outlets')->onDelete('SET NULL')->onUpdate('cascade');
 				// $table->foreign('from_sbu_id')->references('id')->on('sbus')->onDelete('SET NULL')->onUpdate('cascade');
 				$table->foreign('to_outlet_id')->references('id')->on('outlets')->onDelete('SET NULL')->onUpdate('cascade');
