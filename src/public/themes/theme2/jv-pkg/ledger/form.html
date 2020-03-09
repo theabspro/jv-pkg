@@ -6,12 +6,13 @@
             <div class="page-header-content-left">
                 <div class="page-header-content button-block">
                     <a href="#!/jv-pkg/ledger/list" type="button" class="btn-back btn-img">
-                        <img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" />
+                        <img class="img-responsive my-tooltip" src="./public/theme/img/content/previous.svg" alt="Back" ng-shortcut="'meta+shift+left'" ng-shortcut-click data-title="ctrl+shift+left" />
                     </a>
                 </div><!-- Page Header Content -->
                 <div class="page-header-content title-block">
                     <h1 class="title"><b>{{$ctrl.action}} Ledger</b></h1>
                     <p class="subtitle">
+                        Masters / JV Masters /
                         <a href="#!/jv-pkg/ledger/list">
                             Ledgers
                         </a> /
@@ -90,7 +91,8 @@
                                         <div class="tab-pane-footer">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <button type="submit" id="submit" class="btn btn-primary">
+                                                    <a class="btn btn-cancel" href="#!/jv-pkg/ledger/list" ng-shortcut="'meta+shift+left'" ng-shortcut-click data-title="ctrl+shift+left">Cancel</a>
+                                                    <button type="submit" id="submit" class="btn btn-primary my-tooltip" ng-shortcut="'meta+shift+s'" ng-shortcut-click data-title="ctrl+shift+s">
                                                         Submit
                                                     </button>
                                                 </div>

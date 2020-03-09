@@ -33,7 +33,6 @@ app.component('jvTypeList', {
             serverSide: true,
             paging: true,
             stateSave: true,
-            ordering: false,
             scrollY: table_scroll + "px",
             scrollCollapse: true,
             ajax: {
@@ -210,6 +209,8 @@ app.component('jvTypeForm', {
                 self.switch_value = 'Active';
             }
         });
+
+        $("input:text:visible:first").focus();
 
         /* Tab Funtion */
         $('.btn-nxt').on("click", function() {

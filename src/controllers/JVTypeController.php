@@ -4,6 +4,7 @@ namespace Abs\JVPkg;
 use Abs\ApprovalPkg\ApprovalType;
 use Abs\JVPkg\Journal;
 use Abs\JVPkg\JVType;
+use App\ActivityLog;
 use App\Config;
 use App\Http\Controllers\Controller;
 use Auth;
@@ -282,6 +283,17 @@ class JVTypeController extends Controller {
 				}
 			}
 
+			$activity = new ActivityLog;
+			$activity->date_time = Carbon::now();
+			$activity->user_id = Auth::user()->id;
+			$activity->module = 'JV Types';
+			$activity->entity_id = $jv_type->id;
+			$activity->entity_type_id = 1420;
+			$activity->activity_id = $request->id == NULL ? 280 : 281;
+			$activity->activity = $request->id == NULL ? 280 : 281;
+			$activity->details = json_encode($activity);
+			$activity->save();
+
 			DB::commit();
 			if (!($request->id)) {
 				return response()->json([
@@ -308,6 +320,18 @@ class JVTypeController extends Controller {
 		try {
 			$jv_type = JVType::withTrashed()->where('id', $request->id)->forceDelete();
 			if ($jv_type) {
+
+				$activity = new ActivityLog;
+				$activity->date_time = Carbon::now();
+				$activity->user_id = Auth::user()->id;
+				$activity->module = 'JV Types';
+				$activity->entity_id = $request->id;
+				$activity->entity_type_id = 1420;
+				$activity->activity_id = 282;
+				$activity->activity = 282;
+				$activity->details = json_encode($activity);
+				$activity->save();
+
 				$jv_field_types = DB::table('jv_type_field')->where('jv_type_id', $request->id)->delete();
 				DB::commit();
 				return response()->json(['success' => true, 'message' => 'JV Type Deleted Successfully']);

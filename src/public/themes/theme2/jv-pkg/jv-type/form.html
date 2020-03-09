@@ -6,12 +6,13 @@
             <div class="page-header-content-left">
                 <div class="page-header-content button-block">
                     <a href="#!/jv-pkg/jv-type/list" type="button" class="btn-back btn-img">
-                        <img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" />
+                        <img class="img-responsive my-tooltip" src="./public/theme/img/content/previous.svg" alt="Back" ng-shortcut="'meta+shift+left'" ng-shortcut-click data-title="ctrl+shift+left" />
                     </a>
                 </div><!-- Page Header Content -->
                 <div class="page-header-content title-block">
                     <h1 class="title"><b>{{$ctrl.action}} JV Type</b></h1>
                     <p class="subtitle">
+                        Masters / JV Masters /
                         <a href="#!/jv-pkg/jv-type/list">
                             JV Types
                         </a> /
@@ -33,12 +34,12 @@
                             <div class="isotope-filters animated" data-animation="fadeInLeft" data-animation-delay="300">
                                 <ul class="nav nav-pills cndn-tabs">
                                     <li class="active">
-                                        <a class="filter active" data-target="#general-information" data-toggle="tab" aria-expanded="true">
+                                        <a class="filter active my-tooltip" data-target="#general-information" data-toggle="tab" aria-expanded="true" ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">
                                             General Info
                                         </a>
                                     </li>
                                     <li>
-                                        <a data-target="#field-configuration" data-toggle="tab" aria-expanded="true" class="filter">
+                                        <a data-target="#field-configuration" data-toggle="tab" aria-expanded="true" class="filter my-tooltip" ng-shortcut="'meta+shift+down'" ng-shortcut-click data-title="ctrl+shift+down">
                                             Field Configuration
                                         </a>
                                     </li>
@@ -58,7 +59,7 @@
                                                     JV Type Name
                                                     <sup class="mandatory">*</sup>
                                                 </label>
-                                                <input type="text" class="form-control required" ng-model="$ctrl.jv_type.name" name="name" placeholder="Enter JV Type Name" />
+                                                <input type="text" class="form-control required" ng-model="$ctrl.jv_type.name" name="name" placeholder="Enter JV Type Name" autofocus />
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
                                         <div class="col-md-3">
@@ -132,7 +133,7 @@
                                                     <a class="btn btn-secondary btn-nxt">
                                                         Next
                                                     </a>
-                                                    <button type="submit" class="btn btn-primary submit">
+                                                    <button type="submit" class="btn btn-primary submit my-tooltip" ng-shortcut="'meta+shift+s'" ng-shortcut-click data-title="ctrl+shift+s">
                                                         Submit
                                                     </button>
                                                 </div>
