@@ -94,7 +94,8 @@ class JVTypeController extends Controller {
 				}
 			})
 			->where('jv_types.company_id', Auth::user()->company_id)
-			->orderby('jv_types.id', 'desc');
+		// ->orderby('jv_types.id', 'desc')
+		;
 
 		return Datatables::of($jv_types)
 			->addColumn('name', function ($jv_type) {
@@ -129,10 +130,15 @@ class JVTypeController extends Controller {
 		$id = $request->id;
 		if (!$id) {
 			$jv_type = new JVType;
+			// $jv_field = [
+			// 	['is_open' => 'Yes', 'is_editable' => 'Yes'],
+			// 	['is_open' => 'Yes', 'is_editable' => 'Yes'],
+			// 	['is_open' => 'Yes', 'is_editable' => 'Yes'],
+			// ];
 			$jv_field = [
-				['is_open' => 'Yes', 'is_editable' => 'Yes'],
-				['is_open' => 'Yes', 'is_editable' => 'Yes'],
-				['is_open' => 'Yes', 'is_editable' => 'Yes'],
+				['is_editable' => 'Yes'],
+				['is_editable' => 'Yes'],
+				['is_editable' => 'Yes'],
 			];
 			$action = 'Add';
 		} else {
@@ -242,23 +248,25 @@ class JVTypeController extends Controller {
 				$jv_type->deleted_at = NULL;
 			}
 			$jv_type->save();
-
+			// dd($request->jv_fields);
 			if (!empty($request->jv_fields)) {
 				foreach ($request->jv_fields as $jv_field) {
 					// dd($jv_field);
-					if ($jv_field['is_open'] == 'Yes') {
-						$is_open = 1;
+					// if ($jv_field['is_open'] == 'Yes') {
+					// 	$is_open = 1;
+					// 	$is_editable = 1;
+					// 	$jv_field['value'] = NULL;
+					// } else {
+					// $is_open = 0;
+					if ($jv_field['is_editable'] == 'Yes' || empty($jv_field['is_editable'])) {
 						$is_editable = 1;
+						$is_open = 1;
 						$jv_field['value'] = NULL;
 					} else {
+						$is_editable = 0;
 						$is_open = 0;
-						if ($jv_field['is_editable'] == 'Yes' || empty($jv_field['is_editable'])) {
-							$is_editable = 1;
-							$jv_field['value'] = NULL;
-						} else {
-							$is_editable = 0;
-						}
 					}
+					// }
 
 					if (!$request->id) {
 						$jv_field_types = DB::table('jv_type_field')->insert([
