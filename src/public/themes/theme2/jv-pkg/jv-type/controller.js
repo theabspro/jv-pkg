@@ -33,7 +33,6 @@ app.component('jvTypeList', {
             serverSide: true,
             paging: true,
             stateSave: true,
-            ordering: false,
             scrollY: table_scroll + "px",
             scrollCollapse: true,
             ajax: {
@@ -188,14 +187,14 @@ app.component('jvTypeForm', {
                 }
                 angular.forEach(self.jv_fields, function(value, key) {
                     // console.log(value, key);
-                    if (value.is_open == 1) {
-                        var is_open = 'Yes';
-                        self.jv_fields[key].is_open = 'Yes';
-                    } else {
-                        var is_open = 'No';
-                        self.jv_fields[key].is_open = 'No';
-                    }
-                    $scope.onChangedIsOpen(is_open, key);
+                    // if (value.is_open == 1) {
+                    //     var is_open = 'Yes';
+                    //     self.jv_fields[key].is_open = 'Yes';
+                    // } else {
+                    //     var is_open = 'No';
+                    //     self.jv_fields[key].is_open = 'No';
+                    // }
+                    // $scope.onChangedIsOpen(is_open, key);
                     if (value.is_editable == 1) {
                         var is_editable = 'Yes';
                         self.jv_fields[key].is_editable = 'Yes';
@@ -210,6 +209,8 @@ app.component('jvTypeForm', {
                 self.switch_value = 'Active';
             }
         });
+
+        $("input:text:visible:first").focus();
 
         /* Tab Funtion */
         $('.btn-nxt').on("click", function() {
@@ -250,38 +251,40 @@ app.component('jvTypeForm', {
         }
 
         //ON CHANGED IS OPEN 
-        $scope.onChangedIsOpen = function(value, index) {
-            if (value == 'No') {
-                if (index == 0) {
-                    self.IsOpenYes0 = true;
-                }
-                if (index == 1) {
-                    self.IsOpenYes1 = true;
-                }
-                if (index == 2) {
-                    self.IsOpenYes2 = true;
-                }
-            } else {
-                if (index == 0) {
-                    self.IsOpenYes0 = false;
-                    self.isEditableYes0 = false;
-                    $("#value0").removeClass('required');
-                }
-                if (index == 1) {
-                    self.IsOpenYes1 = false;
-                    self.isEditableYes1 = false;
-                    $("#value1").removeClass('required');
-                }
-                if (index == 2) {
-                    self.IsOpenYes2 = false;
-                    self.isEditableYes2 = false;
-                    $("#value2").removeClass('required');
-                }
-            }
-        }
+        // $scope.onChangedIsOpen = function(value, index) {
+        //     console.log(value, index);
+        //     if (value == 'No') {
+        //         if (index == 0) {
+        //             self.IsOpenYes0 = true;
+        //         }
+        //         if (index == 1) {
+        //             self.IsOpenYes1 = true;
+        //         }
+        //         if (index == 2) {
+        //             self.IsOpenYes2 = true;
+        //         }
+        //     } else {
+        //         if (index == 0) {
+        //             self.IsOpenYes0 = false;
+        //             self.isEditableYes0 = false;
+        //             $("#value0").removeClass('required');
+        //         }
+        //         if (index == 1) {
+        //             self.IsOpenYes1 = false;
+        //             self.isEditableYes1 = false;
+        //             $("#value1").removeClass('required');
+        //         }
+        //         if (index == 2) {
+        //             self.IsOpenYes2 = false;
+        //             self.isEditableYes2 = false;
+        //             $("#value2").removeClass('required');
+        //         }
+        //     }
+        // }
 
         //ON CHANGED IS EDITABLE
         $scope.onChangedIsEditable = function(value, index) {
+            // console.log(value, index);
             if (value == 'No') {
                 if (index == 0) {
                     self.isEditableYes0 = true;

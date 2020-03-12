@@ -4,6 +4,7 @@ namespace Abs\JVPkg;
 use Abs\ApprovalPkg\ApprovalType;
 use Abs\JVPkg\Journal;
 use Abs\JVPkg\JVType;
+use App\ActivityLog;
 use App\Config;
 use App\Http\Controllers\Controller;
 use Auth;
@@ -93,7 +94,8 @@ class JVTypeController extends Controller {
 				}
 			})
 			->where('jv_types.company_id', Auth::user()->company_id)
-			->orderby('jv_types.id', 'desc');
+		// ->orderby('jv_types.id', 'desc')
+		;
 
 		return Datatables::of($jv_types)
 			->addColumn('name', function ($jv_type) {
@@ -128,10 +130,15 @@ class JVTypeController extends Controller {
 		$id = $request->id;
 		if (!$id) {
 			$jv_type = new JVType;
+			// $jv_field = [
+			// 	['is_open' => 'Yes', 'is_editable' => 'Yes'],
+			// 	['is_open' => 'Yes', 'is_editable' => 'Yes'],
+			// 	['is_open' => 'Yes', 'is_editable' => 'Yes'],
+			// ];
 			$jv_field = [
-				['is_open' => 'Yes', 'is_editable' => 'Yes'],
-				['is_open' => 'Yes', 'is_editable' => 'Yes'],
-				['is_open' => 'Yes', 'is_editable' => 'Yes'],
+				['is_editable' => 'Yes'],
+				['is_editable' => 'Yes'],
+				['is_editable' => 'Yes'],
 			];
 			$action = 'Add';
 		} else {
@@ -241,23 +248,25 @@ class JVTypeController extends Controller {
 				$jv_type->deleted_at = NULL;
 			}
 			$jv_type->save();
-
+			// dd($request->jv_fields);
 			if (!empty($request->jv_fields)) {
 				foreach ($request->jv_fields as $jv_field) {
 					// dd($jv_field);
-					if ($jv_field['is_open'] == 'Yes') {
-						$is_open = 1;
+					// if ($jv_field['is_open'] == 'Yes') {
+					// 	$is_open = 1;
+					// 	$is_editable = 1;
+					// 	$jv_field['value'] = NULL;
+					// } else {
+					// $is_open = 0;
+					if ($jv_field['is_editable'] == 'Yes' || empty($jv_field['is_editable'])) {
 						$is_editable = 1;
+						$is_open = 1;
 						$jv_field['value'] = NULL;
 					} else {
+						$is_editable = 0;
 						$is_open = 0;
-						if ($jv_field['is_editable'] == 'Yes' || empty($jv_field['is_editable'])) {
-							$is_editable = 1;
-							$jv_field['value'] = NULL;
-						} else {
-							$is_editable = 0;
-						}
 					}
+					// }
 
 					if (!$request->id) {
 						$jv_field_types = DB::table('jv_type_field')->insert([
@@ -281,6 +290,17 @@ class JVTypeController extends Controller {
 					}
 				}
 			}
+
+			$activity = new ActivityLog;
+			$activity->date_time = Carbon::now();
+			$activity->user_id = Auth::user()->id;
+			$activity->module = 'JV Types';
+			$activity->entity_id = $jv_type->id;
+			$activity->entity_type_id = 1420;
+			$activity->activity_id = $request->id == NULL ? 280 : 281;
+			$activity->activity = $request->id == NULL ? 280 : 281;
+			$activity->details = json_encode($activity);
+			$activity->save();
 
 			DB::commit();
 			if (!($request->id)) {
@@ -308,6 +328,18 @@ class JVTypeController extends Controller {
 		try {
 			$jv_type = JVType::withTrashed()->where('id', $request->id)->forceDelete();
 			if ($jv_type) {
+
+				$activity = new ActivityLog;
+				$activity->date_time = Carbon::now();
+				$activity->user_id = Auth::user()->id;
+				$activity->module = 'JV Types';
+				$activity->entity_id = $request->id;
+				$activity->entity_type_id = 1420;
+				$activity->activity_id = 282;
+				$activity->activity = 282;
+				$activity->details = json_encode($activity);
+				$activity->save();
+
 				$jv_field_types = DB::table('jv_type_field')->where('jv_type_id', $request->id)->delete();
 				DB::commit();
 				return response()->json(['success' => true, 'message' => 'JV Type Deleted Successfully']);

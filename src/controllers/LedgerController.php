@@ -2,6 +2,7 @@
 
 namespace Abs\JVPkg;
 use Abs\JVPkg\Ledger;
+use App\ActivityLog;
 use App\Http\Controllers\Controller;
 use Auth;
 use Carbon\Carbon;
@@ -44,7 +45,8 @@ class LedgerController extends Controller {
 					$query->whereNotNull('ledgers.deleted_at');
 				}
 			})
-			->orderby('ledgers.id', 'Desc');
+		// ->orderby('ledgers.id', 'Desc')
+		;
 
 		return Datatables::of($ledgers)
 			->addColumn('name', function ($ledger) {
@@ -139,6 +141,17 @@ class LedgerController extends Controller {
 			}
 			$ledger->save();
 
+			$activity = new ActivityLog;
+			$activity->date_time = Carbon::now();
+			$activity->user_id = Auth::user()->id;
+			$activity->module = 'Ledger';
+			$activity->entity_id = $ledger->id;
+			$activity->entity_type_id = 1442;
+			$activity->activity_id = $request->id == NULL ? 280 : 281;
+			$activity->activity = $request->id == NULL ? 280 : 281;
+			$activity->details = json_encode($activity);
+			$activity->save();
+
 			DB::commit();
 			if (!($request->id)) {
 				return response()->json([
@@ -165,6 +178,18 @@ class LedgerController extends Controller {
 		try {
 			$ledger = Ledger::withTrashed()->where('id', $request->id)->forceDelete();
 			if ($ledger) {
+
+				$activity = new ActivityLog;
+				$activity->date_time = Carbon::now();
+				$activity->user_id = Auth::user()->id;
+				$activity->module = 'Ledger';
+				$activity->entity_id = $request->id;
+				$activity->entity_type_id = 1420;
+				$activity->activity_id = 282;
+				$activity->activity = 282;
+				$activity->details = json_encode($activity);
+				$activity->save();
+
 				DB::commit();
 				return response()->json(['success' => true, 'message' => 'Ledger Deleted Successfully']);
 			}

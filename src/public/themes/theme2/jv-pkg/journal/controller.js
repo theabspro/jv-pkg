@@ -33,7 +33,6 @@ app.component('journalList', {
             serverSide: true,
             paging: true,
             stateSave: true,
-            ordering: false,
             scrollY: table_scroll + "px",
             scrollCollapse: true,
             ajax: {
@@ -160,6 +159,8 @@ app.component('journalForm', {
                 self.switch_value = 'Active';
             }
         });
+
+        $("input:text:visible:first").focus();
 
         var form_id = '#form';
         var v = jQuery(form_id).validate({

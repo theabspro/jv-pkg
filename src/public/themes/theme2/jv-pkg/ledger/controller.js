@@ -33,7 +33,7 @@ app.component('ledgerList', {
             serverSide: true,
             paging: true,
             stateSave: true,
-            ordering: false,
+            // ordering: false,
             scrollY: table_scroll + "px",
             scrollX: true,
             scrollCollapse: true,
@@ -167,6 +167,8 @@ app.component('ledgerForm', {
                 self.switch_value = 'Active';
             }
         });
+
+        $("input:text:visible:first").focus();
 
         var form_id = '#form';
         var v = jQuery(form_id).validate({
