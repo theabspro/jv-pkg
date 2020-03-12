@@ -142,16 +142,13 @@ app.component('journalVoucherForm', {
                 'id': typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
             }
         }).then(function(response) {
-            // console.log(response);
+            console.log(response.data);
             self.journal_voucher = response.data.journal_voucher;
             self.jv_type_list = response.data.jv_type_list;
-            self.address = response.data.address;
-            self.country_list = response.data.country_list;
+            self.journals = response.data.journals;
             self.action = response.data.action;
             $rootScope.loading = false;
             if (self.action == 'Edit') {
-                $scope.onSelectedCountry(self.address.country_id);
-                $scope.onSelectedState(self.address.state_id);
                 if (self.journal_voucher.deleted_at) {
                     self.switch_value = 'Inactive';
                 } else {
@@ -159,8 +156,6 @@ app.component('journalVoucherForm', {
                 }
             } else {
                 self.switch_value = 'Active';
-                self.state_list = [{ 'id': '', 'name': 'Select State' }];
-                self.city_list = [{ 'id': '', 'name': 'Select City' }];
             }
         });
 
@@ -176,8 +171,9 @@ app.component('journalVoucherForm', {
         $('.btn-pills').on("click", function() {
             tabPaneFooter();
         });
-        $scope.btnNxt = function() {}
-        $scope.prev = function() {}
+
+        /* Image Uploadify Funtion */
+        $('.image_uploadify').imageuploadify();
 
         //SELECT JV TYPE GET JOURNAL NAME 
         $scope.onSelectedJVType = function ($id) {
@@ -189,30 +185,60 @@ app.component('journalVoucherForm', {
                 }
             ).then(function(response) {
                 console.log(response.data);
-                // if (response.data.journal) {}
+                self.journal = response.data.journal;
+                self.journals_list = response.data.journals_list;
+                self.jv_type = response.data.jv_type;
+                self.jv_transfer_type = response.data.jv_transfer_type;
+                self.jv_account_type_list = response.data.jv_account_type_list;
             });
         }
 
-        //SELECT STATE BASED COUNTRY
-        $scope.onSelectedCountry = function(id) {
-            journal_voucher_get_state_by_country = vendor_get_state_by_country;
+        //SEARCH CUSTOMER
+        self.searchCustomer = function(query) {
+            if (query) {
+                return new Promise(function(resolve, reject) {
+                    $http
+                        .post(
+                            // search_customer_url, {
+                                laravel_routes['searchCustomer'], {
+                                key: query,
+                            }
+                        )
+                        .then(function(response) {
+                            resolve(response.data);
+                        });
+                    //reject(response);
+                });
+            } else {
+                return [];
+            }
+        }
+        //GET CUSTOMER DETAILS
+        self.getCustomerDetails = function() {
+            if (self.journal_voucher.customer == null) {
+                return
+            }
             $http.post(
-                journal_voucher_get_state_by_country, { 'country_id': id }
-            ).then(function(response) {
-                // console.log(response);
-                self.state_list = response.data.state_list;
+                // get_customer_info_url, {
+                    laravel_routes['getCustomerDetails'], {
+                    customer_id: self.journal_voucher.customer.id,
+                }
+            ).then(function(response) { console.log(response.data);
+                if (response.data.success) {
+                    self.customer = response.data.customer;
+                } else {
+                    custom_noty('error', response.data.error);
+                }
             });
         }
 
-        //SELECT CITY BASED STATE
-        $scope.onSelectedState = function(id) {
-            journal_voucher_get_city_by_state = vendor_get_city_by_state
-            $http.post(
-                journal_voucher_get_city_by_state, { 'state_id': id }
-            ).then(function(response) {
-                // console.log(response);
-                self.city_list = response.data.city_list;
-            });
+        self.customerChanged = function() {
+            self.customer = {};
+            // self.service_invoice.service_invoice_items = [];
+            //SERVICE INVOICE ITEMS TABLE CALC
+            // $timeout(function() {
+            //     $scope.serviceInvoiceItemCalc();
+            // }, 1000);
         }
 
         var form_id = '#form';
