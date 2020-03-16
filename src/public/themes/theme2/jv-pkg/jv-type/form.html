@@ -34,12 +34,12 @@
                             <div class="isotope-filters animated" data-animation="fadeInLeft" data-animation-delay="300">
                                 <ul class="nav nav-pills cndn-tabs">
                                     <li class="active">
-                                        <a class="filter active my-tooltip" data-target="#general-information" data-toggle="tab" aria-expanded="true" ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">
+                                        <a class="filter active" data-target="#general-information" data-toggle="tab" aria-expanded="true">
                                             General Info
                                         </a>
                                     </li>
                                     <li>
-                                        <a data-target="#field-configuration" data-toggle="tab" aria-expanded="true" class="filter my-tooltip" ng-shortcut="'meta+shift+down'" ng-shortcut-click data-title="ctrl+shift+down">
+                                        <a data-target="#field-configuration" data-toggle="tab" aria-expanded="true" class="filter">
                                             Field Configuration
                                         </a>
                                     </li>
@@ -130,7 +130,7 @@
                                         <div class="tab-pane-footer">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <a class="btn btn-secondary btn-nxt">
+                                                    <a class="btn btn-secondary btn-nxt my-tooltip" ng-shortcut="'meta+shift+down'" ng-shortcut-click data-title="ctrl+shift+down">
                                                         Next
                                                     </a>
                                                     <button type="submit" class="btn btn-primary submit my-tooltip" ng-shortcut="'meta+shift+s'" ng-shortcut-click data-title="ctrl+shift+s">
@@ -275,8 +275,8 @@
                                         <div class="tab-pane-footer">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <a class="btn btn-secondary btn-prev">Previous</a>
-                                                    <button type="submit" class="btn btn-primary submit">Submit</button>
+                                                    <a class="btn btn-secondary btn-prev my-tooltip" ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">Previous</a>
+                                                    <button type="submit" class="btn btn-primary submit my-tooltip" ng-shortcut="'meta+shift+s'" ng-shortcut-click data-title="ctrl+shift+s">Submit</button>
                                                 </div>
                                             </div>
                                         </div><!-- Tab Footer -->
