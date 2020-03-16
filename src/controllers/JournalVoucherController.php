@@ -1,6 +1,7 @@
 <?php
 
 namespace Abs\JVPkg;
+use Abs\BasicPkg\Config;
 use Abs\CustomerPkg\Customer;
 use Abs\JVPkg\JournalVoucher;
 use App\Http\Controllers\Controller;
@@ -122,23 +123,65 @@ class JournalVoucherController extends Controller {
 	}
 
 	public function jvTypes(Request $request) {
-		$jv_type = JVType::Join('jv_type_field', 'jv_type_field.jv_type_id', 'jv_types.id')
-			->Join('configs', 'configs.id', 'jv_type_field.field_id')
-			->where('jv_type_field.field_id', 1420) //Journal
-			->where('jv_types.id', $request->id)
-			->select('jv_type_field.is_open', 'jv_type_field.is_editable')
-			->first();
-		if ($jv_type->is_open == 0 && $jv_type->is_editable == 0) {
-			$this->data['journal'] = Journal::Join('jv_type_field', 'jv_type_field.value', 'journals.id')
-				->select('journals.id', 'journals.name')
+		if (!empty($request->id)) {
+			$this->data['jv_type'] = $jv_type = JVType::Join('jv_type_field', 'jv_type_field.jv_type_id', 'jv_types.id')
+				->Join('configs', 'configs.id', 'jv_type_field.field_id')
+				->where('jv_type_field.field_id', 1420) //Journal
+				->where('jv_types.id', $request->id)
+				->select('jv_type_field.is_open', 'jv_type_field.is_editable', 'jv_types.short_name')
 				->first();
-			$this->data['journal_list'] = null;
-			return response()->json($this->data);
+
+			$this->data['jv_transfer_type'] = $jv_transfer_type = JVType::Join('jv_type_field', 'jv_type_field.jv_type_id', 'jv_types.id')
+				->Join('configs', 'configs.id', 'jv_type_field.value')
+				->whereIn('jv_type_field.value', [1440, 1441]) //Customer & Vendor
+				->where('jv_types.id', $request->id)
+				->select('jv_type_field.value', 'configs.name')
+				->get();
+
+			$this->data['jv_account_type'] = $jv_account_type = JVType::Join('jv_type_field', 'jv_type_field.jv_type_id', 'jv_types.id')
+				->Join('configs as c1', 'c1.id', 'jv_type_field.field_id')
+				->Join('configs as c2', 'c2.id', 'jv_type_field.value')
+				->whereIn('jv_type_field.field_id', [1421, 1422]) //From Acc & To Acc
+				->where('jv_types.id', $request->id)
+				->select('jv_type_field.field_id', 'c1.name as field_name', 'jv_type_field.value', 'c2.name as value_name')
+				->get();
+			// dd($jv_account_type);
+			// if ($jv_account_type[0]->value == 1440) {
+			// 	// Customer
+			// 	return $this->searchCustomer($r);
+			// } else if ($jv_account_type[1]->value == 1441) {
+			// 	// Vendor
+			// 	dd('vendor');
+			// }
+			if ($jv_type->is_open == 0 && $jv_type->is_editable == 0) {
+				$this->data['journal'] = Journal::Join('jv_type_field', 'jv_type_field.value', 'journals.id')
+					->select('journals.id', 'journals.name')
+					->first();
+				$this->data['journals_list'] = null;
+				$this->data['jv_account_type_list'] = null;
+			} else {
+				$this->data['journals_list'] = collect(Journal::where('company_id', Auth::user()->company_id)->select('id', 'name')->get())->prepend(['id' => '', 'name' => 'Select Journal Name']);
+				$this->data['journal'] = null;
+				$this->data['jv_account_type_list'] = $jv_account_type_list = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
+			}
 		} else {
-			$this->data['journal_list'] = collect(Journal::where('company_id', Auth::user()->company_id)->select('id', 'name')->get())->prepend(['id' => '', 'name' => 'Select Journal Name']);
 			$this->data['journal'] = null;
-			return response()->json($this->data);
+			$this->data['journals_list'] = null;
+			$this->data['jv_type'] = null;
+			$this->data['jv_transfer_type'] = null;
+			$this->data['jv_account_type_list'] = null;
+			$this->data['jv_account_type'] = null;
 		}
+
+		return response()->json($this->data);
+	}
+
+	public function searchCustomer(Request $r) {
+		return Customer::searchCustomer($r);
+	}
+
+	public function getCustomerDetails(Request $request) {
+		return Customer::getDetails($request);
 	}
 
 	public function saveJournalVoucher(Request $request) {
