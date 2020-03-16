@@ -5,7 +5,7 @@ app.component('journalVoucherList', {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         var table_scroll;
-        table_scroll = $('.page-main-content').height() - 37;
+        table_scroll = $('.page-main-content.list-page-content').height() - 37;
         var dataTable = $('#journal_vouchers_list').DataTable({
             "dom": cndn_dom_structure,
             "language": {
@@ -176,7 +176,7 @@ app.component('journalVoucherForm', {
         $('.image_uploadify').imageuploadify();
 
         //SELECT JV TYPE GET JOURNAL NAME 
-        $scope.onSelectedJVType = function ($id) {
+        $scope.onSelectedJVType = function($id) {
             $http.get(
                 laravel_routes['jvTypes'], {
                     params: {
@@ -200,7 +200,7 @@ app.component('journalVoucherForm', {
                     $http
                         .post(
                             // search_customer_url, {
-                                laravel_routes['searchCustomer'], {
+                            laravel_routes['searchCustomer'], {
                                 key: query,
                             }
                         )
@@ -220,10 +220,11 @@ app.component('journalVoucherForm', {
             }
             $http.post(
                 // get_customer_info_url, {
-                    laravel_routes['getCustomerDetails'], {
+                laravel_routes['getCustomerDetails'], {
                     customer_id: self.journal_voucher.customer.id,
                 }
-            ).then(function(response) { console.log(response.data);
+            ).then(function(response) {
+                console.log(response.data);
                 if (response.data.success) {
                     self.customer = response.data.customer;
                 } else {

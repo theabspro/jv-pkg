@@ -6,7 +6,7 @@ app.component('ledgerList', {
         self.hasPermission = HelperService.hasPermission;
         self.add_permission = self.hasPermission('add-ledger');
         var table_scroll;
-        table_scroll = $('.page-main-content').height() - 37;
+        table_scroll = $('.page-main-content.list-page-content').height() - 37;
         var dataTable = $('#legers_list').DataTable({
             "dom": cndn_dom_structure,
             "language": {
