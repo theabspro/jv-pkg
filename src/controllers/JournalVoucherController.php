@@ -4,6 +4,7 @@ namespace Abs\JVPkg;
 use Abs\BasicPkg\Config;
 use Abs\CustomerPkg\Customer;
 use Abs\JVPkg\JournalVoucher;
+use Abs\JVPkg\Ledger;
 use App\Http\Controllers\Controller;
 use App\Vendor;
 use Auth;
@@ -71,10 +72,9 @@ class JournalVoucherController extends Controller {
 					$from_ac_code = Customer::where('id', $journal_vouchers->from_account_id)->pluck('code')->first();
 				} elseif ($journal_vouchers->from_account_type_id == 1441) {
 					$from_ac_code = Vendor::where('id', $journal_vouchers->from_account_id)->pluck('code')->first();
+				} elseif ($journal_vouchers->from_account_type_id == 1442) {
+					$from_ac_code = Ledger::where('id', $journal_vouchers->from_account_id)->pluck('code')->first();
 				}
-				// elseif ($journal_vouchers->from_account_type_id == 1442) {
-				// 	$from_ac_code = $journal_vouchers->ledger_code;
-				// }
 				return $from_ac_code;
 			})
 			->addColumn('to_ac_code', function ($journal_vouchers) {
@@ -82,10 +82,9 @@ class JournalVoucherController extends Controller {
 					$to_ac_code = Customer::where('id', $journal_vouchers->to_account_id)->pluck('code')->first();
 				} elseif ($journal_vouchers->to_account_type_id == 1441) {
 					$to_ac_code = Vendor::where('id', $journal_vouchers->to_account_id)->pluck('code')->first();
+				} elseif ($journal_vouchers->to_account_type_id == 1442) {
+					$to_ac_code = Ledger::where('id', $journal_vouchers->from_account_id)->pluck('code')->first();
 				}
-				// elseif ($journal_vouchers->to_account_type_id == 1442) {
-				// 	$to_ac_code = $journal_vouchers->ledger_code;
-				// }
 				return $to_ac_code;
 			})
 			->addColumn('action', function ($journal_vouchers) {
@@ -124,63 +123,52 @@ class JournalVoucherController extends Controller {
 
 	public function jvTypes(Request $request) {
 		if (!empty($request->id)) {
-			$this->data['jv_type'] = $jv_type = JVType::Join('jv_type_field', 'jv_type_field.jv_type_id', 'jv_types.id')
-				->Join('configs', 'configs.id', 'jv_type_field.field_id')
-				->where('jv_type_field.field_id', 1420) //Journal
+			$this->data['jv_types'] = $jv_types = JVType::Join('jv_type_field', 'jv_type_field.jv_type_id', 'jv_types.id')
+				->leftJoin('configs as c1', 'c1.id', 'jv_type_field.field_id')
+				->leftJoin('configs as c2', 'c2.id', 'jv_type_field.value')
+				->whereIn('jv_type_field.field_id', [1420, 1421, 1422]) //From Acc & To Acc
 				->where('jv_types.id', $request->id)
-				->select('jv_type_field.is_open', 'jv_type_field.is_editable', 'jv_types.short_name')
-				->first();
-
-			$this->data['jv_transfer_type'] = $jv_transfer_type = JVType::Join('jv_type_field', 'jv_type_field.jv_type_id', 'jv_types.id')
-				->Join('configs', 'configs.id', 'jv_type_field.value')
-				->whereIn('jv_type_field.value', [1440, 1441]) //Customer & Vendor
-				->where('jv_types.id', $request->id)
-				->select('jv_type_field.value', 'configs.name')
+				->select('jv_type_field.field_id', 'c1.name as field_name', 'jv_type_field.value', 'c2.name as value_name', 'jv_type_field.is_open', 'jv_type_field.is_editable', 'jv_types.short_name')
 				->get();
 
-			$this->data['jv_account_type'] = $jv_account_type = JVType::Join('jv_type_field', 'jv_type_field.jv_type_id', 'jv_types.id')
-				->Join('configs as c1', 'c1.id', 'jv_type_field.field_id')
-				->Join('configs as c2', 'c2.id', 'jv_type_field.value')
-				->whereIn('jv_type_field.field_id', [1421, 1422]) //From Acc & To Acc
-				->where('jv_types.id', $request->id)
-				->select('jv_type_field.field_id', 'c1.name as field_name', 'jv_type_field.value', 'c2.name as value_name')
-				->get();
-			// dd($jv_account_type);
-			// if ($jv_account_type[0]->value == 1440) {
-			// 	// Customer
-			// 	return $this->searchCustomer($r);
-			// } else if ($jv_account_type[1]->value == 1441) {
-			// 	// Vendor
-			// 	dd('vendor');
-			// }
-			if ($jv_type->is_open == 0 && $jv_type->is_editable == 0) {
-				$this->data['journal'] = Journal::Join('jv_type_field', 'jv_type_field.value', 'journals.id')
-					->select('journals.id', 'journals.name')
-					->first();
-				$this->data['journals_list'] = null;
-				$this->data['jv_account_type_list'] = null;
-			} else {
-				$this->data['journals_list'] = collect(Journal::where('company_id', Auth::user()->company_id)->select('id', 'name')->get())->prepend(['id' => '', 'name' => 'Select Journal Name']);
-				$this->data['journal'] = null;
-				$this->data['jv_account_type_list'] = $jv_account_type_list = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
+			foreach ($jv_types as $key => $jv_type) {
+				if ($jv_type->is_open == 0 && $jv_type->is_editable == 0) {
+					if ($jv_type->field_id == 1420 && $jv_type->value != NULL) {
+						$this->data['journal'] = Journal::Join('jv_type_field', 'jv_type_field.value', 'journals.id')
+							->select('journals.id', 'journals.name')
+							->first();
+						$this->data['journals_list'] = null;
+					} elseif ($jv_type->field_id == 1421 && $jv_type->value != NULL) {
+						$this->data['jv_account_type_list'] = null;
+					} elseif ($jv_type->field_id == 1422 && $jv_type->value != NULL) {
+						$this->data['jv_account_type_list'] = null;
+					}
+				} elseif ($jv_type->is_open == 1 && $jv_type->is_editable == 1) {
+					if ($jv_type->field_id == 1420 && $jv_type->value == NULL) {
+						$this->data['journals_list'] = collect(Journal::where('company_id', Auth::user()->company_id)->select('id', 'name')->get());
+						$this->data['journal'] = null;
+					} elseif ($jv_type->field_id == 1421 && $jv_type->value == NULL) {
+						$this->data['jv_account_type_list'] = $jv_account_type_list = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
+					} elseif ($jv_type->field_id == 1422 && $jv_type->value == NULL) {
+						$this->data['jv_account_type_list'] = $jv_account_type_list = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
+					}
+				}
 			}
 		} else {
 			$this->data['journal'] = null;
 			$this->data['journals_list'] = null;
-			$this->data['jv_type'] = null;
-			$this->data['jv_transfer_type'] = null;
+			$this->data['jv_types'] = null;
 			$this->data['jv_account_type_list'] = null;
-			$this->data['jv_account_type'] = null;
 		}
 
 		return response()->json($this->data);
 	}
 
-	public function searchCustomer(Request $r) {
+	public function searchJVCustomer(Request $r) {
 		return Customer::searchCustomer($r);
 	}
 
-	public function getCustomerDetails(Request $request) {
+	public function getJVCustomerDetails(Request $request) {
 		return Customer::getDetails($request);
 	}
 

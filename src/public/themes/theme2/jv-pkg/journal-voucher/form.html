@@ -68,7 +68,7 @@
                                                     Type
                                                     <sup class="mandatory">*</sup>
                                                 </label>
-                                                <md-select ng-model="$ctrl.journal_voucher.type_id" ng-change="onSelectedJVType($ctrl.journal_voucher.type_id)" placeholder="Select JV Type" md-on-close="clearSearchJvType()" data-md-container-class="selectdemoSelectHeader">
+                                                <md-select ng-model="$ctrl.journal_voucher.type_id" ng-change="onSelectedJVType($ctrl.journal_voucher.type_id); $ctrl.journal_voucher.journal=''; $ctrl.journal_voucher.from_account_type_id=''; $ctrl.journal_voucher.to_account_type_id=''" placeholder="Select JV Type" md-on-close="clearSearchJvType()" data-md-container-class="selectdemoSelectHeader">
                                                     <md-select-header class="demo-select-header">
                                                         <input ng-model="searchJVType" type="search" placeholder="Search JV Type" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                                                     </md-select-header>
@@ -109,7 +109,7 @@
                                                 <input type="hidden" name="journal_id" value='{{$ctrl.journal_voucher.journal}}' class="required">
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
-                                        <div class="col-md-3" ng-if="$ctrl.journals_list">
+                                        <div class="col-md-3" ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.journal_voucher.type_id != NULL">
                                             <div class="input-text form-group">
                                                 <label>
                                                     From Account
@@ -128,7 +128,7 @@
                                                 <input type="hidden" name="from_account_type_id" value='{{$ctrl.journal_voucher.from_account_type_id}}' class="required">
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
-                                        <div class="col-md-3" ng-if="$ctrl.journals_list">
+                                        <div class="col-md-3" ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">
                                             <div class="input-text form-group">
                                                 <label>
                                                     To Account
@@ -153,6 +153,7 @@
                                                     <a class="btn btn-primary btn-min-wdth btn-nxt">
                                                         Next
                                                     </a>
+                                                    <button type="submit" id="submit" class="btn btn-primary">Submit</button>
                                                 </div>
                                             </div>
                                         </div><!-- Tab Footer -->
@@ -168,7 +169,7 @@
                                             <ul class="grey-list mb-20">
                                                 <li>
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">Journal Type : <b>{{$ctrl.jv_type.short_name}}</b></div>
+                                                        <div class="grey-box-header">Journal Type : <b>{{$ctrl.jv_types[0].short_name}}</b></div>
                                                     </div>
                                                 </li>
                                                 <li>
@@ -179,20 +180,23 @@
                                                 </li>
                                                 <li>
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">Transfer Type : <b ng-if="$ctrl.journal">{{$ctrl.jv_transfer_type[0].name}} to {{$ctrl.jv_transfer_type[1].name}}</b>
-                                                        <b ng-if="$ctrl.journals_list">{{$ctrl.journal_voucher.from_account_type_id.name}} to {{$ctrl.journal_voucher.to_account_type_id.name}}</b></div>
+                                                        <div class="grey-box-header">Transfer Type : <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.jv_types[2].value_name}}</b>
+                                                        <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_account_type_id.name}} to {{$ctrl.journal_voucher.to_account_type_id.name}}</b>
+                                                        <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.journal_voucher.to_account_type_id.name}}</b>
+                                                        <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_account_type_id.name}} to {{$ctrl.jv_types[2].value_name}}</b>
+                                                        </div>
                                                     </div>
                                                 </li>
                                             </ul>
                                             <ul class="flex-row">
                                                 <li class="flex-col-3">
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">From Account : <b>DSC00213</b></div>
-                                                        <div class="grey-box-body">
-                                                            <p class="grey-box-info sm">Praveen Kumar</p>
-                                                            <p class="grey-box-info sm">102, Athipalayam Road, Chinnavedampatti, Coimbatore.</p>
-                                                            <p class="grey-box-info sm">+91 9898798987</p>
-                                                            <p class="grey-box-info sm">themail@mail.com</p>
+                                                        <div class="grey-box-header">From Account : <b ng-show="!isObjectEmpty($ctrl.customer)">{{$ctrl.customer.code}}</b></div>
+                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.customer)">
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.name}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.address}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.mobile_no ? '+91 '+ $ctrl.customer.mobile_no : ''}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.email ? $ctrl.customer.email : ''}}</p>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -203,7 +207,7 @@
                                                 <div class="input-text form-group">
                                                     <label>From A/c Code <sup class="mandatory">*</sup></label>
                                                     <div class="autocomplete-refresh">
-                                                        <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.customerSearchText)" md-selected-item="$ctrl.journal_voucher.customer" md-search-text="$ctrl.customerSearchText" md-search-text-change="ctrl.customerChanged()"  md-selected-item-change="ctrl.getCustomerDetails()" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true">
+                                                        <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.customerSearchText)" md-selected-item="$ctrl.journal_voucher.customer" md-search-text="$ctrl.customerSearchText" md-search-text-change="$ctrl.customerChanged()"  md-selected-item-change="$ctrl.getCustomerDetails()" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true" ng-disabled="">
                                                             <md-item-template>
                                                             <span>
                                                                 {{option.name}} - {{option.code}}
@@ -213,7 +217,7 @@
                                                             No Customers matching "{{ctrl.customerSearchText}}" were found.
                                                             </md-not-found>
                                                         </md-autocomplete>
-                                                        <input type="hidden" name="customer_id" value="{{$ctrl.journal_voucher.customer.id}}" class="required">
+                                                        <input type="hidden" name=" from_account_id" value="{{$ctrl.journal_voucher.customer.id}}" class="required">
                                                     </div>
                                                 </div><!-- Form Group -->
                                             </div><!-- Column -->
@@ -228,16 +232,10 @@
                                                     </div>
                                                 </div><!-- Form Group -->
                                             </div><!-- Column -->
-                                            <div class="col-md-3">
-                                                <div class="input-text form-group">
-                                                    <label>Receipt No <sup class="mandatory">*</sup></label>
-                                                    <input class="form-control" placeholder="Enter Receipt No" autocomplete="off" />
-                                                </div><!-- Form Group -->
-                                            </div><!-- Column -->
                                             <div class="col-md-2">
                                                 <div class="input-text form-group">
-                                                    <label class="opacity-zero">Add Button</label>
-                                                    <button class="btn btn-primary btn-square">Add</button>
+                                                    <label class="opacity-zero">Search Button</label>
+                                                    <button class="btn btn-primary btn-square">Search</button>
                                                 </div><!-- Form Group -->
                                             </div><!-- Column -->
                                             <div class="col-md-12">
@@ -282,6 +280,7 @@
                                             <div class="col-md-12">
                                                 <a class="btn btn-secondary btn-prev">Previous</a>
                                                 <a class="btn btn-primary btn-min-wdth btn-nxt">Next</a>
+                                                <button type="submit" id="submit" class="btn btn-primary">Submit</button>
                                             </div>
                                         </div>
                                     </div><!-- Tab Footer -->
@@ -297,29 +296,33 @@
                                             <ul class="grey-list mb-20">
                                                 <li>
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">Journal Type : <b>SCMCJV</b></div>
+                                                        <div class="grey-box-header">Journal Type : <b>{{$ctrl.jv_types[0].short_name}}</b></div>
                                                     </div>
                                                 </li>
                                                 <li>
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">Journal Name : <b>Round Off</b></div>
+                                                        <div class="grey-box-header">Journal Name : <b ng-if="$ctrl.journal">{{$ctrl.journal.name}}</b>
+                                                        <b ng-if="$ctrl.journals_list">{{$ctrl.journal_voucher.journal.name}}</b></div>
                                                     </div>
                                                 </li>
                                                 <li>
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">Transfer Type : <b>Customer to Customer</b></div>
+                                                        <div class="grey-box-header">Transfer Type : <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.jv_types[2].value_name}}</b>
+                                                        <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_account_type_id.name}} to {{$ctrl.journal_voucher.to_account_type_id.name}}</b>
+                                                        <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.journal_voucher.to_account_type_id.name}}</b>
+                                                        <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_account_type_id.name}} to {{$ctrl.jv_types[2].value_name}}</b></div>
                                                     </div>
                                                 </li>
                                             </ul>
                                             <ul class="flex-row">
                                                 <li class="flex-col-3">
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">From Account : <b>DSC00213</b></div>
-                                                        <div class="grey-box-body">
-                                                            <p class="grey-box-info sm">Praveen Kumar</p>
-                                                            <p class="grey-box-info sm">102, Athipalayam Road, Chinnavedampatti, Coimbatore.</p>
-                                                            <p class="grey-box-info sm">+91 9898798987</p>
-                                                            <p class="grey-box-info sm">themail@mail.com</p>
+                                                        <div class="grey-box-header">From Account : <b ng-show="!isObjectEmpty($ctrl.customer)">{{$ctrl.customer.code}}</b></div>
+                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.customer)">
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.name}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.address}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.mobile_no ? '+91 '+ $ctrl.customer.mobile_no : ''}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.email ? $ctrl.customer.email : ''}}</p>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -333,9 +336,12 @@
                                                 </li>
                                                 <li class="flex-col-3">
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">To Account</div>
-                                                        <div class="grey-box-body">
-                                                            <p class="grey-box-info text-center">Not Yet Added</p>
+                                                        <div class="grey-box-header">To Account : <b ng-show="!isObjectEmpty($ctrl.customer)">{{$ctrl.customer.code}}</b></div>
+                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.customer)">
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.name}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.address}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.mobile_no ? '+91 '+ $ctrl.customer.mobile_no : ''}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.email ? $ctrl.customer.email : ''}}</p>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -347,41 +353,24 @@
                                                 <div class="input-text form-group">
                                                     <label>To A/c Code <sup class="mandatory">*</sup></label>
                                                     <div class="autocomplete-refresh">
-                                                        <md-autocomplete
-                                                            md-selected-item="ctrl.selectedItem"
-                                                            md-search-text-change="ctrl.searchTextChange(ctrl.searchText)"
-                                                            md-search-text="ctrl.searchText"
-                                                            md-selected-item-change="ctrl.selectedItemChange(item)"
-                                                            md-items="item in ctrl.querySearch(ctrl.searchText)"
-                                                            md-item-text="item.display"
-                                                            md-min-length="0"
-                                                            md-escape-options="clear"
-                                                            placeholder="Ex. Alaska"
-                                                            input-aria-labelledby="favoriteStateLabel">
+                                                        <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.customerSearchText)" md-selected-item="$ctrl.journal_voucher.customer" md-search-text="$ctrl.customerSearchText" md-search-text-change="$ctrl.customerChanged()"  md-selected-item-change="$ctrl.getCustomerDetails()" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true" ng-disabled="">
                                                             <md-item-template>
-                                                            <span md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{item.display}}</span>
+                                                            <span>
+                                                                {{option.name}} - {{option.code}}
+                                                            </span>
                                                             </md-item-template>
                                                             <md-not-found>
-                                                            No states matching "{{ctrl.searchText}}" were found.
-                                                            <a ng-click="ctrl.newState(ctrl.searchText)">Create a new one!</a>
+                                                            No Customers matching "{{ctrl.customerSearchText}}" were found.
                                                             </md-not-found>
                                                         </md-autocomplete>
-                                                        <!-- <button class="btn-refresh">
-                                                            <img class="img-responsive" src="./public/theme/img/content/reset.svg" alt="Reset" />
-                                                        </button> -->
+                                                        <input type="hidden" name="to_account_id" value="{{$ctrl.journal_voucher.customer.id}}" class="required">
                                                     </div>
-                                                </div><!-- Form Group -->
-                                            </div><!-- Column -->
-                                            <div class="col-md-3">
-                                                <div class="input-text form-group">
-                                                    <label>Invoice No <sup class="mandatory">*</sup></label>
-                                                    <input class="form-control" placeholder="Enter Invoice No" autocomplete="off" />
                                                 </div><!-- Form Group -->
                                             </div><!-- Column -->
                                             <div class="col-md-2">
                                                 <div class="input-text form-group">
-                                                    <label class="opacity-zero">Add Button</label>
-                                                    <button class="btn btn-primary btn-square">Add</button>
+                                                    <label class="opacity-zero">Search Button</label>
+                                                    <button class="btn btn-primary btn-square">Search</button>
                                                 </div><!-- Form Group -->
                                             </div><!-- Column -->
                                             <div class="col-md-12">
@@ -415,62 +404,6 @@
                                                                 <td>80,000</td>
                                                                 <td>80,000</td>
                                                             </tr>
-                                                            <tr>
-                                                                <td class="action">
-                                                                    <a href="#!" class="">
-                                                                        <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
-                                                                    </a>
-                                                                </td>
-                                                                <td>INV#12345</td>
-                                                                <td>10/01/2020</td>
-                                                                <td>Sale and Advance Payment Received</td>
-                                                                <td>MDU</td>
-                                                                <td>ALSERV</td>
-                                                                <td>80,000</td>
-                                                                <td>80,000</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td class="action">
-                                                                    <a href="#!" class="">
-                                                                        <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
-                                                                    </a>
-                                                                </td>
-                                                                <td>INV#12347</td>
-                                                                <td>10/01/2020</td>
-                                                                <td>Parts sale and service payment</td>
-                                                                <td>MDU</td>
-                                                                <td>ALSERV</td>
-                                                                <td>80,000</td>
-                                                                <td>80,000</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td class="action">
-                                                                    <a href="#!" class="">
-                                                                        <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
-                                                                    </a>
-                                                                </td>
-                                                                <td>INV#12348</td>
-                                                                <td>10/01/2020</td>
-                                                                <td>Parts sale and service payment</td>
-                                                                <td>MDU</td>
-                                                                <td>ALSERV</td>
-                                                                <td>80,000</td>
-                                                                <td>80,000</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td class="action">
-                                                                    <a href="#!" class="">
-                                                                        <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
-                                                                    </a>
-                                                                </td>
-                                                                <td>INV#12349</td>
-                                                                <td>10/01/2020</td>
-                                                                <td>Parts sale and service payment</td>
-                                                                <td>MDU</td>
-                                                                <td>ALSERV</td>
-                                                                <td>80,000</td>
-                                                                <td>80,000</td>
-                                                            </tr>
                                                         </tbody>
                                                     </table>
                                                 </div><!-- Table Responsive -->
@@ -482,6 +415,7 @@
                                             <div class="col-md-12">
                                                 <a class="btn btn-secondary btn-prev">Previous</a>
                                                 <a class="btn btn-primary btn-min-wdth btn-nxt">Next</a>
+                                                <button type="submit" id="submit" class="btn btn-primary">Submit</button>
                                             </div>
                                         </div>
                                     </div><!-- Tab Footer -->
@@ -497,29 +431,33 @@
                                             <ul class="grey-list mb-20">
                                                 <li>
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">Journal Type : <b>SCMCJV</b></div>
+                                                        <div class="grey-box-header">Journal Type : <b>{{$ctrl.jv_types[0].short_name}}</b></div>
                                                     </div>
                                                 </li>
                                                 <li>
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">Journal Name : <b>Round Off</b></div>
+                                                        <div class="grey-box-header">Journal Name : <b ng-if="$ctrl.journal">{{$ctrl.journal.name}}</b>
+                                                        <b ng-if="$ctrl.journals_list">{{$ctrl.journal_voucher.journal.name}}</b></div>
                                                     </div>
                                                 </li>
                                                 <li>
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">Transfer Type : <b>Customer to Customer</b></div>
+                                                        <div class="grey-box-header">Transfer Type : <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.jv_types[2].value_name}}</b>
+                                                        <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_account_type_id.name}} to {{$ctrl.journal_voucher.to_account_type_id.name}}</b>
+                                                        <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.journal_voucher.to_account_type_id.name}}</b>
+                                                        <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_account_type_id.name}} to {{$ctrl.jv_types[2].value_name}}</b></div>
                                                     </div>
                                                 </li>
                                             </ul>
                                             <ul class="flex-row">
                                                 <li class="flex-col-3">
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">From Account : <b>DSC00213</b></div>
-                                                        <div class="grey-box-body">
-                                                            <p class="grey-box-info sm">Praveen Kumar</p>
-                                                            <p class="grey-box-info sm">102, Athipalayam Road, Chinnavedampatti, Coimbatore.</p>
-                                                            <p class="grey-box-info sm">+91 9898798987</p>
-                                                            <p class="grey-box-info sm">themail@mail.com</p>
+                                                        <div class="grey-box-header">From Account : <b ng-show="!isObjectEmpty($ctrl.customer)">{{$ctrl.customer.code}}</b></div>
+                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.customer)">
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.name}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.address}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.mobile_no ? '+91 '+ $ctrl.customer.mobile_no : ''}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.email ? $ctrl.customer.email : ''}}</p>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -536,12 +474,12 @@
                                                 </li>
                                                 <li class="flex-col-3">
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">To Account : <b>DSC00213</b></div>
-                                                        <div class="grey-box-body">
-                                                            <p class="grey-box-info sm">Praveen Kumar</p>
-                                                            <p class="grey-box-info sm">102, Athipalayam Road, Chinnavedampatti, Coimbatore.</p>
-                                                            <p class="grey-box-info sm">+91 9898798987</p>
-                                                            <p class="grey-box-info sm">themail@mail.com</p>
+                                                        <div class="grey-box-header">To Account : <b ng-show="!isObjectEmpty($ctrl.customer)">{{$ctrl.customer.code}}</b></div>
+                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.customer)">
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.name}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.address}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.mobile_no ? '+91 '+ $ctrl.customer.mobile_no : ''}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.customer.email ? $ctrl.customer.email : ''}}</p>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -562,20 +500,20 @@
                                         <div class="row">
                                             <div class="col-md-3">
                                                 <div class="input-text form-group">
-                                                    <label>From A/c Code <sup class="mandatory">*</sup></label>
-                                                    <input class="form-control" placeholder="Enter From A/c Code" autocomplete="off" />
+                                                    <label>Transfer Amount <sup class="mandatory">*</sup></label>
+                                                    <input type="text" class="form-control"  name="amount" placeholder="Enter Amount" autocomplete="off" />
                                                 </div><!-- Form Group -->
                                             </div><!-- Column -->
                                             <div class="col-md-3">
                                                 <div class="input-text form-group">
                                                     <label>Reason <sup class="mandatory">*</sup></label>
-                                                    <input class="form-control" placeholder="Enter Reason" autocomplete="off" />
+                                                    <input type="text" class="form-control"  name="reason" placeholder="Enter Reason" autocomplete="off" />
                                                 </div><!-- Form Group -->
                                             </div><!-- Column -->
                                             <div class="col-md-6">
                                                 <div class="input-text form-group">
                                                     <label>Remarks</label>
-                                                    <input class="form-control" placeholder="Enter Remarks" autocomplete="off" />
+                                                    <input type="text" class="form-control" name="remarks" placeholder="Enter Remarks" autocomplete="off" />
                                                 </div><!-- Form Group -->
                                             </div><!-- Column -->
                                             <div class="col-md-12">

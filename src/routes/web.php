@@ -7,6 +7,8 @@ Route::group(['namespace' => 'Abs\JVPkg', 'middleware' => ['web', 'auth'], 'pref
 	Route::post('/journal-voucher/save', 'JournalVoucherController@saveJournalVoucher')->name('saveJournalVoucher');
 	Route::get('/journal-voucher/delete', 'JournalVoucherController@deleteJournalVoucher')->name('deleteJournalVoucher');
 	Route::get('/journal-voucher/jv-type', 'JournalVoucherController@jvTypes')->name('jvTypes');
+	Route::post('/journal-voucher/customer/search', 'JournalVoucherController@searchJVCustomer')->name('searchJVCustomer');
+	Route::post('/journal-voucher/get-customer-details', 'JournalVoucherController@getJVCustomerDetails')->name('getJVCustomerDetails');
 
 	//JOURNALS
 	Route::get('/journal/get-list', 'JournalController@getJournalList')->name('getJournalList');

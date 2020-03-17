@@ -175,7 +175,7 @@ app.component('journalVoucherForm', {
         /* Image Uploadify Funtion */
         $('.image_uploadify').imageuploadify();
 
-        //SELECT JV TYPE GET JOURNAL NAME 
+        //SELECT JV TYPE GET JOURNAL && FROM ACC && TO ACC 
         $scope.onSelectedJVType = function($id) {
             $http.get(
                 laravel_routes['jvTypes'], {
@@ -187,12 +187,10 @@ app.component('journalVoucherForm', {
                 console.log(response.data);
                 self.journal = response.data.journal;
                 self.journals_list = response.data.journals_list;
-                self.jv_type = response.data.jv_type;
-                self.jv_transfer_type = response.data.jv_transfer_type;
+                self.jv_types = response.data.jv_types;
                 self.jv_account_type_list = response.data.jv_account_type_list;
             });
         }
-
         //SEARCH CUSTOMER
         self.searchCustomer = function(query) {
             if (query) {
@@ -200,7 +198,7 @@ app.component('journalVoucherForm', {
                     $http
                         .post(
                             // search_customer_url, {
-                            laravel_routes['searchCustomer'], {
+                            laravel_routes['searchJVCustomer'], {
                                 key: query,
                             }
                         )
@@ -220,7 +218,7 @@ app.component('journalVoucherForm', {
             }
             $http.post(
                 // get_customer_info_url, {
-                laravel_routes['getCustomerDetails'], {
+                laravel_routes['getJVCustomerDetails'], {
                     customer_id: self.journal_voucher.customer.id,
                 }
             ).then(function(response) {
@@ -241,78 +239,141 @@ app.component('journalVoucherForm', {
             //     $scope.serviceInvoiceItemCalc();
             // }, 1000);
         }
+        // setTimeout(function() {console.log(self.jv_types);
+        //     if (self.jv_types != null) {
+        //         if (self.jv_types[1].value != null && self.jv_types[1].value == 1440) {
+        //             //SEARCH CUSTOMER
+        //             self.searchCustomer = function(query) {
+        //                 if (query) {
+        //                     return new Promise(function(resolve, reject) {
+        //                         $http
+        //                             .post(
+        //                                 // search_customer_url, {
+        //                                 laravel_routes['searchCustomer'], {
+        //                                     key: query,
+        //                                 }
+        //                             )
+        //                             .then(function(response) {
+        //                                 resolve(response.data);
+        //                             });
+        //                         //reject(response);
+        //                     });
+        //                 } else {
+        //                     return [];
+        //                 }
+        //             }
+        //             //GET CUSTOMER DETAILS
+        //             self.getCustomerDetails = function() {
+        //                 if (self.journal_voucher.customer == null) {
+        //                     return
+        //                 }
+        //                 $http.post(
+        //                     // get_customer_info_url, {
+        //                     laravel_routes['getCustomerDetails'], {
+        //                         customer_id: self.journal_voucher.customer.id,
+        //                     }
+        //                 ).then(function(response) {
+        //                     console.log(response.data);
+        //                     if (response.data.success) {
+        //                         self.customer = response.data.customer;
+        //                     } else {
+        //                         custom_noty('error', response.data.error);
+        //                     }
+        //                 });
+        //             }
+
+        //             self.customerChanged = function() {
+        //                 self.customer = {};
+        //                 // self.service_invoice.service_invoice_items = [];
+        //                 //SERVICE INVOICE ITEMS TABLE CALC
+        //                 // $timeout(function() {
+        //                 //     $scope.serviceInvoiceItemCalc();
+        //                 // }, 1000);
+        //             }
+        //         } else if(self.jv_types[1].value != null && self.jv_types[1].value == 1441) {
+
+        //         } else if(self.jv_types[1].value != null && self.jv_types[1].value == 1442) {
+
+        //         } else if(self.jv_types[2].value != null && self.jv_types[2].value == 1440) {
+        //             //SEARCH CUSTOMER
+        //             self.searchCustomer = function(query) {
+        //                 if (query) {
+        //                     return new Promise(function(resolve, reject) {
+        //                         $http
+        //                             .post(
+        //                                 // search_customer_url, {
+        //                                 laravel_routes['searchCustomer'], {
+        //                                     key: query,
+        //                                 }
+        //                             )
+        //                             .then(function(response) {
+        //                                 resolve(response.data);
+        //                             });
+        //                         //reject(response);
+        //                     });
+        //                 } else {
+        //                     return [];
+        //                 }
+        //             }
+        //             //GET CUSTOMER DETAILS
+        //             self.getCustomerDetails = function() {
+        //                 if (self.journal_voucher.customer == null) {
+        //                     return
+        //                 }
+        //                 $http.post(
+        //                     // get_customer_info_url, {
+        //                     laravel_routes['getCustomerDetails'], {
+        //                         customer_id: self.journal_voucher.customer.id,
+        //                     }
+        //                 ).then(function(response) {
+        //                     console.log(response.data);
+        //                     if (response.data.success) {
+        //                         self.customer = response.data.customer;
+        //                     } else {
+        //                         custom_noty('error', response.data.error);
+        //                     }
+        //                 });
+        //             }
+
+        //             self.customerChanged = function() {
+        //                 self.customer = {};
+        //                 // self.service_invoice.service_invoice_items = [];
+        //                 //SERVICE INVOICE ITEMS TABLE CALC
+        //                 // $timeout(function() {
+        //                 //     $scope.serviceInvoiceItemCalc();
+        //                 // }, 1000);
+        //             }
+        //         } else if(self.jv_types[2].value != null && self.jv_types[2].value == 1441) {
+
+        //         } else if(self.jv_types[2].value != null && self.jv_types[2].value == 1442) {
+
+        //         }
+        //     } else{
+        //         $noty = new Noty({
+        //             type: 'error',
+        //             layout: 'topRight',
+        //             text: 'Choose Transfer Type',
+        //         }).show();
+        //     }
+        // }, 1000);
 
         var form_id = '#form';
         var v = jQuery(form_id).validate({
             ignore: '',
             rules: {
-                'code': {
+                'type_id': {
                     required: true,
-                    minlength: 3,
-                    maxlength: 255,
                 },
-                'name': {
+                'from_account_id': {
                     required: true,
-                    minlength: 3,
-                    maxlength: 255,
                 },
-                'cust_group': {
-                    maxlength: 100,
-                },
-                'gst_number': {
+                'to_account_id': {
                     required: true,
-                    maxlength: 100,
                 },
-                'dimension': {
-                    maxlength: 50,
-                },
-                'address': {
+                'amount': {
                     required: true,
-                    minlength: 5,
-                    maxlength: 250,
+                    number: true,
                 },
-                'address_line1': {
-                    minlength: 3,
-                    maxlength: 255,
-                },
-                'address_line2': {
-                    minlength: 3,
-                    maxlength: 255,
-                },
-                // 'pincode': {
-                //     required: true,
-                //     minlength: 6,
-                //     maxlength: 6,
-                // },
-            },
-            messages: {
-                'code': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                'name': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                'cust_group': {
-                    maxlength: 'Maximum of 100 charaters',
-                },
-                'dimension': {
-                    maxlength: 'Maximum of 50 charaters',
-                },
-                'gst_number': {
-                    maxlength: 'Maximum of 25 charaters',
-                },
-                'email': {
-                    maxlength: 'Maximum of 100 charaters',
-                },
-                'address_line1': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                'address_line2': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                // 'pincode': {
-                //     maxlength: 'Maximum of 6 charaters',
-                // },
             },
             invalidHandler: function(event, validator) {
                 $noty = new Noty({
@@ -320,9 +381,6 @@ app.component('journalVoucherForm', {
                     layout: 'topRight',
                     text: 'You have errors,Please check all tabs'
                 }).show();
-                setTimeout(function() {
-                    $noty.close();
-                }, 3000)
             },
             submitHandler: function(form) {
                 let formData = new FormData($(form_id)[0]);
