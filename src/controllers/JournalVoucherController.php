@@ -13,13 +13,15 @@ use DB;
 use Illuminate\Http\Request;
 use Validator;
 use Yajra\Datatables\Datatables;
+use Artisaninweb\SoapWrapper\SoapWrapper;
 
 class JournalVoucherController extends Controller {
 
 	private $company_id;
-	public function __construct() {
+	public function __construct(SoapWrapper $soapWrapper) {
 		$this->data['theme'] = config('custom.admin_theme');
 		$this->company_id = config('custom.company_id');
+		$this->soapWrapper = $soapWrapper;
 	}
 
 	public function getJournalVouchers(Request $request) {
@@ -266,6 +268,54 @@ class JournalVoucherController extends Controller {
 				'success' => false,
 				'error' => $e->getMessage(),
 			]);
+		}
+	}
+
+	public function getCustomerInvoice(Request $request){
+		// dd($request->all());
+	// public function getCustomerInvoice($id,$value){
+		// return JournalVoucher::getCustomerInvoices($id,$value);
+		$this->soapWrapper->add('Invoice', function ($service) {
+				$service
+					->wsdl('http://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
+					->trace(true);
+			});
+		//$request->docType;
+		$params = ['ACCOUNTNUM' => $request->accountNumber];
+			$getResult = $this->soapWrapper->call('Invoice.GetCustomerinvoice', [$params]);
+			$customer_invoice = json_decode($getResult->GetCustomerinvoiceResult, true);
+
+			if (!empty($customer_invoice)) {
+				$data = $customer_invoice['Table'];
+				if (!empty($data)) {
+					// dd($data);
+					return Datatables::of($data)->make(true);
+				}
+			}
+		}
+	}
+
+	public function getCustomerReceipt(Request $request){
+		// dd($request->all());
+	// public function getCustomerInvoice($id,$value){
+		// return JournalVoucher::getCustomerInvoices($id,$value);
+		$this->soapWrapper->add('Receipt', function ($service) {
+				$service
+					->wsdl('http://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
+					->trace(true);
+			});
+		//$request->docType;
+		$params = ['ACCOUNTNUM' => $request->accountNumber];
+			$getResult = $this->soapWrapper->call('Receipt.GetCustomerReceiptResponse', [$params]);
+			$customer_invoice = json_decode($getResult->GetCustomerinvoiceResult, true);
+
+			if (!empty($customer_invoice)) {
+				$data = $customer_invoice['Table'];
+				if (!empty($data)) {
+					// dd($data);
+					return Datatables::of($data)->make(true);
+				}
+			}
 		}
 	}
 
