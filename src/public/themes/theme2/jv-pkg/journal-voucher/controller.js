@@ -234,10 +234,6 @@ app.component('journalVoucherForm', {
         self.customerChanged = function() {
             self.customer = {};
             // self.service_invoice.service_invoice_items = [];
-            //SERVICE INVOICE ITEMS TABLE CALC
-            // $timeout(function() {
-            //     $scope.serviceInvoiceItemCalc();
-            // }, 1000);
         }
         // setTimeout(function() {console.log(self.jv_types);
         //     if (self.jv_types != null) {
