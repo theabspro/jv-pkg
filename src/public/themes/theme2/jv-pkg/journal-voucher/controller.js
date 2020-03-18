@@ -212,28 +212,45 @@ app.component('journalVoucherForm', {
             }
         }
         //GET CUSTOMER DETAILS
-        self.getCustomerDetails = function() {
-            if (self.journal_voucher.customer == null) {
+        $scope.getCustomerDetails = function(value) {
+            // console.log(value);
+            if (value == 'fromAcc' && self.journal_voucher.from_account_id == null) {
                 return
+            } else if(value == 'fromAcc' && self.journal_voucher.from_account_id != null) {
+                $transferType = self.journal_voucher.from_account_id;
             }
+            if(value == 'toAcc' && self.journal_voucher.to_account_id == null) {
+                return
+            } else if(value == 'toAcc' && self.journal_voucher.to_account_id != null) {
+                $transferType = self.journal_voucher.to_account_id;
+            }
+            //console.log($transferType);
             $http.post(
-                // get_customer_info_url, {
                 laravel_routes['getJVCustomerDetails'], {
-                    customer_id: self.journal_voucher.customer.id,
+                    value: value,
+                    customer_id: $transferType,
                 }
             ).then(function(response) {
-                console.log(response.data);
+                //console.log(response.data);
                 if (response.data.success) {
-                    self.customer = response.data.customer;
+                    if (response.data.transfer_type == 'FromAccount') {
+                        self.fromAccountCustomer = response.data.customer;
+                    } else if (response.data.transfer_type == 'ToAccount') {
+                        self.toAccountCustomer = response.data.customer;
+                    }
                 } else {
                     custom_noty('error', response.data.error);
                 }
             });
         }
 
-        self.customerChanged = function() {
-            self.customer = {};
-            // self.service_invoice.service_invoice_items = [];
+        self.customerChanged = function(value) {//console.log(value);
+            if (value == 'fromAcc') {
+                self.fromAccountCustomer = {};
+            } else {
+                self.toAccountCustomer = {};
+            }
+            // self.customer = {};
         }
         // setTimeout(function() {console.log(self.jv_types);
         //     if (self.jv_types != null) {
@@ -352,6 +369,10 @@ app.component('journalVoucherForm', {
         //         }).show();
         //     }
         // }, 1000);
+
+        $('#search_fromAcc').on('click', function() {
+            
+        });
 
         var form_id = '#form';
         var v = jQuery(form_id).validate({
