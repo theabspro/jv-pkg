@@ -191,12 +191,12 @@
                                             <ul class="flex-row">
                                                 <li class="flex-col-3">
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">From Account : <b ng-show="!isObjectEmpty($ctrl.customer)">{{$ctrl.customer.code}}</b></div>
-                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.customer)">
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.name}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.address}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.mobile_no ? '+91 '+ $ctrl.customer.mobile_no : ''}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.email ? $ctrl.customer.email : ''}}</p>
+                                                        <div class="grey-box-header">From Account : <b ng-show="!isObjectEmpty($ctrl.fromAccountCustomer)">{{$ctrl.fromAccountCustomer.code}}</b></div>
+                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.fromAccountCustomer)">
+                                                            <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.name}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.address}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.mobile_no ? '+91 '+ $ctrl.fromAccountCustomer.mobile_no : ''}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.email ? $ctrl.fromAccountCustomer.email : ''}}</p>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -207,17 +207,17 @@
                                                 <div class="input-text form-group">
                                                     <label>From A/c Code <sup class="mandatory">*</sup></label>
                                                     <div class="autocomplete-refresh">
-                                                        <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.customerSearchText)" md-selected-item="$ctrl.journal_voucher.customer" md-search-text="$ctrl.customerSearchText" md-search-text-change="$ctrl.customerChanged()"  md-selected-item-change="$ctrl.getCustomerDetails()" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true" ng-disabled="">
+                                                        <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.fromCustomerSearchText)" md-selected-item="$ctrl.journal_voucher.from_account_id" md-search-text="$ctrl.fromCustomerSearchText" md-search-text-change="$ctrl.customerChanged('fromAcc')"  md-selected-item-change="getCustomerDetails('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true" ng-disabled="">
                                                             <md-item-template>
                                                             <span>
                                                                 {{option.name}} - {{option.code}}
                                                             </span>
                                                             </md-item-template>
                                                             <md-not-found>
-                                                            No Customers matching "{{ctrl.customerSearchText}}" were found.
+                                                            No Customers matching "{{ctrl.fromCustomerSearchText}}" were found.
                                                             </md-not-found>
                                                         </md-autocomplete>
-                                                        <input type="hidden" name=" from_account_id" value="{{$ctrl.journal_voucher.customer.id}}" class="required">
+                                                        <input type="hidden" name=" from_account_id" value="{{$ctrl.journal_voucher.from_account_id}}" class="required">
                                                     </div>
                                                 </div><!-- Form Group -->
                                             </div><!-- Column -->
@@ -235,7 +235,7 @@
                                             <div class="col-md-2">
                                                 <div class="input-text form-group">
                                                     <label class="opacity-zero">Search Button</label>
-                                                    <button class="btn btn-primary btn-square">Search</button>
+                                                    <button type="button" class="btn btn-primary btn-square" id="search_fromAcc">Search</button>
                                                 </div><!-- Form Group -->
                                             </div><!-- Column -->
                                             <div class="col-md-12">
@@ -317,12 +317,12 @@
                                             <ul class="flex-row">
                                                 <li class="flex-col-3">
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">From Account : <b ng-show="!isObjectEmpty($ctrl.customer)">{{$ctrl.customer.code}}</b></div>
-                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.customer)">
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.name}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.address}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.mobile_no ? '+91 '+ $ctrl.customer.mobile_no : ''}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.email ? $ctrl.customer.email : ''}}</p>
+                                                        <div class="grey-box-header">From Account : <b ng-show="!isObjectEmpty($ctrl.fromAccountCustomer)">{{$ctrl.fromAccountCustomer.code}}</b></div>
+                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.fromAccountCustomer)">
+                                                            <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.name}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.address}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.mobile_no ? '+91 '+ $ctrl.fromAccountCustomer.mobile_no : ''}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.email ? $ctrl.fromAccountCustomer.email : ''}}</p>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -336,12 +336,12 @@
                                                 </li>
                                                 <li class="flex-col-3">
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">To Account : <b ng-show="!isObjectEmpty($ctrl.customer)">{{$ctrl.customer.code}}</b></div>
-                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.customer)">
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.name}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.address}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.mobile_no ? '+91 '+ $ctrl.customer.mobile_no : ''}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.email ? $ctrl.customer.email : ''}}</p>
+                                                        <div class="grey-box-header">To Account : <b ng-show="!isObjectEmpty($ctrl.toAccountCustomer)">{{$ctrl.toAccountCustomer.code}}</b></div>
+                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.toAccountCustomer)">
+                                                            <p class="grey-box-info sm">{{$ctrl.toAccountCustomer.name}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.toAccountCustomer.address}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.toAccountCustomer.mobile_no ? '+91 '+ $ctrl.toAccountCustomer.mobile_no : ''}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.toAccountCustomer.email ? $ctrl.toAccountCustomer.email : ''}}</p>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -353,24 +353,24 @@
                                                 <div class="input-text form-group">
                                                     <label>To A/c Code <sup class="mandatory">*</sup></label>
                                                     <div class="autocomplete-refresh">
-                                                        <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.customerSearchText)" md-selected-item="$ctrl.journal_voucher.customer" md-search-text="$ctrl.customerSearchText" md-search-text-change="$ctrl.customerChanged()"  md-selected-item-change="$ctrl.getCustomerDetails()" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true" ng-disabled="">
+                                                        <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.toCustomerSearchText)" md-selected-item="$ctrl.journal_voucher.to_account_id" md-search-text="$ctrl.toCustomerSearchText" md-search-text-change="$ctrl.customerChanged('toAcc')"  md-selected-item-change="getCustomerDetails('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true" ng-disabled="">
                                                             <md-item-template>
                                                             <span>
                                                                 {{option.name}} - {{option.code}}
                                                             </span>
                                                             </md-item-template>
                                                             <md-not-found>
-                                                            No Customers matching "{{ctrl.customerSearchText}}" were found.
+                                                            No Customers matching "{{ctrl.toCustomerSearchText}}" were found.
                                                             </md-not-found>
                                                         </md-autocomplete>
-                                                        <input type="hidden" name="to_account_id" value="{{$ctrl.journal_voucher.customer.id}}" class="required">
+                                                        <input type="hidden" name="to_account_id" value="{{$ctrl.journal_voucher.to_account_id}}" class="required">
                                                     </div>
                                                 </div><!-- Form Group -->
                                             </div><!-- Column -->
                                             <div class="col-md-2">
                                                 <div class="input-text form-group">
                                                     <label class="opacity-zero">Search Button</label>
-                                                    <button class="btn btn-primary btn-square">Search</button>
+                                                    <button type="button" class="btn btn-primary btn-square" id="search_toAcc">Search</button>
                                                 </div><!-- Form Group -->
                                             </div><!-- Column -->
                                             <div class="col-md-12">
@@ -452,12 +452,12 @@
                                             <ul class="flex-row">
                                                 <li class="flex-col-3">
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">From Account : <b ng-show="!isObjectEmpty($ctrl.customer)">{{$ctrl.customer.code}}</b></div>
-                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.customer)">
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.name}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.address}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.mobile_no ? '+91 '+ $ctrl.customer.mobile_no : ''}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.email ? $ctrl.customer.email : ''}}</p>
+                                                        <div class="grey-box-header">From Account : <b ng-show="!isObjectEmpty($ctrl.fromAccountCustomer)">{{$ctrl.fromAccountCustomer.code}}</b></div>
+                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.fromAccountCustomer)">
+                                                            <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.name}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.address}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.mobile_no ? '+91 '+ $ctrl.fromAccountCustomer.mobile_no : ''}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.email ? $ctrl.fromAccountCustomer.email : ''}}</p>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -474,12 +474,12 @@
                                                 </li>
                                                 <li class="flex-col-3">
                                                     <div class="grey-box">
-                                                        <div class="grey-box-header">To Account : <b ng-show="!isObjectEmpty($ctrl.customer)">{{$ctrl.customer.code}}</b></div>
-                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.customer)">
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.name}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.address}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.mobile_no ? '+91 '+ $ctrl.customer.mobile_no : ''}}</p>
-                                                            <p class="grey-box-info sm">{{$ctrl.customer.email ? $ctrl.customer.email : ''}}</p>
+                                                        <div class="grey-box-header">To Account : <b ng-show="!isObjectEmpty($ctrl.toAccountCustomer)">{{$ctrl.toAccountCustomer.code}}</b></div>
+                                                        <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.toAccountCustomer)">
+                                                            <p class="grey-box-info sm">{{$ctrl.toAccountCustomer.name}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.toAccountCustomer.address}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.toAccountCustomer.mobile_no ? '+91 '+ $ctrl.toAccountCustomer.mobile_no : ''}}</p>
+                                                            <p class="grey-box-info sm">{{$ctrl.toAccountCustomer.email ? $ctrl.toAccountCustomer.email : ''}}</p>
                                                         </div>
                                                     </div>
                                                 </li>
