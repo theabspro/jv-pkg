@@ -7,13 +7,13 @@ use Abs\JVPkg\JournalVoucher;
 use Abs\JVPkg\Ledger;
 use App\Http\Controllers\Controller;
 use App\Vendor;
+use Artisaninweb\SoapWrapper\SoapWrapper;
 use Auth;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Validator;
 use Yajra\Datatables\Datatables;
-use Artisaninweb\SoapWrapper\SoapWrapper;
 
 class JournalVoucherController extends Controller {
 
@@ -119,6 +119,9 @@ class JournalVoucherController extends Controller {
 		// $this->data['attachment'] = $attachment;
 		$this->data['action'] = $action;
 		$this->data['theme'];
+		$this->data['jv_types'] = NULL;
+		$this->data['fromAcc_field'] = true;
+		$this->data['toAcc_field'] = true;
 
 		return response()->json($this->data);
 	}
@@ -271,46 +274,46 @@ class JournalVoucherController extends Controller {
 		}
 	}
 
-	public function getCustomerInvoice(Request $request){
+	public function getCustomerInvoice(Request $request) {
 		// dd($request->all());
 		$this->soapWrapper->add('Invoice', function ($service) {
-				$service
-					->wsdl('http://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
-					->trace(true);
-			});
+			$service
+				->wsdl('http://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
+				->trace(true);
+		});
 		//$request->docType;
 		$params = ['ACCOUNTNUM' => $request->accountNumber];
-			$getResult = $this->soapWrapper->call('Invoice.GetCustomerinvoice', [$params]);
-			$customer_invoice = json_decode($getResult->GetCustomerinvoiceResult, true);
+		$getResult = $this->soapWrapper->call('Invoice.GetCustomerinvoice', [$params]);
+		$customer_invoice = json_decode($getResult->GetCustomerinvoiceResult, true);
 
-			if (!empty($customer_invoice)) {
-				$data = $customer_invoice['Table'];
-				if (!empty($data)) {
-					// dd($data);
-					return Datatables::of($data)->make(true);
-				}
+		if (!empty($customer_invoice)) {
+			$data = $customer_invoice['Table'];
+			if (!empty($data)) {
+				// dd($data);
+				return Datatables::of($data)->make(true);
 			}
 		}
+	}
 
-	public function getCustomerReceipt(Request $request){
+	public function getCustomerReceipt(Request $request) {
 		$this->soapWrapper->add('Receipt', function ($service) {
-				$service
-					->wsdl('http://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
-					->trace(true);
-			});
+			$service
+				->wsdl('http://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
+				->trace(true);
+		});
 		//$request->docType;
 		$params = ['ACCOUNTNUM' => $request->accountNumber];
-			$getResult = $this->soapWrapper->call('Receipt.GetCustomerReceipt', [$params]);
-			$customer_invoice = json_decode($getResult->GetCustomerReceiptResult, true);
+		$getResult = $this->soapWrapper->call('Receipt.GetCustomerReceipt', [$params]);
+		$customer_invoice = json_decode($getResult->GetCustomerReceiptResult, true);
 
-			if (!empty($customer_invoice)) {
-				$data = $customer_invoice['Table'];
-				if (!empty($data)) {
-					// dd($data);
-					return Datatables::of($data)->make(true);
-				}
+		if (!empty($customer_invoice)) {
+			$data = $customer_invoice['Table'];
+			if (!empty($data)) {
+				// dd($data);
+				return Datatables::of($data)->make(true);
 			}
 		}
+	}
 
 	public function deleteJournalVoucher(Request $request) {
 		DB::beginTransaction();

@@ -146,6 +146,9 @@ app.component('journalVoucherForm', {
             self.journal_voucher = response.data.journal_voucher;
             self.jv_type_list = response.data.jv_type_list;
             self.journals = response.data.journals;
+            self.jv_types = response.data.jv_types;
+            self.fromAcc_field = response.data.fromAcc_field;
+            self.toAcc_field = response.data.toAcc_field;
             self.action = response.data.action;
             $rootScope.loading = false;
             if (self.action == 'Edit') {
@@ -189,6 +192,43 @@ app.component('journalVoucherForm', {
                 self.journals_list = response.data.journals_list;
                 self.jv_types = response.data.jv_types;
                 self.jv_account_type_list = response.data.jv_account_type_list;
+
+                $scope.onSelectedFromAcc = function($selected_fromValue) {//console.log($selected_fromValue);
+                    var fromAccount_value = $selected_fromValue;
+                    // alert(fromAccount_value);
+                    if (fromAccount_value != '') {
+                        self.fromAcc_field = false;
+                    } else if (fromAccount_value == '') {
+                        self.fromAcc_field = true;
+                    }
+                }
+                $scope.onSelectedToAcc = function($selected_toValue) {//console.log($selected_toValue);
+                    var toAccount_value = $selected_toValue;
+                    // alert(toAccount_value);
+                    if (toAccount_value != '') {
+                        self.toAcc_field = false;
+                    } else if (toAccount_value == '') {
+                        self.toAcc_field = true;
+                    }
+                }
+
+                if (self.jv_types != null) {
+                    if (self.jv_types[1].value != null && self.jv_types[1].value == 1440) {
+                        self.fromAcc_field = false;
+                        console.log('from1 ' + self.fromAcc_field);
+                    } else if (self.jv_types[1].value == null) {
+                        self.fromAcc_field = true; console.log('from1_empty ' + self.fromAcc_field);
+                    } 
+                    if(self.jv_types[2].value != null && self.jv_types[2].value == 1440) {
+                        self.toAcc_field = false;
+                        console.log('to2 ' +self.toAcc_field);
+                    } else if (self.jv_types[2].value == null) {
+                        self.toAcc_field = true; console.log('to2_empty ' + self.toAcc_field);
+                    }
+                } else {
+                    self.fromAcc_field = true; console.log('initial_fromValue ' + self.fromAcc_field);
+                    self.toAcc_field = true; console.log('initial_toValue ' + self.toAcc_field);
+                }
             });
         }
         //SEARCH CUSTOMER
@@ -252,123 +292,24 @@ app.component('journalVoucherForm', {
             }
             // self.customer = {};
         }
-        // setTimeout(function() {console.log(self.jv_types);
-        //     if (self.jv_types != null) {
-        //         if (self.jv_types[1].value != null && self.jv_types[1].value == 1440) {
-        //             //SEARCH CUSTOMER
-        //             self.searchCustomer = function(query) {
-        //                 if (query) {
-        //                     return new Promise(function(resolve, reject) {
-        //                         $http
-        //                             .post(
-        //                                 // search_customer_url, {
-        //                                 laravel_routes['searchCustomer'], {
-        //                                     key: query,
-        //                                 }
-        //                             )
-        //                             .then(function(response) {
-        //                                 resolve(response.data);
-        //                             });
-        //                         //reject(response);
-        //                     });
-        //                 } else {
-        //                     return [];
-        //                 }
-        //             }
-        //             //GET CUSTOMER DETAILS
-        //             self.getCustomerDetails = function() {
-        //                 if (self.journal_voucher.customer == null) {
-        //                     return
-        //                 }
-        //                 $http.post(
-        //                     // get_customer_info_url, {
-        //                     laravel_routes['getCustomerDetails'], {
-        //                         customer_id: self.journal_voucher.customer.id,
-        //                     }
-        //                 ).then(function(response) {
-        //                     console.log(response.data);
-        //                     if (response.data.success) {
-        //                         self.customer = response.data.customer;
-        //                     } else {
-        //                         custom_noty('error', response.data.error);
-        //                     }
-        //                 });
-        //             }
+        if (self.jv_types != null) {
+            if (self.jv_types[1].value != null && self.jv_types[1].value == 1440) {
+                self.fromAcc_field = false;
+            // } else if(self.jv_types[1].value != null && self.jv_types[1].value == 1441) {
 
-        //             self.customerChanged = function() {
-        //                 self.customer = {};
-        //                 // self.service_invoice.service_invoice_items = [];
-        //                 //SERVICE INVOICE ITEMS TABLE CALC
-        //                 // $timeout(function() {
-        //                 //     $scope.serviceInvoiceItemCalc();
-        //                 // }, 1000);
-        //             }
-        //         } else if(self.jv_types[1].value != null && self.jv_types[1].value == 1441) {
+            // } else if(self.jv_types[1].value != null && self.jv_types[1].value == 1442) {
 
-        //         } else if(self.jv_types[1].value != null && self.jv_types[1].value == 1442) {
+            } else if(self.jv_types[2].value != null && self.jv_types[2].value == 1440) {
+                self.toAcc_field = false;
+            // } else if(self.jv_types[2].value != null && self.jv_types[2].value == 1441) {
 
-        //         } else if(self.jv_types[2].value != null && self.jv_types[2].value == 1440) {
-        //             //SEARCH CUSTOMER
-        //             self.searchCustomer = function(query) {
-        //                 if (query) {
-        //                     return new Promise(function(resolve, reject) {
-        //                         $http
-        //                             .post(
-        //                                 // search_customer_url, {
-        //                                 laravel_routes['searchCustomer'], {
-        //                                     key: query,
-        //                                 }
-        //                             )
-        //                             .then(function(response) {
-        //                                 resolve(response.data);
-        //                             });
-        //                         //reject(response);
-        //                     });
-        //                 } else {
-        //                     return [];
-        //                 }
-        //             }
-        //             //GET CUSTOMER DETAILS
-        //             self.getCustomerDetails = function() {
-        //                 if (self.journal_voucher.customer == null) {
-        //                     return
-        //                 }
-        //                 $http.post(
-        //                     // get_customer_info_url, {
-        //                     laravel_routes['getCustomerDetails'], {
-        //                         customer_id: self.journal_voucher.customer.id,
-        //                     }
-        //                 ).then(function(response) {
-        //                     console.log(response.data);
-        //                     if (response.data.success) {
-        //                         self.customer = response.data.customer;
-        //                     } else {
-        //                         custom_noty('error', response.data.error);
-        //                     }
-        //                 });
-        //             }
+            // } else if(self.jv_types[2].value != null && self.jv_types[2].value == 1442) {
 
-        //             self.customerChanged = function() {
-        //                 self.customer = {};
-        //                 // self.service_invoice.service_invoice_items = [];
-        //                 //SERVICE INVOICE ITEMS TABLE CALC
-        //                 // $timeout(function() {
-        //                 //     $scope.serviceInvoiceItemCalc();
-        //                 // }, 1000);
-        //             }
-        //         } else if(self.jv_types[2].value != null && self.jv_types[2].value == 1441) {
-
-        //         } else if(self.jv_types[2].value != null && self.jv_types[2].value == 1442) {
-
-        //         }
-        //     } else{
-        //         $noty = new Noty({
-        //             type: 'error',
-        //             layout: 'topRight',
-        //             text: 'Choose Transfer Type',
-        //         }).show();
-        //     }
-        // }, 1000);
+            }
+        } else if (self.jv_types == null) {
+            self.fromAcc_field = true;
+            self.toAcc_field = true;
+        }
 
         $('#search_fromAcc').on('click', function() {
             if($("input[name='transfer_type']").is(":checked") == false){

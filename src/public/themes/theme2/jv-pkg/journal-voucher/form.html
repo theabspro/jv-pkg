@@ -115,7 +115,7 @@
                                                     From Account
                                                     <sup class="mandatory">*</sup>
                                                 </label>
-                                                <md-select ng-model="$ctrl.journal_voucher.from_account_type_id" placeholder="Select From Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader">
+                                                <md-select ng-model="$ctrl.journal_voucher.from_account_type_id"  ng-change="onSelectedFromAcc($ctrl.journal_voucher.from_account_type_id.id)" placeholder="Select From Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader">
                                                     <md-select-header class="demo-select-header">
                                                         <input ng-model="searchFromAccount" type="search" placeholder="Search From Account" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                                                     </md-select-header>
@@ -125,7 +125,7 @@
                                                         </md-option>
                                                     </md-optgroup>
                                                 </md-select>
-                                                <input type="hidden" name="from_account_type_id" value='{{$ctrl.journal_voucher.from_account_type_id}}' class="required">
+                                                <input type="hidden" name="from_account_type_id" id="from_account_type_id" value='{{$ctrl.journal_voucher.from_account_type_id}}' class="required">
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
                                         <div class="col-md-3" ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">
@@ -134,7 +134,7 @@
                                                     To Account
                                                     <sup class="mandatory">*</sup>
                                                 </label>
-                                                <md-select ng-model="$ctrl.journal_voucher.to_account_type_id" placeholder="Select To Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader">
+                                                <md-select ng-model="$ctrl.journal_voucher.to_account_type_id" ng-change="onSelectedToAcc($ctrl.journal_voucher.to_account_type_id.id)" placeholder="Select To Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader">
                                                     <md-select-header class="demo-select-header">
                                                         <input ng-model="searchToAccount" type="search" placeholder="Search To Account" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                                                     </md-select-header>
@@ -144,7 +144,7 @@
                                                         </md-option>
                                                     </md-optgroup>
                                                 </md-select>
-                                                <input type="hidden" name="to_account_type_id" value='{{$ctrl.journal_voucher.to_account_type_id}}' class="required">
+                                                <input type="hidden" name="to_account_type_id" id="to_account_type_id"  value='{{$ctrl.journal_voucher.to_account_type_id}}' class="required">
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
                                         <div class="tab-pane-footer">
@@ -207,7 +207,7 @@
                                                 <div class="input-text form-group">
                                                     <label>From A/c Code <sup class="mandatory">*</sup></label>
                                                     <div class="autocomplete-refresh">
-                                                        <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.fromCustomerSearchText)" md-selected-item="$ctrl.journal_voucher.from_account_id" md-search-text="$ctrl.fromCustomerSearchText" md-search-text-change="$ctrl.customerChanged('fromAcc')"  md-selected-item-change="getCustomerDetails('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true" ng-disabled="">
+                                                        <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.fromCustomerSearchText)" md-selected-item="$ctrl.journal_voucher.from_account_id" md-search-text="$ctrl.fromCustomerSearchText" md-search-text-change="$ctrl.customerChanged('fromAcc')"  md-selected-item-change="getCustomerDetails('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true" ng-disabled="$ctrl.fromAcc_field">
                                                             <md-item-template>
                                                             <span>
                                                                 {{option.name}} - {{option.code}}
@@ -329,7 +329,7 @@
                                                 <div class="input-text form-group">
                                                     <label>To A/c Code <sup class="mandatory">*</sup></label>
                                                     <div class="autocomplete-refresh">
-                                                        <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.toCustomerSearchText)" md-selected-item="$ctrl.journal_voucher.to_account_id" md-search-text="$ctrl.toCustomerSearchText" md-search-text-change="$ctrl.customerChanged('toAcc')"  md-selected-item-change="getCustomerDetails('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true" ng-disabled="">
+                                                        <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.toCustomerSearchText)" md-selected-item="$ctrl.journal_voucher.to_account_id" md-search-text="$ctrl.toCustomerSearchText" md-search-text-change="$ctrl.customerChanged('toAcc')"  md-selected-item-change="getCustomerDetails('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true" ng-disabled="$ctrl.toAcc_field">
                                                             <md-item-template>
                                                             <span>
                                                                 {{option.name}} - {{option.code}}
