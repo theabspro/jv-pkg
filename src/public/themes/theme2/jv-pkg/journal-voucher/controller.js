@@ -371,7 +371,160 @@ app.component('journalVoucherForm', {
         // }, 1000);
 
         $('#search_fromAcc').on('click', function() {
-            
+            if($("input[name='transfer_type']").is(":checked") == false){
+                $noty = new Noty({
+                    type: 'error',
+                    layout: 'topRight',
+                    text: 'Choose Transfer Document Type',
+                }).show();
+            }
+            if($('.fromAcc').val() == ''){
+                $noty = new Noty({
+                    type: 'error',
+                    layout: 'topRight',
+                    text: 'Please Enter From Account Code',
+                }).show();
+            }
+
+            if(($("input[name='transfer_type']").is(":checked") == true) && ($('.fromAcc').val() != '')) {
+            if($("input[name='transfer_type']:checked").val() == 'invoice'){
+            var heads = '<th>Action</th><th>Invoice No</th><th>Invoice Date</th><th>Description</th><th>Outlet</th><th>Business Unit</th><th>Invoiced Amount</th><th>Available Amount</th>';
+            $('#invoice_dynamic_head').append(heads);
+                var dataTable;
+                var table_scroll;
+                table_scroll = $('.page-main-content.list-page-content').height() - 37;
+                dataTable = $('#journal_vouchers_invoice_list').DataTable({
+                    "dom": cndn_dom_structure,
+                    "language": {
+                        // "search": "",
+                        // "searchPlaceholder": "Search",
+                        "lengthMenu": "Rows _MENU_",
+                        "paginate": {
+                            "next": '<i class="icon ion-ios-arrow-forward"></i>',
+                            "previous": '<i class="icon ion-ios-arrow-back"></i>'
+                        },
+                    },
+                    scrollX: true,
+                    scrollY: table_scroll + "px",
+                    scrollCollapse: true,
+                    stateSave: true,
+                    stateSaveCallback: function(settings, data) {
+                        localStorage.setItem('SIDataTables_' + settings.sInstance, JSON.stringify(data));
+                    },
+                    stateLoadCallback: function(settings) {
+                        var state_save_val = JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
+                        if (state_save_val) {
+                            $('#search').val(state_save_val.search.search);
+                        }
+                        return JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
+                    },
+                    processing: true,
+                    serverSide: true,
+                    paging: true,
+                    searching: true,
+                    ordering: false,
+                    ajax: {
+                        url: laravel_routes['getCustomerInvoice'],
+                        type: "GET",
+                        dataType: "json",
+                        data: function(d) {
+                            d.accountNumber= $('.fromAcc').val();
+                            d.docType = $("input[name='transfer_type']:checked").val();
+                        },
+                    },
+                    
+                    columns: [
+                        // { data: 'child_checkbox', searchable: false },
+                        { data: 'INVOICE', searchable: false },
+                        { data: 'LASTSETTLEDATE', name: 'LASTSETTLEDATE', searchable: true },
+                        { data: 'TXT', name: 'TXT', searchable: true },
+                        { data: 'OUTLET', name: 'OUTLET', searchable: false },
+                        { data: 'BUSINESSUNIT', name: 'BUSINESSUNIT', searchable: true },
+                        { data: 'AMOUNTCUR', name: 'AMOUNTCUR', searchable: true },
+                        { data: 'SETTLEAMOUNTCUR', name: 'SETTLEAMOUNTCUR', searchable: true },
+                    ],
+                    "initComplete": function(settings, json) {
+                        $('.dataTables_length select').select2();
+                    },
+                    rowCallback: function(row, data) {
+                        $(row).addClass('highlight-row');
+                    },
+                    infoCallback: function(settings, start, end, max, total, pre) {
+                        $('#table_info').html(total)
+                        $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
+                    },
+                });
+            }
+        //     }else if($("input[name='transfer_type']:checked").val() == 'receipt'){
+        //         var dataTable;
+        // var heads = '<th>Action</th><th>Receipt No</th><th>Receipt Date</th><th>Description</th><th>Outlet</th><th>Business Unit</th><th>Receipt Amount</th><th>Available Amount</th>';
+            // $('#invoice_dynamic_head').append(heads);
+        //     var table_scroll;
+        //     table_scroll = $('.page-main-content.list-page-content').height() - 37;
+        //     dataTable = $('#journal_vouchers_invoice_list').DataTable({
+        //         "dom": cndn_dom_structure,
+        //         "language": {
+        //             // "search": "",
+        //             // "searchPlaceholder": "Search",
+        //             "lengthMenu": "Rows _MENU_",
+        //             "paginate": {
+        //                 "next": '<i class="icon ion-ios-arrow-forward"></i>',
+        //                 "previous": '<i class="icon ion-ios-arrow-back"></i>'
+        //             },
+        //         },
+        //         scrollX: true,
+        //         scrollY: table_scroll + "px",
+        //         scrollCollapse: true,
+        //         stateSave: true,
+        //         stateSaveCallback: function(settings, data) {
+        //             localStorage.setItem('SIDataTables_' + settings.sInstance, JSON.stringify(data));
+        //         },
+        //         stateLoadCallback: function(settings) {
+        //             var state_save_val = JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
+        //             if (state_save_val) {
+        //                 $('#search').val(state_save_val.search.search);
+        //             }
+        //             return JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
+        //         },
+        //         processing: true,
+        //         serverSide: true,
+        //         paging: true,
+        //         searching: true,
+        //         ordering: false,
+        //         ajax: {
+        //             url: laravel_routes['getCustomerInvoice'],
+        //             type: "GET",
+        //             dataType: "json",
+        //             data: function(d) {
+        //                 d.accountNumber= $('.fromAcc').val();
+        //                 d.docType = $("input[name='transfer_type']:checked").val();
+        //             },
+        //         },
+                
+        //         columns: [
+        //             // { data: 'child_checkbox', searchable: false },
+        //             { data: 'INVOICE', searchable: false },
+        //             { data: 'LASTSETTLEDATE', name: 'LASTSETTLEDATE', searchable: true },
+        //             { data: 'TXT', name: 'TXT', searchable: true },
+        //             { data: 'OUTLET', name: 'OUTLET', searchable: false },
+        //             { data: 'BUSINESSUNIT', name: 'BUSINESSUNIT', searchable: true },
+        //             { data: 'AMOUNTCUR', name: 'AMOUNTCUR', searchable: true },
+        //             { data: 'SETTLEAMOUNTCUR', name: 'SETTLEAMOUNTCUR', searchable: true },
+        //         ],
+        //         "initComplete": function(settings, json) {
+        //             $('.dataTables_length select').select2();
+        //         },
+        //         rowCallback: function(row, data) {
+        //             $(row).addClass('highlight-row');
+        //         },
+        //         infoCallback: function(settings, start, end, max, total, pre) {
+        //             $('#table_info').html(total)
+        //             $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
+        //         },
+        //     });
+        // }
+            }
+
         });
 
         var form_id = '#form';
@@ -450,9 +603,6 @@ app.component('journalVoucherForm', {
                             layout: 'topRight',
                             text: 'Something went wrong at server',
                         }).show();
-                        setTimeout(function() {
-                            $noty.close();
-                        }, 3000);
                     });
             }
         });

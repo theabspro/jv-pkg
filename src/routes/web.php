@@ -10,6 +10,7 @@ Route::group(['namespace' => 'Abs\JVPkg', 'middleware' => ['web', 'auth'], 'pref
 	Route::post('/journal-voucher/customer/search', 'JournalVoucherController@searchJVCustomer')->name('searchJVCustomer');
 	Route::post('/journal-voucher/get-customer-details', 'JournalVoucherController@getJVCustomerDetails')->name('getJVCustomerDetails');
 	Route::get('/journal-voucher/get-ctstomer-invoice', 'JournalVoucherController@getCustomerInvoice')->name('getCustomerInvoice');
+	Route::get('/journal-voucher/get-ctstomer-receipt', 'JournalVoucherController@getCustomerReceipt')->name('getCustomerReceipt');
 
 	//JOURNALS
 	Route::get('/journal/get-list', 'JournalController@getJournalList')->name('getJournalList');

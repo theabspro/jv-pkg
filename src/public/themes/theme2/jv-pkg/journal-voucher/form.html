@@ -217,7 +217,7 @@
                                                             No Customers matching "{{ctrl.fromCustomerSearchText}}" were found.
                                                             </md-not-found>
                                                         </md-autocomplete>
-                                                        <input type="hidden" name=" from_account_id" value="{{$ctrl.journal_voucher.from_account_id}}" class="required">
+                                                        <input type="hidden" name=" from_account_id" value="{{$ctrl.journal_voucher.from_account_id.id}}" class="required fromAcc">
                                                     </div>
                                                 </div><!-- Form Group -->
                                             </div><!-- Column -->
@@ -225,9 +225,9 @@
                                                 <div class="input-text form-group">
                                                     <label>Transfer Document Type <sup class="mandatory">*</sup></label>
                                                     <div class="common-radio-button type-3">
-                                                        <input type="radio" id="receipt" name="transfer_type" checked />
+                                                        <input type="radio" id="receipt" class="transfer_type" name="transfer_type" value="receipt" />
                                                         <label for="receipt">Receipt to Invoice</label>
-                                                        <input type="radio" id="invoice" name="transfer_type" />
+                                                        <input type="radio" class="transfer_type" id="invoice" name="transfer_type" value="invoice" />
                                                         <label for="invoice">Invoice to Receipt</label>
                                                     </div>
                                                 </div><!-- Form Group -->
@@ -241,35 +241,11 @@
                                             <div class="col-md-12">
                                                 <h6 class="tab-pane-title">Selected Receipts</h6>
                                                 <div class="table-responsive">
-                                                    <table class="table table-border-2">
+                                                    <table class="table" id="journal_vouchers_invoice_list" style="width: 100% !important;">
                                                         <thead>
-                                                            <tr>
-                                                                <th class="action">Action</th>
-                                                                <th>Receipt No</th>
-                                                                <th>Receipt Date</th>
-                                                                <th>Description</th>
-                                                                <th>Outlet</th>
-                                                                <th>Business Unit</th>
-                                                                <th>Receipt Amount</th>
-                                                                <th>Available Amount</th>
+                                                            <tr id="invoice_dynamic_head">
                                                             </tr>
                                                         </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td class="action">
-                                                                    <a href="#!" class="">
-                                                                        <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
-                                                                    </a>
-                                                                </td>
-                                                                <td>Rec#12345</td>
-                                                                <td>10/01/2020</td>
-                                                                <td>Parts sale and service payment</td>
-                                                                <td>MDU</td>
-                                                                <td>ALSERV</td>
-                                                                <td>80,000</td>
-                                                                <td>80,000</td>
-                                                            </tr>
-                                                        </tbody>
                                                     </table>
                                                 </div><!-- Table Responsive -->
                                             </div><!-- Column -->
@@ -376,35 +352,19 @@
                                             <div class="col-md-12">
                                                 <h6 class="tab-pane-title">Select Receipt <small class="">(4 Receipts Listing)</small></h6>
                                                 <div class="table-responsive">
-                                                    <table class="table table-border-2">
+                                                    <table class="table" id="journal_vouchers_Receipt_list" style="width: 100% !important;">
                                                         <thead>
                                                             <tr>
                                                                 <th class="action">Action</th>
-                                                                <th>Invoice No</th>
-                                                                <th>Invoice Date</th>
+                                                                <th>Receipt No</th>
+                                                                <th>Receipt Date</th>
                                                                 <th>Description</th>
                                                                 <th>Outlet</th>
                                                                 <th>Business Unit</th>
-                                                                <th>Invoice Amount</th>
-                                                                <th>Balance Amount</th>
+                                                                <th>Receipt Amount</th>
+                                                                <th>Available Amount</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td class="action">
-                                                                    <a href="#!" class="">
-                                                                        <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
-                                                                    </a>
-                                                                </td>
-                                                                <td>INV#12345</td>
-                                                                <td>10/01/2020</td>
-                                                                <td>Parts sale and service payment</td>
-                                                                <td>MDU</td>
-                                                                <td>ALSERV</td>
-                                                                <td>80,000</td>
-                                                                <td>80,000</td>
-                                                            </tr>
-                                                        </tbody>
                                                     </table>
                                                 </div><!-- Table Responsive -->
                                             </div><!-- Column -->

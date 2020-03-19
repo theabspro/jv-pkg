@@ -273,8 +273,6 @@ class JournalVoucherController extends Controller {
 
 	public function getCustomerInvoice(Request $request){
 		// dd($request->all());
-	// public function getCustomerInvoice($id,$value){
-		// return JournalVoucher::getCustomerInvoices($id,$value);
 		$this->soapWrapper->add('Invoice', function ($service) {
 				$service
 					->wsdl('http://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
@@ -293,12 +291,8 @@ class JournalVoucherController extends Controller {
 				}
 			}
 		}
-	}
 
 	public function getCustomerReceipt(Request $request){
-		// dd($request->all());
-	// public function getCustomerInvoice($id,$value){
-		// return JournalVoucher::getCustomerInvoices($id,$value);
 		$this->soapWrapper->add('Receipt', function ($service) {
 				$service
 					->wsdl('http://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
@@ -306,8 +300,8 @@ class JournalVoucherController extends Controller {
 			});
 		//$request->docType;
 		$params = ['ACCOUNTNUM' => $request->accountNumber];
-			$getResult = $this->soapWrapper->call('Receipt.GetCustomerReceiptResponse', [$params]);
-			$customer_invoice = json_decode($getResult->GetCustomerinvoiceResult, true);
+			$getResult = $this->soapWrapper->call('Receipt.GetCustomerReceipt', [$params]);
+			$customer_invoice = json_decode($getResult->GetCustomerReceiptResult, true);
 
 			if (!empty($customer_invoice)) {
 				$data = $customer_invoice['Table'];
@@ -317,7 +311,6 @@ class JournalVoucherController extends Controller {
 				}
 			}
 		}
-	}
 
 	public function deleteJournalVoucher(Request $request) {
 		DB::beginTransaction();
