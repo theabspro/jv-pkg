@@ -54,6 +54,16 @@
 	        title: 'Edit Journal Voucher',
 	    }).
 
+	    //JOURNAL VOUCHER VERIFICATION
+	    when('/verification/7221/level/:level_id/list', {
+	        template: '<jv-verification-list></jv-verification-list>',
+	        title: 'JV Verification',
+	    }).
+	    when('/verification/7221/level/:level_id/view/:id', {
+	        template: '<jv-verification-view></jv-verification-view>',
+	        title: 'JV Verification View',
+	    }).
+
 	     //LEDGER
 	    when('/jv-pkg/ledger/list', {
 	        template: '<ledger-list></ledger-list>',
@@ -82,6 +92,12 @@
     var journal_voucher_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/list.html')}}";
     var journal_voucher_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/form.html')}}";
 
+    //JOURNAL VOUCHER VERIFICATION
+    var jv_verification_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-verification/list.html')}}";
+    var jv_verification_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-verification/view.html')}}";
+    // var get_from_list_based_level_id = "{{url('verification/get-list')}}";
+
+
     //LEDGER
     var ledger_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/ledger/list.html')}}";
     var ledger_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/ledger/form.html')}}";
@@ -90,3 +106,4 @@
 <script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-type/controller.js')}}"></script>
 <script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/controller.js')}}"></script>
 <script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/ledger/controller.js')}}"></script>
+<script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-verification/controller.js')}}"></script>
