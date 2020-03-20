@@ -31,4 +31,11 @@ Route::group(['namespace' => 'Abs\JVPkg', 'middleware' => ['web', 'auth'], 'pref
 	Route::get('/ledger/get-form-data', 'LedgerController@getLedgerFormData')->name('getLedgerFormData');
 	Route::post('/ledger/save', 'LedgerController@saveLedger')->name('saveLedger');
 	Route::get('/ledger/delete', 'LedgerController@deleteLedger')->name('deleteLedger');
+
+	//VERIFICATION
+	Route::get('/verification/get-list', 'JvVerificationController@getJvVerificationList')->name('getJvVerificationList');
+	Route::get('/verification/view', 'JvVerificationController@getJvVerificationView')->name('getJvVerificationView');
+
+	Route::post('/verification/save', 'JvVerificationController@saveJvVerification')->name('saveJvVerification');
+	Route::get('/verification/delete', 'JvVerificationController@deleteJvVerification')->name('deleteJvVerification');
 });
