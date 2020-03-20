@@ -92,6 +92,12 @@
     var journal_voucher_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/list.html')}}";
     var journal_voucher_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/form.html')}}";
 
+    //JOURNAL VOUCHER VERIFICATION
+    var jv_verification_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-verification/list.html')}}";
+    var jv_verification_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-verification/view.html')}}";
+    // var get_from_list_based_level_id = "{{url('verification/get-list')}}";
+
+
     //LEDGER
     var ledger_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/ledger/list.html')}}";
     var ledger_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/ledger/form.html')}}";

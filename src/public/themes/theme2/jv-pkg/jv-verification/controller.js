@@ -1,12 +1,12 @@
 app.component('jvVerificationList', {
-    templateUrl: journal_voucher_list_template_url,
+    templateUrl: jv_verification_list_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location) {
         $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         var table_scroll;
         table_scroll = $('.page-main-content.list-page-content').height() - 37;
-        var dataTable = $('#journal_vouchers_list').DataTable({
+        var dataTable = $('#jv_verification_list').DataTable({
             "dom": cndn_dom_structure,
             "language": {
                 // "search": "",
@@ -25,7 +25,7 @@ app.component('jvVerificationList', {
             stateLoadCallback: function(settings) {
                 var state_save_val = JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
                 if (state_save_val) {
-                    $('#search_journal_voucher').val(state_save_val.search.search);
+                    $('#search_jv_verification').val(state_save_val.search.search);
                 }
                 return JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
             },
@@ -34,22 +34,25 @@ app.component('jvVerificationList', {
             stateSave: true,
             ordering: false,
             scrollY: table_scroll + "px",
+            scrollX: true,
             scrollCollapse: true,
             ajax: {
-                url: laravel_routes['getJournalVoucherList'],
-                type: "GET",
+                url: laravel_routes['getJvVerificationList'],
+                type: "POST",
                 dataType: "json",
                 data: function(d) {
-                    d.journal_voucher_code = $('#journal_voucher_code').val();
-                    d.journal_voucher_name = $('#journal_voucher_name').val();
-                    d.mobile_no = $('#mobile_no').val();
-                    d.email = $('#email').val();
+                    d.approval_level_id = $routeParams.level_id;
+                    // d.mobile_no = $('#mobile_no').val();
+                    // d.journal_voucher_code = $('#journal_voucher_code').val();
+                    // d.journal_voucher_name = $('#journal_voucher_name').val();
+                    // d.email = $('#email').val();
                 },
             },
 
             columns: [
                 { data: 'action', class: 'action', name: 'action', searchable: false },
                 { data: 'number', name: 'journal_vouchers.number', searchable: true },
+                { data: 'jv_status', name: 'approval_type_statuses.status', searchable: false },
                 { data: 'jv_date', searchable: false },
                 { data: 'jv_type', name: 'journal_vouchers.type_id', searchable: false },
                 { data: 'from_account_type', name: 'from_account_types.name', searchable: false },
@@ -57,7 +60,6 @@ app.component('jvVerificationList', {
                 { data: 'to_account_type', name: 'to_account_types.name', searchable: false },
                 { data: 'to_ac_code', searchable: false },
                 { data: 'amount', name: 'journal_vouchers.amount', searchable: false },
-                { data: 'jv_status', name: 'approval_type_statuses.status', searchable: false },
             ],
             "infoCallback": function(settings, start, end, max, total, pre) {
                 $('#table_info').html(total)
