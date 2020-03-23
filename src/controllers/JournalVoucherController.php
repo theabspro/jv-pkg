@@ -107,6 +107,7 @@ class JournalVoucherController extends Controller {
 		$id = $r->id;
 		if (!$id) {
 			$journal_voucher = new JournalVoucher;
+			$journal_voucher->date = date('d-m-Y');
 			// $attachment = new Attachment;
 			$action = 'Add';
 		} else {
@@ -290,7 +291,15 @@ class JournalVoucherController extends Controller {
 			$data = $customer_invoice['Table'];
 			if (!empty($data)) {
 				// dd($data);
-				return Datatables::of($data)->make(true);
+				return Datatables::of($data)
+					->addColumn('child_checkbox', function ($data) {
+						// dd($data['INVOICE']);
+						$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $data['INVOICE'] . "' name='child_boxes' value='" . $data['INVOICE'] . "' class='jv_fromAcc_Checkbox'/><label for='child_" . $data['INVOICE'] . "'></label></div></td>";
+
+						return $checkbox;
+					})
+					->rawColumns(['child_checkbox'])
+					->make(true);
 			}
 		}
 	}
@@ -309,7 +318,7 @@ class JournalVoucherController extends Controller {
 		if (!empty($customer_invoice)) {
 			$data = $customer_invoice['Table'];
 			if (!empty($data)) {
-				// dd($data);
+				dd($data);
 				return Datatables::of($data)->make(true);
 			}
 		}
