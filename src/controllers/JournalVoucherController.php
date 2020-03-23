@@ -311,7 +311,7 @@ class JournalVoucherController extends Controller {
 				->trace(true);
 		});
 		//$request->docType;
-		$params = ['ACCOUNTNUM' => $request->accountNumber];
+		$params = ['ACCOUNTNUM' => $request->accountNumber, 'VOUCHER' => $request->receiptNumber];
 		$getResult = $this->soapWrapper->call('Receipt.GetCustomerReceipt', [$params]);
 		$customer_invoice = json_decode($getResult->GetCustomerReceiptResult, true);
 

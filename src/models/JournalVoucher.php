@@ -14,9 +14,9 @@ class JournalVoucher extends Model {
 	protected $table = 'journal_vouchers';
 	public $timestamps = true;
 	protected $fillable = [
-		'number',
 		'type_id',
 		'date',
+		'journal_id',
 		'voucher_number',
 		'from_account_type_id',
 		'from_account_id',
@@ -24,13 +24,19 @@ class JournalVoucher extends Model {
 		'to_account_id',
 		'receipt_id',
 		'invoice_id',
-		'from_outlet_id',
-		'from_sbu_id',
-		'to_outlet_id',
-		'to_sbu_id',
 		'amount',
+		'reason',
+		'remarks',
 		'status_id',
 	];
+
+	// public function jvType() {
+	// 	return $this->belongsTo('Abs\JVPkg\JVType', 'type_id');
+	// }
+
+	// public function journal() {
+	// 	return $this->belongsTo('Abs\JVPkg\Journal', 'journal_id');
+	// }
 
 	public static function createFromObject($record_data) {
 
