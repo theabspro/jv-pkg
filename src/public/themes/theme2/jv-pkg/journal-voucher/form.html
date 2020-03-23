@@ -245,13 +245,19 @@
                                                 </div>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
-                                        <div class="col-md-2">
+                                        <div class="col-md-2" ng-show="$ctrl.search_FromButton">
                                             <div class="input-text form-group">
                                                 <label class="opacity-zero">Search Button</label>
                                                 <button type="button" class="btn btn-primary btn-square" id="search_fromAcc">Search</button>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
-                                        <div class="col-md-2" ng-show="$ctrl.checkedFromAcc">
+                                        <div class="col-md-3" ng-show="$ctrl.add_FromReceipt">
+                                            <div class="input-text form-group">
+                                                <label>Receipt No <sup class="mandatory">*</sup></label>
+                                                <input type="text" class="form-control" name="receipt_number" value="" id="receipt_number" placeholder="Enter Receipt Number" autocomplete="off" required>
+                                            </div><!-- Form Group -->
+                                        </div><!-- Column -->
+                                        <div class="col-md-2" ng-show="$ctrl.add_FromButton">
                                             <div class="input-text form-group">
                                                 <label class="opacity-zero">Add Button</label>
                                                 <button type="button" class="btn btn-primary btn-square" id="add_fromAcc">Add</button>
@@ -320,12 +326,12 @@
                                                         <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.email ? $ctrl.fromAccountCustomer.email : ''}}</p>
                                                     </div>
                                                 </div>
-                                            </li>{{$ctrl.checked_fromList}}
-                                            <li class="flex-col-3" ng-show="$ctrl.checked_fromList">
+                                            </li>
+                                            <li class="flex-col-3" ng-show="$ctrl.check_List">
                                                 <div class="grey-box">
-                                                    <div class="grey-box-header">{{$ctrl.checked_FromAccCount}} {{$ctrl.added_FromAccTitle}}</div>
+                                                    <div class="grey-box-header">{{$ctrl.checked_Count}} {{$ctrl.added_Title}}</div>
                                                     <div class="grey-box-body">
-                                                        <p class="grey-box-info sm">{{$ctrl.checked_fromAccList}}</p>
+                                                        <p class="grey-box-info sm">{{$ctrl.checked_List}}</p>
                                                     </div>
                                                 </div>
                                             </li>
@@ -341,7 +347,6 @@
                                                 </div>
                                             </li>
                                         </ul>
-                                        
                                     </div><!-- Grey Wrap -->
                                     <div class="row">
                                         <div class="col-md-3">
@@ -363,13 +368,19 @@
                                                 </div>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
-                                        <div class="col-md-2">
+                                        <div class="col-md-2" ng-show="$ctrl.search_ToButton">
                                             <div class="input-text form-group">
                                                 <label class="opacity-zero">Search Button</label>
                                                 <button type="button" class="btn btn-primary btn-square" id="search_toAcc">Search</button>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
-                                        <div class="col-md-2" ng-show="$ctrl.checkedToAcc">
+                                        <div class="col-md-3" ng-show="$ctrl.add_ToReceipt">
+                                            <div class="input-text form-group">
+                                                <label>Receipt No <sup class="mandatory">*</sup></label>
+                                                <input type="text" class="form-control" name="receipt_number" value="" id="receipt_number" placeholder="Enter Receipt Number" autocomplete="off" required>
+                                            </div><!-- Form Group -->
+                                        </div><!-- Column -->
+                                        <div class="col-md-2" ng-show="$ctrl.add_ToButton">
                                             <div class="input-text form-group">
                                                 <label class="opacity-zero">Add Button</label>
                                                 <button type="button" class="btn btn-primary btn-square" id="add_toAcc">Add</button>
@@ -447,14 +458,11 @@
                                                     </div>
                                                 </div>
                                             </li>
-                                            <li class="flex-col-3">
+                                            <li class="flex-col-3" ng-show="$ctrl.check_List">
                                                 <div class="grey-box">
-                                                    <div class="grey-box-header">Receipt No : <b>Rec#12346</b></div>
+                                                    <div class="grey-box-header">{{$ctrl.checked_Count}} {{$ctrl.added_Title}}</div>
                                                     <div class="grey-box-body">
-                                                        <p class="grey-box-info sm">Date : 10/01/2020</p>
-                                                        <p class="grey-box-info sm">Outlet : MDU</p>
-                                                        <p class="grey-box-info sm">Business Unit : ALSERV</p>
-                                                        <p class="grey-box-info sm">Amount : 10,000</p>
+                                                        <p class="grey-box-info sm">{{$ctrl.checked_List}}</p>
                                                     </div>
                                                 </div>
                                             </li>
@@ -481,7 +489,6 @@
                                                 </div>
                                             </li>
                                         </ul>
-                                        
                                     </div><!-- Grey Wrap -->
                                     <div class="row">
                                         <div class="col-md-3">
