@@ -88,4 +88,77 @@ class JvVerificationController extends Controller {
 			})
 			->make(true);
 	}
+
+	public function viewJvVerification(Request $request) {
+		$id = $request->id;
+		$approval_type_id = $request->approval_type_id;
+		$journal_voucher = JournalVoucher::find($id);
+		$journal_vouchers = JournalVoucher::join('journals', 'journals.id', 'journal_vouchers.journal_id')
+			->join('jv_types', 'jv_types.id', 'journal_vouchers.type_id')
+			->join('configs as fati', 'fati.id', 'journal_vouchers.from_account_type_id')
+			->join('configs as tati', 'tati.id', 'journal_vouchers.to_account_type_id')
+			->join('approval_type_statuses as ats', 'ats.id', 'journal_vouchers.status_id')
+			->leftJoin('jv_invoices', 'jv_invoices.jv_id', 'journal_vouchers.id')
+			->leftJoin('jv_receipts', 'jv_receipts.jv_id', 'journal_vouchers.id')
+		// with([
+		// 	'jvType',
+		// 	'journal',
+		// ])
+		// ->find($id)
+		;
+		// dd($journal_vouchers);
+
+		if ($journal_voucher->from_account_type_id == 1440) {
+			//CUSTOMER
+			$journal_vouchers = $journal_vouchers->leftJoin('customers as from_account', 'from_account.id', 'journal_vouchers.from_account_id');
+		}
+		// elseif ($journal_voucher->from_account_type_id == 1441) {
+		// 	//VENDOR
+		// 	$journal_vouchers = $journal_vouchers->leftJoin('vendors as from_account', 'from_account.id', 'journal_vouchers.from_account_id');
+		// } elseif ($journal_voucher->from_account_type_id == 1442) {
+		// 	//LEDGER
+		// 	$journal_vouchers = $journal_vouchers->leftJoin('ledgers as from_account', 'from_account.id', 'journal_vouchers.from_account_id');
+		// }
+
+		if ($journal_voucher->to_account_type_id == 1440) {
+			//CUSTOMER
+			$journal_vouchers = $journal_vouchers->leftJoin('customers as to_account', 'to_account.id', 'journal_vouchers.from_account_id');
+		}
+		// elseif ($journal_voucher->to_account_type_id == 1441) {
+		// 	//VENDOR
+		// 	$journal_vouchers = $journal_vouchers->leftJoin('vendors as to_account', 'to_account.id', 'journal_vouchers.from_account_id');
+		// } elseif ($journal_voucher->to_account_type_id == 1442) {
+		// 	//LEDGER
+		// 	$journal_vouchers = $journal_vouchers->leftJoin('ledgers as to_account', 'to_account.id', 'journal_vouchers.from_account_id');
+		// }
+		// dd($journal_vouchers);
+
+		$this->data['journal_vouchers'] = $journal_vouchers->select(
+			'journal_vouchers.*',
+			// DB::raw('DATEFORMAT(journal_vouchers.date,"%d/%m/%Y") as journal_voucher_date'),
+			'jv_types.name as jv_type',
+			'journals.name as journal_name',
+			DB::raw('COUNT(jv_invoices.jv_id) as invoice_count'),
+			DB::raw('COUNT(jv_receipts.jv_id) as receipt_count'),
+			'fati.name as from_account_type',
+			'tati.name as to_account_type',
+			'from_account.name as from_account_name',
+			'from_account.code as from_account_code',
+			'from_account.address as from_account_address',
+			'from_account.mobile_no as from_account_mobile_no',
+			'from_account.email as from_account_email',
+			'to_account.name as to_account_name',
+			'to_account.code as to_account_code',
+			'to_account.address as to_account_address',
+			'to_account.mobile_no as to_account_mobile_no',
+			'to_account.email as to_account_email',
+			'ats.status as status'
+		)
+			->groupBy('journal_vouchers.id')
+			->find($id)
+		;
+		$this->data['action'] = 'View';
+
+		return response()->json($this->data);
+	}
 }
