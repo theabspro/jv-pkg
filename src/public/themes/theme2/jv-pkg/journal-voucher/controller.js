@@ -426,7 +426,7 @@ app.component('journalVoucherForm', {
             
             $(buttonId).button('reset');
             if(($("input[name='transfer_type']").is(":checked") == true)) {
-                if(buttonId == 'search_fromAcc' || 'search_toAcc'){
+                if(buttonId == 'search_fromAcc' || buttonId =='search_toAcc'){
                     if (buttonId == 'search_fromAcc') {
                         self.checkedFromAcc = true;
                         $('.fromAcc_Title').html('Invoices');
@@ -577,7 +577,7 @@ app.component('journalVoucherForm', {
                             $scope.$apply();
                         });
                     }, 3000);
-                } else if (buttonId == 'add_fromAcc' || 'add_toAcc') {
+                } else if (buttonId == 'add_fromAcc' || buttonId =='add_toAcc') {
                     if (buttonId == 'add_fromAcc') {
                         self.checkedFromAcc = true;
                         $('.fromAcc_Title').html('Receipts');
