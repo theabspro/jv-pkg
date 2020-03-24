@@ -274,8 +274,49 @@
                                                 </table>
                                             </div><!-- Table Responsive -->
                                         </div><!-- Column -->
+                                        <div class="col-md-12" ng-show="$ctrl.add_FromButton">
+                                            <h6 class="tab-pane-title fromAcc_Title">Receipts</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-border-2" id="receipt_FromAccList" style="width: 100% !important;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Action</th>
+                                                            <th>Receipt No</th>
+                                                            <th>Receipt Date</th>
+                                                            <th>Description</th>
+                                                            <th>Outlet</th>
+                                                            <th>Business Unit</th>
+                                                            <th class="text-right">Receipt Amount</th>
+                                                            <th class="text-right">Available Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr ng-repeat="(index, jv_receipt) in $ctrl.journal_voucher.jv_receipts">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][id]" value="{{jv_receipt.id}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][VOUCHER]" value="{{jv_receipt.VOUCHER}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][AMOUNTMST]" value="{{jv_receipt.AMOUNTMST}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][BALANCE]" value="{{jv_receipt.BALANCE}}">
+                                                            <td class="action">
+                                                                <a href="javascript:void(0)" ng-click="removeJvReceipt(jv_receipt.id, index)">
+                                                                    <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
+                                                                </a>
+                                                            </td>
+                                                            <td>{{jv_receipt.VOUCHER}}</td>
+                                                            <td>{{jv_receipt.TRANSDATE}}</td>
+                                                            <td>{{jv_receipt.TXT}}</td>
+                                                            <td>{{jv_receipt.OUTLET}}</td>
+                                                            <td>{{jv_receipt.BUSINESSUNIT}}</td>
+                                                            <td class="text-right">{{jv_receipt.AMOUNTMST}}</td>
+                                                            <td class="text-right">{{jv_receipt.BALANCE}}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div><!-- Table Responsive -->
+                                        </div><!-- Column -->
                                     </div><!-- Row -->
                                 </div><!-- Column -->
+                                <input type="hidden" name="jv_receipt_removal_ids" id="jv_receipt_removal_ids" value="">
+                                <input type="hidden" name="receipt_count" value="{{$ctrl.journal_voucher.jv_receipts.length}}">
                                 <div class="tab-pane-footer">
                                     <div class="row">
                                         <div class="col-md-12">
@@ -387,7 +428,7 @@
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
                                         <div class="col-md-12" ng-show="$ctrl.checkedToAcc">
-                                            <h6 class="tab-pane-title toAcc_Title"><small class="">(4 Receipts Listing)</small></h6>
+                                            <h6 class="tab-pane-title toAcc_Title"></h6>
                                             <div class="table-responsive">
                                                 <table class="table table-border-2" id="jv_ToAccList" style="width: 100% !important;">
                                                     <thead>

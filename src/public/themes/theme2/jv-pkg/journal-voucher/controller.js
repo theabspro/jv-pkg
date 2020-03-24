@@ -386,9 +386,7 @@ app.component('journalVoucherForm', {
                         text: 'Please Enter To Account Code',
                     }).show();
                 }
-            }
-
-            if (buttonId == 'add_fromAcc') {
+            } else if (buttonId == 'add_fromAcc') {
                 if($('.fromAcc').val() == ''){
                     $(buttonId).button('reset');
                     $noty = new Noty({
@@ -425,7 +423,7 @@ app.component('journalVoucherForm', {
             }            
             
             $(buttonId).button('reset');
-            if(($("input[name='transfer_type']").is(":checked") == true)) {
+            if(($("input[name='transfer_type']").is(":checked") == true) && ($('.fromAcc').val() != '' || $('.toAcc').val() != '')) {
                 if(buttonId == 'search_fromAcc' || buttonId =='search_toAcc'){
                     if (buttonId == 'search_fromAcc') {
                         self.checkedFromAcc = true;
@@ -577,96 +575,132 @@ app.component('journalVoucherForm', {
                             $scope.$apply();
                         });
                     }, 3000);
-                } else if (buttonId == 'add_fromAcc' || buttonId =='add_toAcc') {
+                } else if ((buttonId == 'add_fromAcc' || buttonId =='add_toAcc') && ($('#from_receipt_number').val() != '' || $('#to_receipt_number').val() != '')) {
                     if (buttonId == 'add_fromAcc') {
-                        self.checkedFromAcc = true;
-                        $('.fromAcc_Title').html('Receipts');
-                        var from_AccHeads = '<th>Action</th><th>Receipt No</th><th>Receipt Date</th><th>Description</th><th>Outlet</th><th>Business Unit</th><th>Receipt Amount</th><th>Available Amount</th>';
-                        $('#from_AccountList').html(from_AccHeads);
-                    } else if (buttonId == 'add_toAcc') {
-                        self.checkedToAcc = true;
-                        $('.toAcc_Title').html('Receipts');
-                        var to_AccHeads = '<th>Action</th><th>Receipt No</th><th>Receipt Date</th><th>Description</th><th>Outlet</th><th>Business Unit</th><th>Receipt Amount</th><th>Available Amount</th>';
-                        $('#to_AccountList').html(to_AccHeads);
-                    }
-
-                    if (buttonId == 'add_fromAcc') {
-                        var dataTable_id = '#jv_FromAccList';
+                        self.checkedFromAcc = false;
+                        self.add_FromButton = true;
+                        // $('.fromAcc_Title').html('Receipts');
                         var customer_code = $('.fromAccCode').val();
                         var receipt_number = $('#from_receipt_number').val();
                     } else if (buttonId == 'add_toAcc') {
-                        var dataTable_id = '#jv_ToAccList';
+                        self.checkedToAcc = false;
+                        self.add_ToButton = true;
+                        // $('.toAcc_Title').html('Receipts');
                         var customer_code = $('.toAccCode').val();
                         var receipt_number = $('#to_receipt_number').val();
                     }
 
-                    setTimeout(function() {
-                        var dataTable;
-                        var table_scroll;
-                        table_scroll = $('.page-main-content.list-page-content').height() - 37;
-                        dataTable = $(dataTable_id).DataTable({
-                            // "dom": cndn_dom_structure,
-                            "language": {
-                                // "search": "",
-                                // "searchPlaceholder": "Search",
-                                // "lengthMenu": "Rows _MENU_",
-                                "paginate": {
-                                    "next": '<i class="icon ion-ios-arrow-forward"></i>',
-                                    "previous": '<i class="icon ion-ios-arrow-back"></i>'
-                                },
-                            },
-                            scrollX: true,
-                            scrollY: table_scroll + "px",
-                            scrollCollapse: true,
-                            stateSave: true,
-                            stateSaveCallback: function(settings, data) {
-                                localStorage.setItem('SIDataTables_' + settings.sInstance, JSON.stringify(data));
-                            },
-                            stateLoadCallback: function(settings) {
-                                var state_save_val = JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
-                                if (state_save_val) {
-                                    $('#search').val(state_save_val.search.search);
-                                }
-                                return JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
-                            },
-                            processing: true,
-                            serverSide: true,
-                            paging: true,
-                            searching: false,
-                            ordering: false,
-                            retrieve: true,
-                            ajax: {
-                                url: laravel_routes['getCustomerReceipt'],
-                                type: "GET",
-                                dataType: "json",
-                                data: function(d) {
-                                    d.accountNumber= customer_code;
-                                    d.receiptNumber = receipt_number;
-                                },
-                            },
+                    $http.get(
+                        laravel_routes['getCustomerReceipt'], {
+                            params: {
+                                accountNumber: customer_code,
+                                receiptNumber: receipt_number,
+                            }
+                        }
+                    ).then(function(response) { console.log(response.data);
+                        if (!response.data.errors) {
+                            self.journal_voucher.jv_receipts = response.data.receipts;
+                        } else {
+                            $noty = new Noty({
+                                type: 'error',
+                                layout: 'topRight',
+                                text: response.data.errors,
+                            }).show();
+                        }
+                    });
+
+                    // if (!self.journal_voucher.jv_receipts) {
+                    //     self.journal_voucher.jv_receipts = [];
+                    // }
+                    // if (res.add) {
+                    //     self.journal_voucher.jv_receipts.push(res.service_item);
+                    // } else {
+                    //     var edited_service_invoice_item_primary_id = self.service_invoice.service_invoice_items[self.update_item_key].id;
+                    //     self.service_invoice.service_invoice_items[self.update_item_key] = res.service_item;
+                    //     self.service_invoice.service_invoice_items[self.update_item_key].id = edited_service_invoice_item_primary_id;
+                    // }
+                    //return
+                    // setTimeout(function() {
+                    //     var dataTable;
+                    //     var table_scroll;
+                    //     table_scroll = $('.page-main-content.list-page-content').height() - 37;
+                    //     dataTable = $(dataTable_id).DataTable({
+                    //         // "dom": cndn_dom_structure,
+                    //         "language": {
+                    //             // "search": "",
+                    //             // "searchPlaceholder": "Search",
+                    //             // "lengthMenu": "Rows _MENU_",
+                    //             "paginate": {
+                    //                 "next": '<i class="icon ion-ios-arrow-forward"></i>',
+                    //                 "previous": '<i class="icon ion-ios-arrow-back"></i>'
+                    //             },
+                    //         },
+                    //         scrollX: true,
+                    //         scrollY: table_scroll + "px",
+                    //         scrollCollapse: true,
+                    //         stateSave: true,
+                    //         stateSaveCallback: function(settings, data) {
+                    //             localStorage.setItem('SIDataTables_' + settings.sInstance, JSON.stringify(data));
+                    //         },
+                    //         stateLoadCallback: function(settings) {
+                    //             var state_save_val = JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
+                    //             if (state_save_val) {
+                    //                 $('#search').val(state_save_val.search.search);
+                    //             }
+                    //             return JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
+                    //         },
+                    //         processing: true,
+                    //         serverSide: true,
+                    //         paging: true,
+                    //         searching: false,
+                    //         ordering: false,
+                    //         retrieve: true,
+                    //         ajax: {
+                    //             url: laravel_routes['getCustomerReceipt'],
+                    //             type: "GET",
+                    //             dataType: "json",
+                    //             data: function(d) {
+                    //                 d.accountNumber= customer_code;
+                    //                 d.receiptNumber = receipt_number;
+                    //             },
+                    //         },
                             
-                            columns: [
-                                { data: 'action', class: 'action', searchable: false },
-                                { data: 'VOUCHER', searchable: true },
-                                { data: 'TRANSDATE', name: 'TRANSDATE', searchable: true },
-                                { data: 'TXT', name: 'TXT', searchable: true },
-                                { data: 'OUTLET', name: 'OUTLET', searchable: true },
-                                { data: 'BUSINESSUNIT', name: 'BUSINESSUNIT', searchable: true },
-                                { data: 'AMOUNTMST', name: 'AMOUNTMST', searchable: true, class: 'text-right' },
-                                { data: 'Balance', name: 'Balance', searchable: true, class: 'text-right' },
-                            ],
-                            "initComplete": function(settings, json) {
-                                // $('.dataTables_length select').select2();
-                            },
-                            rowCallback: function(row, data) {
-                                $(row).addClass('highlight-row');
-                            },
-                            infoCallback: function(settings, start, end, max, total, pre) {
-                                // $('#table_info').html(total)
-                                $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
-                            },
-                        });
-                    }, 3000);
+                    //         columns: [
+                    //             { data: 'action', class: 'action', searchable: false },
+                    //             { data: 'VOUCHER', searchable: true },
+                    //             { data: 'TRANSDATE', name: 'TRANSDATE', searchable: true },
+                    //             { data: 'TXT', name: 'TXT', searchable: true },
+                    //             { data: 'OUTLET', name: 'OUTLET', searchable: true },
+                    //             { data: 'BUSINESSUNIT', name: 'BUSINESSUNIT', searchable: true },
+                    //             { data: 'AMOUNTMST', name: 'AMOUNTMST', searchable: true, class: 'text-right' },
+                    //             { data: 'BALANCE', name: 'BALANCE', searchable: true, class: 'text-right' },
+                    //         ],
+                    //         "initComplete": function(settings, json) {
+                    //             // $('.dataTables_length select').select2();
+                    //         },
+                    //         rowCallback: function(row, data) {
+                    //             $(row).addClass('highlight-row');
+                    //         },
+                    //         infoCallback: function(settings, start, end, max, total, pre) {
+                    //             // $('#table_info').html(total)
+                    //             $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
+                    //         },
+                    //     });
+                    // }, 3000);
+                    //REMOVE SERVICE INVOICE ITEM
+                    $scope.removeJvReceipt = function(receipt_id, index) {
+                        self.jv_receipt_removal_id = [];
+                        if (buttonId == 'add_fromAcc') {
+                            $('#from_receipt_number').val('');
+                        } else if (buttonId == 'add_toAcc') {
+                            $('#to_receipt_number').val('');
+                        }
+                        if (receipt_id) {
+                            self.jv_receipt_removal_id.push(receipt_id);
+                            $('#jv_receipt_removal_ids').val(JSON.stringify(self.jv_receipt_removal_id));
+                        }
+                        self.journal_voucher.jv_receipts.splice(index, 1);
+                    }
                 }
             } else { //console.log('else');
                 self.checkedFromAcc = false;

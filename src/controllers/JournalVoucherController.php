@@ -316,20 +316,24 @@ class JournalVoucherController extends Controller {
 		$customer_receipt = json_decode($getResult->GetCustomerReceiptResult, true);
 
 		if (!empty($customer_receipt)) {
-			$data = $customer_receipt['Table'];
-			if (!empty($data)) {
-				return Datatables::of($data)
-					->addColumn('action', function ($data) {
-						$action = '<td><button class="btn-delete voucher_no" type="button" value="' . $data['VOUCHER'] . '" ><img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" /></button>';
-						return $action;
-					})
-					->make(true)
-				;
+			$receipts = $customer_receipt['Table'];
+			if (!empty($receipts)) {
+				// dd($receipts);
+				// return Datatables::of($data)
+				// 	->addColumn('action', function ($data) {
+				// 		$action = '<td><button class="btn-delete voucher_no" type="button" value="' . $data['VOUCHER'] . '" ><img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" /></button>';
+				// 		return $action;
+				// 	})
+				// 	->make(true)
+				// ;
 				// if (!empty($customer_receipt)) {
 				// 	$data = $customer_receipt['Table'];
 				// 	if (!empty($data)) {
 				// 		return Datatables::of($data)->make(true);
+				return response()->json(['receipts' => $receipts]);
 			}
+		} else {
+			return response()->json(['success' => false, 'errors' => ['No Receipts For this Customers!.']]);
 		}
 	}
 
