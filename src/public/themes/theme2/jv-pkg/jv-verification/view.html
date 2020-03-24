@@ -44,15 +44,15 @@
                                             </li>
                                             <li class="grid-col-3">
                                                 <span class="grid-col-label">Type</span>
-                                                <span class="grid-col-value">{{$ctrl.journal_vouchers.jv_type}}</span>
+                                                <span class="grid-col-value">{{$ctrl.journal_vouchers.jv_type.name}}</span>
                                             </li>
                                             <li class="grid-col-3">
                                                 <span class="grid-col-label">Journal Name</span>
-                                                <span class="grid-col-value">{{$ctrl.journal_vouchers.journal_name}}</span>
+                                                <span class="grid-col-value">{{$ctrl.journal_vouchers.journal.name}}</span>
                                             </li>
                                             <li class="grid-col-3">
                                                 <span class="grid-col-label">Account Type</span>
-                                                <span class="grid-col-value color-green">{{$ctrl.journal_vouchers.from_account_type}} to {{$ctrl.journal_vouchers.to_account_type}}</span>
+                                                <span class="grid-col-value color-green">{{$ctrl.from_account_type.name}} to {{$ctrl.to_account_type.name}}</span>
                                             </li>
                                         </ul>
                                         <div class="mb-30"></div><!-- Space -->
@@ -60,45 +60,41 @@
                                         <ul class="flex-row">
                                             <li class="flex-col-3">
                                                 <div class="grey-box">
-                                                    <div class="grey-box-header">From Account : <b>{{$ctrl.journal_vouchers.from_account_code}}</b></div>
+                                                    <div class="grey-box-header">From Account : <b>{{$ctrl.from_customer_details.code}}</b></div>
                                                     <div class="grey-box-body">
-                                                        <p class="grey-box-info sm">{{$ctrl.journal_vouchers.from_account_name}}</p>
-                                                        <p class="grey-box-info sm">{{$ctrl.journal_vouchers.from_account_address}}</p>
-                                                        <p class="grey-box-info sm">{{$ctrl.journal_vouchers.from_account_mobile_no}}</p>
-                                                        <p class="grey-box-info sm">{{$ctrl.journal_vouchers.from_account_email}}</p>
+                                                        <p class="grey-box-info sm">{{$ctrl.from_customer_details.name}}</p>
+                                                        <p class="grey-box-info sm">{{$ctrl.from_customer_details.address}}</p>
+                                                        <p class="grey-box-info sm">{{$ctrl.from_customer_details.mobile_no}}</p>
+                                                        <p class="grey-box-info sm">{{$ctrl.from_customer_details.email}}</p>
                                                     </div>
                                                 </div>
                                             </li>
                                             <li class="flex-col-3">
                                                 <div class="grey-box">
-                                                    <div class="grey-box-header">Receipt No : <b>Rec#12346</b></div>
+                                                    <div class="grey-box-header">Receipt Count : <b>{{$ctrl.receipt_count}}</b></div>
                                                     <div class="grey-box-body">
-                                                        <p class="grey-box-info sm">Date : 10/01/2020</p>
-                                                        <p class="grey-box-info sm">Outlet : MDU</p>
-                                                        <p class="grey-box-info sm">Business Unit : ALSERV</p>
-                                                        <p class="grey-box-info sm">Amount : 10,000</p>
+                                                        <p class="grey-box-info sm" ng-if="$ctrl.receipts.length != ''">Receipt Numbers : {{$ctrl.receipts}}</p>
+                                                        <p class="grey-box-info sm" ng-if="$ctrl.receipts.length == ''">No Receipt available</p>
                                                     </div>
                                                 </div>
                                             </li>
                                             <li class="flex-col-3">
                                                 <div class="grey-box">
-                                                    <div class="grey-box-header">To Account : <b>{{$ctrl.journal_vouchers.to_account_code}}</b></div>
+                                                    <div class="grey-box-header">To Account : <b>{{$ctrl.to_customer_details.code}}</b></div>
                                                     <div class="grey-box-body">
-                                                        <p class="grey-box-info sm">{{$ctrl.journal_vouchers.to_account_name}}</p>
-                                                        <p class="grey-box-info sm">{{$ctrl.journal_vouchers.to_account_address}}</p>
-                                                        <p class="grey-box-info sm">{{$ctrl.journal_vouchers.to_account_mobile_no}}</p>
-                                                        <p class="grey-box-info sm">{{$ctrl.journal_vouchers.to_account_email}}</p>
+                                                        <p class="grey-box-info sm">{{$ctrl.to_customer_details.name}}</p>
+                                                        <p class="grey-box-info sm">{{$ctrl.to_customer_details.address}}</p>
+                                                        <p class="grey-box-info sm">{{$ctrl.to_customer_details.mobile_no}}</p>
+                                                        <p class="grey-box-info sm">{{$ctrl.to_customer_details.email}}</p>
                                                     </div>
                                                 </div>
                                             </li>
                                             <li class="flex-col-3">
                                                 <div class="grey-box">
-                                                    <div class="grey-box-header">Invoice No : <b>{{$ctrl.jounal_vouchers.invoice_no}}</b></div>
+                                                    <div class="grey-box-header">Invoice Count : <b>{{$ctrl.invoice_count}}</b></div>
                                                     <div class="grey-box-body">
-                                                        <p class="grey-box-info sm">Date : {{$ctrl.jounal_vouchers.invoice_date}}</p>
-                                                        <p class="grey-box-info sm">Outlet : {{$ctrl.jounal_vouchers.invoice_no}}</p>
-                                                        <p class="grey-box-info sm">Business Unit : {{$ctrl.jounal_vouchers.invoice_no}}</p>
-                                                        <p class="grey-box-info sm">Amount : {{$ctrl.jounal_vouchers.invoice_no}}</p>
+                                                         <p class="grey-box-info sm" ng-if="$ctrl.invoices.length != ''">Invoice Numbers : {{$ctrl.invoices}}</p>
+                                                        <p class="grey-box-info sm" ng-if="$ctrl.invoices.length == ''">No Receipt available</p>
                                                     </div>
                                                 </div>
                                             </li>

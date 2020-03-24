@@ -147,7 +147,32 @@ app.component('jvVerificationView', {
         }).then(function(response) {
             console.log(response.data);
             self.journal_vouchers = response.data.journal_vouchers;
+            self.from_account_type = response.data.from_account_type;
+            self.to_account_type = response.data.to_account_type;
+            self.from_customer_details = response.data.from_customer_details;
+            self.to_customer_details = response.data.to_customer_details;
+            self.receipt_count = response.data.receipt_count;
+            self.invoice_count = response.data.invoice_count;
+            self.invoice_details = response.data.invoice_details;
+            self.receipt_details = response.data.receipt_details;
             self.action = response.data.action;
+
+            self.invoice_numbers = [];
+            angular.forEach(response.data.invoice_details, function(value,key){
+                self.invoice_numbers.push(value.invoice_number);                
+            });
+            self.invoices = self.invoice_numbers.join(', ');
+
+            self.receipt_numbers = [];
+            angular.forEach(response.data.receipt_details, function(value,key){
+                self.receipt_numbers.push(value.permanent_receipt_no);                
+            });
+            if(self.receipt_numbers){
+                self.receipts = self.receipt_numbers.join(', ');
+            }else{
+                self.receipts = '';
+            }
+            console.log(self.receipts.length);
             $rootScope.loading = false;
         });
 

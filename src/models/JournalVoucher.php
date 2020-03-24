@@ -30,13 +30,13 @@ class JournalVoucher extends Model {
 		'status_id',
 	];
 
-	// public function jvType() {
-	// 	return $this->belongsTo('Abs\JVPkg\JVType', 'type_id');
-	// }
+	public function jvType() {
+		return $this->belongsTo('Abs\JVPkg\JVType', 'type_id');
+	}
 
-	// public function journal() {
-	// 	return $this->belongsTo('Abs\JVPkg\Journal', 'journal_id');
-	// }
+	public function journal() {
+		return $this->belongsTo('Abs\JVPkg\Journal', 'journal_id');
+	}
 
 	public static function createFromObject($record_data) {
 
