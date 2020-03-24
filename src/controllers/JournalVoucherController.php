@@ -294,7 +294,7 @@ class JournalVoucherController extends Controller {
 				return Datatables::of($data)
 					->addColumn('child_checkbox', function ($data) {
 						// dd($data['INVOICE']);
-						$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $data['INVOICE'] . "' name='child_boxes' value='" . $data['INVOICE'] . "' class='jv_fromAcc_Checkbox'/><label for='child_" . $data['INVOICE'] . "'></label></div></td>";
+						$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $data['INVOICE'] . "' name='child_boxes' value='" . $data['INVOICE'] . "' class='jv_Checkbox'/><label for='child_" . $data['INVOICE'] . "'></label></div></td>";
 
 						return $checkbox;
 					})

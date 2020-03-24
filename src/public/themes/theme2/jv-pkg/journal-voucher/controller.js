@@ -296,13 +296,13 @@ app.component('journalVoucherForm', {
             if (value == 'fromAcc') {
                 self.fromAccountCustomer = {};
                 self.checkedFromAcc = false;
-                // self.added_FromAccTitle = '';
-                // self.checked_FromAccCount = '';
-                // self.checked_fromAccList = '';
-                self.checked_fromList = false;
+                // self.checked_fromList = false;
+                self.check_List = false;
             } else {
                 self.toAccountCustomer = {};
                 self.checkedToAcc = false;
+                // self.checked_toList = false;
+                self.check_List = false;
             }
             // self.customer = {};
         }
@@ -325,38 +325,103 @@ app.component('journalVoucherForm', {
             self.toAcc_field = true;
         }
 
-        $('#search_fromAcc').on('click', function() {
-            $('#search_fromAcc').button('loading');
+        if($("input[name='transfer_type']").is(":checked") == false){
+            //console.log('no-change');
+            self.search_FromButton = false;
+            self.search_ToButton = false;
+            self.add_FromReceipt = false;
+            self.add_ToReceipt = false;
+            self.add_FromButton = false;
+            self.add_ToButton = false;
+        }
+        $("input[name='transfer_type']:radio").change(function () {
+            //alert('radio');
+            if ($(this).val() == 'invoice') {
+                self.search_FromButton = true;
+                self.search_ToButton = false;
+                self.add_FromReceipt = false;
+                self.add_FromButton = false;
+                self.add_ToButton = true;
+                self.add_ToReceipt = true;
+            } else if($(this).val() == 'receipt') {
+                self.search_FromButton = false;
+                self.search_ToButton = true;
+                self.add_FromButton = true;
+                self.add_FromReceipt = true;
+                self.add_ToButton = false;
+                self.add_ToButton = false;
+                self.add_ToReceipt = false;
+            }
+            $scope.$apply();
+        });
+        $(document).on("click","button",function(){
+            // alert(this.id);
+            var buttonId = $(this).attr('id');
+            console.log(buttonId);
+            $(buttonId).button('loading');
+        // $('#search_fromAcc').on('click', function() {
+            // $('#search_fromAcc').button('loading');
             if($("input[name='transfer_type']").is(":checked") == false){
-                $('#search_fromAcc').button('reset');
+                $(buttonId).button('reset');
                 $noty = new Noty({
                     type: 'error',
                     layout: 'topRight',
                     text: 'Choose Transfer Document Type',
                 }).show();
             }
-            if($('.fromAcc').val() == ''){
-                $('#search_fromAcc').button('reset');
-                $noty = new Noty({
-                    type: 'error',
-                    layout: 'topRight',
-                    text: 'Please Enter From Account Code',
-                }).show();
+            if (buttonId == 'search_fromAcc') {
+                if($('.fromAcc').val() == ''){
+                    $(buttonId).button('reset');
+                    $noty = new Noty({
+                        type: 'error',
+                        layout: 'topRight',
+                        text: 'Please Enter From Account Code',
+                    }).show();
+                }
+            } else if (buttonId == 'search_toAcc') {
+                if($('.toAcc').val() == ''){
+                    $(buttonId).button('reset');
+                    $noty = new Noty({
+                        type: 'error',
+                        layout: 'topRight',
+                        text: 'Please Enter To Account Code',
+                    }).show();
+                }
             }
-            $('#search_fromAcc').button('reset');
-            if(($("input[name='transfer_type']").is(":checked") == true) && ($('.fromAcc').val() != '')) {
-                if($("input[name='transfer_type']:checked").val() == 'invoice'){
-                    self.checkedFromAcc = true;
-                    $('.fromAcc_Title').html('Invoices');
-                    //$('#from_AccountList').html('');
-                    var from_AccHeads = '<th><div class="table-checkbox"><input type="checkbox" id="parent_forAcc" /><label for="parent_forAcc"></label></div></th><th>Invoice No</th><th>Invoice Date</th><th>Description</th><th>Outlet</th><th>Business Unit</th><th>Invoiced Amount</th><th>Balance Amount</th>';
-                    $('#from_AccountList').html(from_AccHeads);
-                    // console.log('if-checked');
+            
+            $(buttonId).button('reset');
+            if(($("input[name='transfer_type']").is(":checked") == true)) {
+                // if($("input[name='transfer_type']:checked").val() == 'invoice'){
+                    if (buttonId == 'search_fromAcc') {
+                        self.checkedFromAcc = true;
+                        $('.fromAcc_Title').html('Invoices');
+                        var from_AccHeads = '<th><div class="table-checkbox"><input type="checkbox" id="parent_checkbox" /><label for="parent_checkbox"></label></div></th><th>Invoice No</th><th>Invoice Date</th><th>Description</th><th>Outlet</th><th>Business Unit</th><th>Invoiced Amount</th><th>Balance Amount</th>';
+                        $('#from_AccountList').html(from_AccHeads);
+                    } else if (buttonId == 'search_toAcc') {
+                        self.checkedToAcc = true;
+                        $('.toAcc_Title').html('Invoices');
+                        var to_AccHeads = '<th><div class="table-checkbox"><input type="checkbox" id="parent_checkbox" /><label for="parent_checkbox"></label></div></th><th>Invoice No</th><th>Invoice Date</th><th>Description</th><th>Outlet</th><th>Business Unit</th><th>Invoiced Amount</th><th>Balance Amount</th>';
+                        $('#from_AccountList').html(from_AccHeads);
+                    }
+                    /*Uncheck the checkbox in list page*/
+                    $('#parent_checkbox').prop('checked', false);
+                    $('.jv_Checkbox').each(function() {
+                        this.checked = false;
+                    });
+
+                    if (buttonId == 'search_fromAcc') {
+                        var dataTable_id = '#jv_FromAccList';
+                        var customer_code = $('.fromAccCode').val();
+                    } else if (buttonId == 'search_toAcc') {
+                        var dataTable_id = '#jv_ToAccList';
+                        var customer_code = $('.toAccCode').val();
+                    }
+
                     setTimeout(function() {
                         var dataTable;
                         var table_scroll;
                         table_scroll = $('.page-main-content.list-page-content').height() - 37;
-                        dataTable = $('#jv_FromAccList').DataTable({
+                        dataTable = $(dataTable_id).DataTable({
                             // "dom": cndn_dom_structure,
                             "language": {
                                 // "search": "",
@@ -392,7 +457,7 @@ app.component('journalVoucherForm', {
                                 type: "GET",
                                 dataType: "json",
                                 data: function(d) {
-                                    d.accountNumber= $('.fromAccCode').val();
+                                    d.accountNumber= customer_code;
                                     // d.docType = $("input[name='transfer_type']:checked").val();
                                 },
                             },
@@ -419,191 +484,168 @@ app.component('journalVoucherForm', {
                             },
                         });
                     
-                    // $rootScope.loading = false;
-                    $('#parent_forAcc').on('click', function() {
-                        if (this.checked) {console.log('CheckParent');
-                            self.checked_fromList = true;
-                            console.log(self.checked_fromList);
-                            $('.jv_fromAcc_Checkbox').each(function() {
-                                this.checked = true;
-                            });
-                            self.added_FromAccTitle = 'Invoices added';
-                            self.checked_FromAccCount = $('.jv_fromAcc_Checkbox:checked').length;
-                            if ($('.jv_fromAcc_Checkbox:checked').length > 0) {
-                                var selected_fromAccList = []
-                                // var checked_invoices;
-                                $('input[name="child_boxes"]:checked').each(function() {
-                                    selected_fromAccList.push(this.value);
+                        // $rootScope.loading = false;
+                        $('#parent_checkbox').on('click', function() {
+                            if (this.checked) { //console.log('CheckParent');
+                                // if (buttonId == 'search_fromAcc') {
+                                //     self.checked_fromList = true;
+                                // } else if (buttonId == 'search_toAcc') {
+                                //     self.checked_toList = true;
+                                // }
+                                self.check_List = true;
+                                //console.log(self.checked_fromList);
+                                $('.jv_Checkbox').each(function() {
+                                    this.checked = true;
                                 });
-                                self.checked_fromAccList = selected_fromAccList.join(', ');
-                                $('#add_fromAcc').button('reset');
-                                console.log(self.checked_fromAccList);
+                                self.added_Title = 'Invoices added';
+                                self.checked_Count = $('.jv_Checkbox:checked').length;
+                                if ($('.jv_Checkbox:checked').length > 0) {
+                                    var selected_List = []
+                                    // var checked_invoices;
+                                    $('input[name="child_boxes"]:checked').each(function() {
+                                        selected_List.push(this.value);
+                                    });
+                                    self.checked_List = selected_List.join(', ');
+                                    console.log(self.checked_List);
+                                }
+                            } else {//console.log('uncheckParent');
+                                self.check_List = false;
+                                self.added_Title = '';
+                                self.checked_Count = $('.jv_Checkbox:checked').length;
+                                self.checked_List = '';
+                                $('.jv_Checkbox').each(function() {
+                                    this.checked = false;
+                                });
                             }
-                        } else {console.log('uncheckParent');
-                            self.checked_fromList = false;
-                            console.log(self.checked_fromList);
-                            self.added_FromAccTitle = '';
-                            self.checked_FromAccCount = $('.jv_fromAcc_Checkbox:checked').length;
-                            $('.jv_fromAcc_Checkbox').each(function() {
-                                this.checked = false;
-                            });
-                        }
-                        $scope.$apply();
-                    });
-                    $(document.body).on('click', '.jv_fromAcc_Checkbox', function() {
-                        if ($('.jv_fromAcc_Checkbox').is('checked') == true) {
-                            self.checked_fromList = true;
-                            if ($('.jv_fromAcc_Checkbox:checked').length == $('.jv_fromAcc_Checkbox').length) {
-                                $('#parent_forAcc').prop('checked', true);
+                            $scope.$apply();
+                        });
+                        $(document.body).on('click', '.jv_Checkbox', function() {
+                            if ($('.jv_Checkbox').is(':checked') == true) {
+                                self.check_List = true; //console.log('jv_Checkbox ' + self.check_List);
+                                if ($('.jv_Checkbox:checked').length == $('.jv_Checkbox').length) {
+                                    $('#parent_checkbox').prop('checked', true);
+                                } else {
+                                    $('#parent_checkbox').prop('checked', false);
+                                }
+                                self.added_Title = 'Invoices added';
+                                self.checked_Count = $('.jv_Checkbox:checked').length;
+                                if ($('.jv_Checkbox:checked').length > 0) {
+                                    var selected_List = []
+                                    // var checked_invoices;
+                                    $('input[name="child_boxes"]:checked').each(function() {
+                                        selected_List.push(this.value);
+                                    });
+                                    self.checked_List = selected_List.join(', ');
+                                    console.log(self.checked_List);
+                                }
                             } else {
-                                $('#parent_forAcc').prop('checked', false);
+                                self.check_List = false; //console.log('jv_Checkbox ' + self.check_List);
+                                self.added_Title = '';
+                                self.checked_Count = $('.jv_Checkbox:checked').length;
+                                self.checked_List = '';
                             }
-                        } else {
-                            self.checked_fromList = true;
-                        }
-                        
-                        $scope.$apply();
-                    });
-                    //Selected Invoice
-                    $('#add_fromAcc').on('click', function() {
-                        $('#add_fromAcc').button('loading');
-                        self.added_FromAccTitle = 'Invoices added';
-                        self.checked_FromAccCount = $('.jv_fromAcc_Checkbox:checked').length;
-                        console.log(self.checked_FromAccCount);
-                        if ($('.jv_fromAcc_Checkbox:checked').length > 0) {
-                            var selected_fromAccList = []
-                            // var checked_invoices;
-                            $('input[name="child_boxes"]:checked').each(function() {
-                                selected_fromAccList.push(this.value);
-                            });
-                            self.checked_fromAccList = selected_fromAccList.join(', ');
-                            $('#add_fromAcc').button('reset');
-                            console.log(self.checked_fromAccList);
-                            //return
-                            
-                            // console.log(checked_invoices.join(', '));
-                            // return
-                            // $http.post(
-                            //     laravel_routes['sendMultipleApproval'], {
-                            //         send_for_approval: send_for_approval,
-                            //     }
-                            // ).then(function(response) {
-                            //     if (response.data.success == true) {
-                            //         custom_noty('success', response.data.message);
-                            //         $timeout(function() {
-                            //             // $('#service-invoice-table').DataTable().ajax.reload();
-                            //             RefreshTable();
-                            //             // $scope.$apply();
-                            //         }, 1000);
-                            //     } else {
-                            //         custom_noty('error', response.data.errors);
-                            //     }
-                            // });
-                        } else {
-                            $('#add_fromAcc').button('reset');
-                            custom_noty('error', 'Please Select Invoice');
-                        }
-                        $scope.$apply();
-                    });
+                            $scope.$apply();
+                        });
                     }, 3000);
-                }
-            } else { console.log('else');
+                // }
+            } else { //console.log('else');
                 self.checkedFromAcc = false;
-            }
-        });
-        
-        $('#search_toAcc').on('click', function() {
-            if($("input[name='transfer_type']").is(":checked") == false){
-                $noty = new Noty({
-                    type: 'error',
-                    layout: 'topRight',
-                    text: 'Choose Transfer Document Type',
-                }).show();
-            }
-            if($('.toAcc').val() == ''){
-                $noty = new Noty({
-                    type: 'error',
-                    layout: 'topRight',
-                    text: 'Please Enter To Account Code',
-                }).show();
-            }
-            if (($("input[name='transfer_type']").is(":checked") == true) && ($('.toAcc').val() != '')) {
-                if($("input[name='transfer_type']:checked").val() != 'receipt') {
-                    self.checkedToAcc = true;
-                    $('#to_AccountList').append('');
-                    var to_AccHeads = '<th>Receipt No</th><th>Receipt Date</th><th>Description</th><th>Outlet</th><th>Business Unit</th><th>Receipt Amount</th><th>Available Amount</th>';
-                    $('#to_AccountList').append(to_AccHeads);
-                    $('.toAcc_Title').html('Receipts');
-                    var dataTable;
-                    var table_scroll;
-                    table_scroll = $('.page-main-content.list-page-content').height() - 37;
-                    dataTable = $('#jv_ToAccList').DataTable({
-                        // "dom": cndn_dom_structure,
-                        "language": {
-                            // "search": "",
-                            // "searchPlaceholder": "Search",
-                            "lengthMenu": "Rows _MENU_",
-                            "paginate": {
-                                "next": '<i class="icon ion-ios-arrow-forward"></i>',
-                                "previous": '<i class="icon ion-ios-arrow-back"></i>'
-                            },
-                        },
-                        scrollX: true,
-                        scrollY: table_scroll + "px",
-                        scrollCollapse: true,
-                        stateSave: true,
-                        stateSaveCallback: function(settings, data) {
-                            localStorage.setItem('SIDataTables_' + settings.sInstance, JSON.stringify(data));
-                        },
-                        stateLoadCallback: function(settings) {
-                            var state_save_val = JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
-                            if (state_save_val) {
-                                $('#search').val(state_save_val.search.search);
-                            }
-                            return JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
-                        },
-                        processing: true,
-                        serverSide: true,
-                        // paging: true,
-                        searching: true,
-                        ordering: false,
-                        ajax: {
-                            url: laravel_routes['getCustomerReceipt'],
-                            type: "GET",
-                            dataType: "json",
-                            data: function(d) {
-                                d.accountNumber= $('.toAccCode').val();
-                                // d.docType = $("input[name='transfer_type']:checked").val();
-                            },
-                        },
-                        
-                        columns: [
-                            // { data: 'child_checkbox', searchable: false },
-                            { data: 'INVOICE', searchable: true },
-                            { data: 'LASTSETTLEDATE', name: 'LASTSETTLEDATE', searchable: true },
-                            { data: 'TXT', name: 'TXT', searchable: true },
-                            { data: 'OUTLET', name: 'OUTLET', searchable: true },
-                            { data: 'BUSINESSUNIT', name: 'BUSINESSUNIT', searchable: true },
-                            { data: 'AMOUNTMST', name: 'AMOUNTMST', searchable: true },
-                            { data: 'SETTLEAMOUNTCUR', name: 'SETTLEAMOUNTCUR', searchable: true },
-                        ],
-                        "initComplete": function(settings, json) {
-                            // $('.dataTables_length select').select2();
-                        },
-                        rowCallback: function(row, data) {
-                            $(row).addClass('highlight-row');
-                        },
-                        infoCallback: function(settings, start, end, max, total, pre) {
-                            // $('#table_info').html(total)
-                            $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
-                        },
-                    });
-                }
-            } else {
                 self.checkedToAcc = false;
             }
-        });
-
+        // });
+        
+        // $('#search_toAcc').on('click', function() {
+        //     // if($("input[name='transfer_type']").is(":checked") == false){
+        //     //     $noty = new Noty({
+        //     //         type: 'error',
+        //     //         layout: 'topRight',
+        //     //         text: 'Choose Transfer Document Type',
+        //     //     }).show();
+        //     // }
+        //     // if($('.toAcc').val() == ''){
+        //     //     $noty = new Noty({
+        //     //         type: 'error',
+        //     //         layout: 'topRight',
+        //     //         text: 'Please Enter To Account Code',
+        //     //     }).show();
+        //     // }
+        //     if (($("input[name='transfer_type']").is(":checked") == true) && ($('.toAcc').val() != '')) {
+        //         if($("input[name='transfer_type']:checked").val() != 'receipt') {
+        //             self.checkedToAcc = true;
+        //             $('#to_AccountList').append('');
+        //             var to_AccHeads = '<th>Receipt No</th><th>Receipt Date</th><th>Description</th><th>Outlet</th><th>Business Unit</th><th>Receipt Amount</th><th>Available Amount</th>';
+        //             $('#to_AccountList').append(to_AccHeads);
+        //             $('.toAcc_Title').html('Receipts');
+        //             var dataTable;
+        //             var table_scroll;
+        //             table_scroll = $('.page-main-content.list-page-content').height() - 37;
+        //             dataTable = $('#jv_ToAccList').DataTable({
+        //                 // "dom": cndn_dom_structure,
+        //                 "language": {
+        //                     // "search": "",
+        //                     // "searchPlaceholder": "Search",
+        //                     "lengthMenu": "Rows _MENU_",
+        //                     "paginate": {
+        //                         "next": '<i class="icon ion-ios-arrow-forward"></i>',
+        //                         "previous": '<i class="icon ion-ios-arrow-back"></i>'
+        //                     },
+        //                 },
+        //                 scrollX: true,
+        //                 scrollY: table_scroll + "px",
+        //                 scrollCollapse: true,
+        //                 stateSave: true,
+        //                 stateSaveCallback: function(settings, data) {
+        //                     localStorage.setItem('SIDataTables_' + settings.sInstance, JSON.stringify(data));
+        //                 },
+        //                 stateLoadCallback: function(settings) {
+        //                     var state_save_val = JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
+        //                     if (state_save_val) {
+        //                         $('#search').val(state_save_val.search.search);
+        //                     }
+        //                     return JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
+        //                 },
+        //                 processing: true,
+        //                 serverSide: true,
+        //                 // paging: true,
+        //                 searching: true,
+        //                 ordering: false,
+        //                 ajax: {
+        //                     url: laravel_routes['getCustomerReceipt'],
+        //                     type: "GET",
+        //                     dataType: "json",
+        //                     data: function(d) {
+        //                         d.accountNumber= $('.toAccCode').val();
+        //                         // d.docType = $("input[name='transfer_type']:checked").val();
+        //                     },
+        //                 },
+                        
+        //                 columns: [
+        //                     // { data: 'child_checkbox', searchable: false },
+        //                     { data: 'INVOICE', searchable: true },
+        //                     { data: 'LASTSETTLEDATE', name: 'LASTSETTLEDATE', searchable: true },
+        //                     { data: 'TXT', name: 'TXT', searchable: true },
+        //                     { data: 'OUTLET', name: 'OUTLET', searchable: true },
+        //                     { data: 'BUSINESSUNIT', name: 'BUSINESSUNIT', searchable: true },
+        //                     { data: 'AMOUNTMST', name: 'AMOUNTMST', searchable: true },
+        //                     { data: 'SETTLEAMOUNTCUR', name: 'SETTLEAMOUNTCUR', searchable: true },
+        //                 ],
+        //                 "initComplete": function(settings, json) {
+        //                     // $('.dataTables_length select').select2();
+        //                 },
+        //                 rowCallback: function(row, data) {
+        //                     $(row).addClass('highlight-row');
+        //                 },
+        //                 infoCallback: function(settings, start, end, max, total, pre) {
+        //                     // $('#table_info').html(total)
+        //                     $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
+        //                 },
+        //             });
+        //         }
+        //     } else {
+        //         self.checkedToAcc = false;
+        //     }
+        // });
+});
         var form_id = '#form';
         var v = jQuery(form_id).validate({
             ignore: '',
