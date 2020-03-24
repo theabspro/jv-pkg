@@ -6,7 +6,9 @@ use Abs\CustomerPkg\Customer;
 use Abs\InvoicePkg\Invoice;
 use Abs\JVPkg\JournalVoucher;
 use Abs\ReceiptPkg\Receipt;
+use App\Attachment;
 use App\Config;
+use App\Entity;
 use App\Http\Controllers\Controller;
 use Auth;
 use DB;
@@ -163,6 +165,22 @@ class JvVerificationController extends Controller {
 			->where('jv_id', $id)
 			->count('jv_id')
 		;
+
+		$this->data['attachment'] = $attachment = Attachment::where([
+			'attachment_of_id' => 223,
+			'attachment_type_id' => 244,
+			'entity_id' => $id,
+		])
+			->get();
+
+		$this->data['reject_reason'] = $reject_reason = Entity::where('entity_type_id', 21)->get();
+
+		// $this->data['attachment'] = $attacment = [
+		// 	['id' => '1', 'name' => 'test'],
+		// 	['id' => '2', 'name' => 'test1'],
+		// ];
+
+		// dd($attacment);
 
 		$this->data['journal_vouchers'] = $journal_vouchers;
 		$this->data['from_account_type'] = $from_account_type;

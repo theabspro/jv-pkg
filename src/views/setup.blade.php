@@ -96,6 +96,8 @@
     var jv_verification_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-verification/list.html')}}";
     var jv_verification_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-verification/view.html')}}";
     // var get_from_list_based_level_id = "{{url('verification/get-list')}}";
+    var jv_attachements_url = "{{URL::to('/storage/app/public/journal-vouchers/attachments')}}";
+
 
 
     //LEDGER

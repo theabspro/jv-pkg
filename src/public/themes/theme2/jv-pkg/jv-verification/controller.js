@@ -4,6 +4,7 @@ app.component('jvVerificationList', {
         $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
+        self.level_id = $routeParams.level_id;
         var table_scroll;
         table_scroll = $('.page-main-content.list-page-content').height() - 37;
         var dataTable = $('#jv_verification_list').DataTable({
@@ -137,6 +138,7 @@ app.component('jvVerificationView', {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.angular_routes = angular_routes;
+        self.level_id = $routeParams.level_id;
         $http({
             url: laravel_routes['viewJvVerification'],
             method: "GET",
@@ -147,6 +149,7 @@ app.component('jvVerificationView', {
         }).then(function(response) {
             console.log(response.data);
             self.journal_vouchers = response.data.journal_vouchers;
+            self.reject_reason = response.data.reject_reason;
             self.from_account_type = response.data.from_account_type;
             self.to_account_type = response.data.to_account_type;
             self.from_customer_details = response.data.from_customer_details;
@@ -155,6 +158,8 @@ app.component('jvVerificationView', {
             self.invoice_count = response.data.invoice_count;
             self.invoice_details = response.data.invoice_details;
             self.receipt_details = response.data.receipt_details;
+            self.attachment = response.data.attachment;
+            self.ref_attachements_url_link = jv_attachements_url;
             self.action = response.data.action;
 
             self.invoice_numbers = [];
@@ -167,13 +172,21 @@ app.component('jvVerificationView', {
             angular.forEach(response.data.receipt_details, function(value,key){
                 self.receipt_numbers.push(value.permanent_receipt_no);                
             });
-            if(self.receipt_numbers){
-                self.receipts = self.receipt_numbers.join(', ');
-            }else{
-                self.receipts = '';
-            }
-            console.log(self.receipts.length);
+
             $rootScope.loading = false;
+        });
+
+        $element.find('input').on('keydown', function(ev) {
+            ev.stopPropagation();
+        });
+        $scope.clearSearchTerm = function() {
+            $scope.searchTerm = '';
+        };
+        /* Modal Md Select Hide */
+        $('.modal').bind('click', function(event) {
+            if ($('.md-select-menu-container').hasClass('md-active')) {
+                $mdSelect.hide();
+            }
         });
 
         /* Tab Funtion */
