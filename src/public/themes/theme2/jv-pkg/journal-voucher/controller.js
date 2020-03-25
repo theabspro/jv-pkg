@@ -49,7 +49,7 @@ app.component('journalVoucherList', {
 
             columns: [
                 { data: 'action', class: 'action', name: 'action', searchable: false },
-                { data: 'number', name: 'journal_vouchers.number', searchable: true },
+                { data: 'voucher_number', name: 'journal_vouchers.voucher_number', searchable: true },
                 { data: 'jv_date', searchable: false },
                 { data: 'jv_type', name: 'journal_vouchers.type_id', searchable: false },
                 { data: 'from_account_type', name: 'from_account_types.name', searchable: false },
@@ -77,6 +77,9 @@ app.component('journalVoucherList', {
         var dataTables = $('#journal_vouchers_list').dataTable();
         $("#search_journal_voucher").keyup(function() {
             dataTables.fnFilter(this.value);
+        });
+        $('.refresh_table').on("click", function() {
+            $('#journal_vouchers_list').DataTable().ajax.reload();
         });
 
         //DELETE
@@ -157,6 +160,7 @@ app.component('journalVoucherForm', {
                 } else {
                     self.switch_value = 'Active';
                 }
+                $scope.onSelectedJVType(self.journal_voucher.type_id);
             } else {
                 self.switch_value = 'Active';
             }
@@ -353,8 +357,12 @@ app.component('journalVoucherForm', {
             }
             $scope.$apply();
         });
-        $(document).on("click","button",function(){
+
+        self.jv_receipts = [];
+
+        $(".button").on("click",function(){
             // alert(this.id);
+            alert($(this).attr('id'));
             var buttonId = $(this).attr('id');
             console.log(buttonId);
             $(buttonId).button('loading');
@@ -420,7 +428,8 @@ app.component('journalVoucherForm', {
                         text: 'Please Enter Receipt Number',
                     }).show();
                 }
-            }            
+            } 
+
             
             $(buttonId).button('reset');
             if(($("input[name='transfer_type']").is(":checked") == true) && ($('.fromAcc').val() != '' || $('.toAcc').val() != '')) {
@@ -491,19 +500,20 @@ app.component('journalVoucherForm', {
                                 dataType: "json",
                                 data: function(d) {
                                     d.accountNumber= customer_code;
+                                    d.customer_id= $('.fromAcc').val();
                                     // d.docType = $("input[name='transfer_type']:checked").val();
                                 },
                             },
                             
                             columns: [
                                 { data: 'child_checkbox', searchable: false },
-                                { data: 'INVOICE', searchable: true },
-                                { data: 'TRANSDATE', name: 'TRANSDATE', searchable: true },
-                                { data: 'TXT', name: 'TXT', searchable: true },
-                                { data: 'OUTLET', name: 'OUTLET', searchable: true },
-                                { data: 'BUSINESSUNIT', name: 'BUSINESSUNIT', searchable: true },
-                                { data: 'AMOUNTCUR', name: 'AMOUNTCUR', searchable: true, class: 'text-right' },
-                                { data: 'Balance', name: 'Balance', searchable: true, class: 'text-right' },
+                                { data: 'invoice_number', searchable: true },
+                                { data: 'invoice_date', name: 'invoice_date', searchable: false },
+                                { data: 'remarks', name: 'remarks', searchable: false },
+                                { data: 'outlet_name', name: 'outlets.code', searchable: true },
+                                { data: 'business_name', name: 'sbus.name', searchable: true },
+                                { data: 'invoice_amount', name: 'invoices.invoice_amount', searchable: true, class: 'text-right' },
+                                { data: 'balence_amount', name: 'Balance', searchable: false, class: 'text-right' },
                             ],
                             "initComplete": function(settings, json) {
                                 // $('.dataTables_length select').select2();
@@ -574,7 +584,7 @@ app.component('journalVoucherForm', {
                             }
                             $scope.$apply();
                         });
-                    }, 3000);
+                    }, 2000);
                 } else if ((buttonId == 'add_fromAcc' || buttonId =='add_toAcc') && ($('#from_receipt_number').val() != '' || $('#to_receipt_number').val() != '')) {
                     if (buttonId == 'add_fromAcc') {
                         self.checkedFromAcc = false;
@@ -597,17 +607,17 @@ app.component('journalVoucherForm', {
                                 receiptNumber: receipt_number,
                             }
                         }
-                    ).then(function(response) { console.log(response.data);
+                    ).then(function(response) { 
+                        console.log(response.data);
                         if (!response.data.errors) {
-                            self.journal_voucher.jv_receipts = response.data.receipts;
+                            self.jv_receipts.push(response.data.receipts);
+                            console.log(self.jv_receipts);
                         } else {
-                            $noty = new Noty({
-                                type: 'error',
-                                layout: 'topRight',
-                                text: response.data.errors,
-                            }).show();
+                            custom_noty('error',response.data.errors);
                         }
                     });
+
+                    // console.log(self.journal_voucher.jv_receipts);
 
                     // if (!self.journal_voucher.jv_receipts) {
                     //     self.journal_voucher.jv_receipts = [];
@@ -722,6 +732,9 @@ app.component('journalVoucherForm', {
                     required: true,
                 },
                 'to_account_id': {
+                    required: true,
+                },
+                'reason': {
                     required: true,
                 },
                 'amount': {
