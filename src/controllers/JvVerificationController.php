@@ -191,4 +191,63 @@ class JvVerificationController extends Controller {
 
 		return response()->json($this->data);
 	}
+
+	public function saveJvVerification(Request $request) {
+		// dd($request->all());
+		try {
+			DB::beginTransaction();
+
+			$approval_level = ApprovalLevel::where('id', $request->approval_level_id)
+				->leftJoin('approval_type_approval_level as atal', 'atal.approval_level_id', 'approval_levels.id')
+				->where('atal.approval_type_id', 2)
+				->first();
+
+			// dd($approval_level);
+
+			if ($request->verification_type == 'approve') {
+				$approve = JournalVoucher::where('id', $request->journal_voucher_id)->Update([
+					'status_id' => $approval_level->next_status_id,
+					'rejection_id' => NULL,
+					'rejection_reason' => NULL,
+				]);
+				if ($approve) {
+					DB::commit();
+					return response()->json([
+						'success' => true,
+						'message' => 'Approved Successfully',
+					]);
+				} else {
+					return response()->json([
+						'success' => false,
+						'error' => ['Approval Error'],
+					]);
+				}
+			} elseif ($request->verification_type == 'Reject') {
+				$reject = JournalVoucher::where('id', $request->journal_voucher_id)->Update([
+					'status_id' => $approval_level->reject_status_id,
+					'rejection_id' => $request->reject_reason_id,
+					'rejection_reason' => $request->rejection_reason,
+				]);
+				if ($reject) {
+					DB::commit();
+					return response()->json([
+						'success' => true,
+						'message' => 'Rejected Successfully',
+					]);
+				} else {
+					return response()->json([
+						'success' => false,
+						'error' => ['Rejection Error'],
+					]);
+				}
+
+			}
+		} catch (Exceprion $e) {
+			DB::rollBack();
+			return response()->json([
+				'success' => false,
+				'error' => $e->getMessage(),
+			]);
+		}
+	}
 }

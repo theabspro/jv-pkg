@@ -201,17 +201,21 @@
 <!-- Modal -->
 <div class="modal filter fade" id="approve-popup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog modal-sm mcollect-modal" role="document">
+        <form id="approve">
         <div class="modal-content">
             <div class="modal-body text-center">
                 <img class="img-responsive img-center" src="./public/theme/img/content/success.svg" />
                 <h4 class="title">Approve</h4>
             </div><!-- Modal Body -->
             <div class="modal-footer text-right">
-                <input type="hidden" name="journal_voucher" value="{{$ctrl.journal_vouchers.id}}" id=journal_voucher>
+                <input type="hidden" name="journal_voucher_id" value="{{$ctrl.journal_vouchers.id}}" id=journal_voucher_id>
+                <input type="hidden" name="approval_level_id" value="{{$ctrl.level_id}}" id=approval_level_id>
+                <input type="hidden" name="verification_type" value="approve" id=verification_type>
                 <a href="#!" class="btn btn-cancel" data-dismiss="modal">Cancel</a>
-                <button type="button" class="btn btn-primary">Proceed</button>
+                <button type="submit" class="btn btn-primary approve">Proceed</button>
             </div><!-- Modal Footer -->
         </div><!-- Modal Content -->
+    </form>
     </div><!-- Modal Dialog -->
 </div><!-- Modal Content -->
 <!-- Modal -->
@@ -219,11 +223,15 @@
 <div class="modal filter fade" id="reject-popup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog modal-sm mcollect-modal" role="document">
         <div class="modal-content">
+            <form id="reject">
             <div class="modal-body text-center">
                 <img class="img-responsive img-center" src="./public/theme/img/content/reject.svg" />
                 <h4 class="title">Reject</h4>
                 <div class="input-text form-group text-left">
-                    <md-select ng-model="$ctrl.journal_voucher.type_id" placeholder="Select JV Rejection Reason" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader">
+                <input type="hidden" name="journal_voucher_id" value="{{$ctrl.journal_vouchers.id}}" id=journal_voucher_id>
+                <input type="hidden" name="verification_type" value="Reject" id=verification_type>
+                <input type="hidden" name="approval_level_id" value="{{$ctrl.level_id}}" id=approval_level_id>
+                    <md-select ng-model="$ctrl.reject_reason.id" placeholder="Select JV Rejection Reason" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader">
                         <md-select-header class="demo-select-header">
                             <input ng-model="search" type="search" placeholder="Search JV Type" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                         </md-select-header>
@@ -233,16 +241,17 @@
                             </md-option>
                         </md-optgroup>
                     </md-select>
-                    <input type="hidden" name="type_id" value='{{$ctrl.journal_voucher.type_id}}' class="required">
+                    <input type="hidden" name="reject_reason_id" value='{{$ctrl.reject_reason.id}}' class="required" id="reject_reason_id">
                 </div><!-- Feild -->
                 <div class="input-text form-group">
-                    <textarea class="form-control" rows="4" placeholder="Enter Remarks for Rejection"></textarea>
+                    <textarea class="form-control" name="rejection_reason" rows="4" placeholder="Enter Remarks for Rejection"></textarea>
                 </div>
             </div><!-- Modal Body -->
             <div class="modal-footer text-right">
                 <a href="#!" class="btn btn-cancel" data-dismiss="modal">Cancel</a>
-                <button type="button" class="btn btn-primary">Proceed</button>
+                <button type="submit" class="btn btn-primary reject">Proceed</button>
             </div><!-- Modal Footer -->
+        </form>
         </div><!-- Modal Content -->
     </div><!-- Modal Dialog -->
 </div><!-- Modal Content -->

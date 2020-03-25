@@ -2,9 +2,15 @@ app.component('jvVerificationList', {
     templateUrl: jv_verification_list_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location) {
         $scope.loading = true;
+        // $route.reload();
+        console.log(base_path);
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.level_id = $routeParams.level_id;
+        setTimeout(function(){
+            window.location.href = ('#!/verification/7221/level/'+ $routeParams.level_id +'/list');
+        },500);
+
         var table_scroll;
         table_scroll = $('.page-main-content.list-page-content').height() - 37;
         var dataTable = $('#jv_verification_list').DataTable({
@@ -37,6 +43,7 @@ app.component('jvVerificationList', {
             scrollY: table_scroll + "px",
             scrollX: true,
             scrollCollapse: true,
+            retrieve: true,
             ajax: {
                 url: laravel_routes['getJvVerificationList'],
                 type: "POST",
@@ -74,37 +81,13 @@ app.component('jvVerificationList', {
 
         $scope.clear_search = function() {
             $('#search_journal_voucher').val('');
-            $('#journal_vouchers_list').DataTable().search('').draw();
+            $('#jv_verification_list').DataTable().search('').draw();
         }
 
-        var dataTables = $('#journal_vouchers_list').dataTable();
+        var dataTables = $('#jv_verification_list').dataTable();
         $("#search_journal_voucher").keyup(function() {
             dataTables.fnFilter(this.value);
         });
-
-        //DELETE
-        $scope.deleteJournalVoucher = function($id) {
-            $('#journal_voucher_id').val($id);
-        }
-        $scope.deleteConfirm = function() {
-            $id = $('#journal_voucher_id').val();
-            $http.get(
-                journal_voucher_delete_data_url + '/' + $id,
-            ).then(function(response) {
-                if (response.data.success) {
-                    $noty = new Noty({
-                        type: 'success',
-                        layout: 'topRight',
-                        text: 'Journal Voucher Deleted Successfully',
-                    }).show();
-                    setTimeout(function() {
-                        $noty.close();
-                    }, 3000);
-                    $('#journal_vouchers_list').DataTable().ajax.reload(function(json) {});
-                    $location.path('/jv-pkg/journal-voucher/list');
-                }
-            });
-        }
 
         //FOR FILTER
         $('#journal_voucher_code').on('keyup', function() {
@@ -134,7 +117,7 @@ app.component('jvVerificationList', {
 //------------------------------------------------------------------------------------------------------------------------
 app.component('jvVerificationView', {
     templateUrl: jv_verification_form_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element, $mdSelect) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.angular_routes = angular_routes;
@@ -202,82 +185,91 @@ app.component('jvVerificationView', {
             tabPaneFooter();
         });
 
-        var form_id = '#form';
-        var v = jQuery(form_id).validate({
-            ignore: '',
-            rules: {
-                'type_id': {
-                    required: true,
-                },
-                'from_account_id': {
-                    required: true,
-                },
-                'to_account_id': {
-                    required: true,
-                },
-                'amount': {
-                    required: true,
-                    number: true,
-                },
-            },
-            invalidHandler: function(event, validator) {
-                $noty = new Noty({
-                    type: 'error',
-                    layout: 'topRight',
-                    text: 'You have errors,Please check all tabs'
-                }).show();
-            },
+        var from_approve = '#approve';
+        var v = jQuery(from_approve).validate({
             submitHandler: function(form) {
-                let formData = new FormData($(form_id)[0]);
-                $('#submit').button('loading');
+                let formDataapprove = new FormData($(from_approve)[0]);
+                $('.submit').button('loading');
                 $.ajax({
-                        url: laravel_routes['saveJournalVoucher'],
+                        url: laravel_routes['saveJvVerification'],
                         method: "POST",
-                        data: formData,
+                        data: formDataapprove,
                         processData: false,
                         contentType: false,
                     })
                     .done(function(res) {
                         if (res.success == true) {
-                            $noty = new Noty({
-                                type: 'success',
-                                layout: 'topRight',
-                                text: res.message,
-                            }).show();
-                            setTimeout(function() {
-                                $noty.close();
-                            }, 3000);
-                            $location.path('/jv-pkg/journal-voucher/list');
+                            custom_noty('success',res.message);
+                            $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
                             $scope.$apply();
                         } else {
                             if (!res.success == true) {
-                                $('#submit').button('reset');
+                                $('.submit').button('reset');
                                 var errors = '';
                                 for (var i in res.errors) {
                                     errors += '<li>' + res.errors[i] + '</li>';
                                 }
-                                $noty = new Noty({
-                                    type: 'error',
-                                    layout: 'topRight',
-                                    text: errors
-                                }).show();
-                                setTimeout(function() {
-                                    $noty.close();
-                                }, 3000);
+                                custom_noty('error', errors);
                             } else {
-                                $('#submit').button('reset');
-                                $location.path('/jv-pkg/journal-voucher/list');
+                                $('.submit').button('reset');
+                                $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
                                 $scope.$apply();
                             }
                         }
                     })
                     .fail(function(xhr) {
-                        $('#submit').button('reset');
-                        $noty = new Noty({
-                            type: 'error',
-                            layout: 'topRight',
-                            text: 'Something went wrong at server',
-                        }).show();
+                        $('.submit').button('reset');
+                        custom_noty('error', 'Something went wrong at server');
+                    });
+            }
+        });
+
+        var form_reject = '#reject';
+        var v = jQuery(form_reject).validate({
+            ignore: '',
+            rules: {
+                'reject_reason': {
+                    required: true,
+                },
+                'rejection_reason': {
+                    required: true,
+                    minlength: 3,
+                    maxlength: 191,
+                },
+            },
+            submitHandler: function(form) {
+                let formDatareject = new FormData($(form_reject)[0]);
+                $('.submit').button('loading');
+                $.ajax({
+                        url: laravel_routes['saveJvVerification'],
+                        method: "POST",
+                        data: formDatareject,
+                        processData: false,
+                        contentType: false,
+                    })
+                    .done(function(res) {
+                        if (res.success == true) {
+                            custom_noty('success',res.message);
+                            $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
+                            $scope.$apply();
+                        } else {
+                            if (!res.success == true) {
+                                $('.submit').button('reset');
+                                var errors = '';
+                                for (var i in res.errors) {
+                                    errors += '<li>' + res.errors[i] + '</li>';
+                                }
+                                custom_noty('error', errors);
+                            } else {
+                                $('.submit').button('reset');
+                                $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
+                                $scope.$apply();
+                            }
+                        }
+                    })
+                    .fail(function(xhr) {
+                        $('.submit').button('reset');
+                        custom_noty('error', 'Something went wrong at server');
                     });
             }
         });
