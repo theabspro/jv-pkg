@@ -99,7 +99,8 @@
                                                 Journal Name
                                                 <sup class="mandatory">*</sup>
                                             </label>
-                                            <input class="form-control" placeholder="Enter Journal Name" value="{{$ctrl.journal.name}}" autocomplete="off" readonly />
+                                            <input class="form-control" placeholder="Enter Journal Name" value="{{$ctrl.journal.name}}" name="journal_name" autocomplete="off" readonly />
+                                            <input type="hidden" class="form-control" placeholder="Enter Journal Name" value="{{$ctrl.journal.id}}" name="journal_id" />
                                         </div>
                                     </div>
                                     <div class="col-md-3" ng-if="$ctrl.journals_list">
@@ -113,7 +114,7 @@
                                                     <input ng-model="searchJournal" type="search" placeholder="Search Journal" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                                                 </md-select-header>
                                                 <md-optgroup label="journal">
-                                                    <md-option ng-value="journal" ng-repeat="journal in $ctrl.journals_list | filter:searchJournal">
+                                                    <md-option ng-value="journal.id" ng-repeat="journal in $ctrl.journals_list | filter:searchJournal">
                                                         {{journal.name}}
                                                     </md-option>
                                                 </md-optgroup>
@@ -132,7 +133,7 @@
                                                     <input ng-model="searchFromAccount" type="search" placeholder="Search From Account" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                                                 </md-select-header>
                                                 <md-optgroup label="from_account">
-                                                    <md-option ng-value="from_account" ng-repeat="from_account in $ctrl.jv_account_type_list | filter:searchFromAccount">
+                                                    <md-option ng-value="from_account.id" ng-repeat="from_account in $ctrl.jv_account_type_list | filter:searchFromAccount">
                                                         {{from_account.name}}
                                                     </md-option>
                                                 </md-optgroup>
@@ -151,7 +152,7 @@
                                                     <input ng-model="searchToAccount" type="search" placeholder="Search To Account" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                                                 </md-select-header>
                                                 <md-optgroup label="to_account">
-                                                    <md-option ng-value="to_account" ng-repeat="to_account in $ctrl.jv_account_type_list | filter:searchToAccount">
+                                                    <md-option ng-value="to_account.id" ng-repeat="to_account in $ctrl.jv_account_type_list | filter:searchToAccount">
                                                         {{to_account.name}}
                                                     </md-option>
                                                 </md-optgroup>
@@ -197,6 +198,8 @@
                                                     <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.journal_voucher.to_account_type_id.name}}</b>
                                                     <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_account_type_id.name}} to {{$ctrl.jv_types[2].value_name}}</b>
                                                     </div>
+                                                    <input type="hidden" name="from_account_type_id" id="from_account_type_id" value='{{$ctrl.jv_types[1].value}}'>
+                                                    <input type="hidden" name="to_account_type_id" id="to_account_type_id" value='{{$ctrl.jv_types[2].value}}'>
                                                 </div>
                                             </li>
                                         </ul>
@@ -229,8 +232,8 @@
                                                         No Customers matching "{{ctrl.fromCustomerSearchText}}" were found.
                                                         </md-not-found>
                                                     </md-autocomplete>
-                                                    <input type="hidden" name=" from_account_id" value="{{$ctrl.journal_voucher.from_account_id.id}}" class="required fromAcc">
-                                                    <input type="hidden" name=" from_account_code" value="{{$ctrl.journal_voucher.from_account_id.code}}" class="required fromAccCode">
+                                                    <input type="hidden" name="from_account_id" value="{{$ctrl.journal_voucher.from_account_id.id}}" class="required fromAcc">
+                                                    <input type="hidden" name="from_account_code" value="{{$ctrl.journal_voucher.from_account_id.code}}" class="required fromAccCode">
                                                 </div>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
@@ -248,7 +251,7 @@
                                         <div class="col-md-2" ng-show="$ctrl.search_FromButton">
                                             <div class="input-text form-group">
                                                 <label class="opacity-zero">Search Button</label>
-                                                <button type="button" class="btn btn-primary btn-square" id="search_fromAcc">Search</button>
+                                                <button type="button" class="btn btn-primary btn-square button" id="search_fromAcc">Search</button>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
                                         <div class="col-md-3" ng-show="$ctrl.add_FromReceipt">
@@ -260,7 +263,7 @@
                                         <div class="col-md-2" ng-show="$ctrl.add_FromButton">
                                             <div class="input-text form-group">
                                                 <label class="opacity-zero">Add Button</label>
-                                                <button type="button" class="btn btn-primary btn-square" id="add_fromAcc">Add</button>
+                                                <button type="button" class="btn btn-primary btn-square button" id="add_fromAcc">Add</button>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
                                         <div class="col-md-12" ng-show="$ctrl.checkedFromAcc">
@@ -291,23 +294,23 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr ng-repeat="(index, jv_receipt) in $ctrl.journal_voucher.jv_receipts">
+                                                        <tr ng-repeat="(index, jv_receipt) in $ctrl.jv_receipts">
                                                         <input type="hidden" name="jv_receipts[{{index}}][id]" value="{{jv_receipt.id}}">
-                                                        <input type="hidden" name="jv_receipts[{{index}}][VOUCHER]" value="{{jv_receipt.VOUCHER}}">
-                                                        <input type="hidden" name="jv_receipts[{{index}}][AMOUNTMST]" value="{{jv_receipt.AMOUNTMST}}">
-                                                        <input type="hidden" name="jv_receipts[{{index}}][BALANCE]" value="{{jv_receipt.BALANCE}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][receipt_no]" value="{{jv_receipt.receipt_no}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][available_amt]" value="{{jv_receipt.available_amt}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][balance_amount]" value="{{jv_receipt.balance_amount}}">
                                                             <td class="action">
                                                                 <a href="javascript:void(0)" ng-click="removeJvReceipt(jv_receipt.id, index)">
                                                                     <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
                                                                 </a>
                                                             </td>
-                                                            <td>{{jv_receipt.VOUCHER}}</td>
-                                                            <td>{{jv_receipt.TRANSDATE}}</td>
-                                                            <td>{{jv_receipt.TXT}}</td>
-                                                            <td>{{jv_receipt.OUTLET}}</td>
-                                                            <td>{{jv_receipt.BUSINESSUNIT}}</td>
-                                                            <td class="text-right">{{jv_receipt.AMOUNTMST}}</td>
-                                                            <td class="text-right">{{jv_receipt.BALANCE}}</td>
+                                                            <td>{{jv_receipt.receipt_no}}</td>
+                                                            <td>{{jv_receipt.receipt_date}}</td>
+                                                            <td>{{jv_receipt.description}}</td>
+                                                            <td>{{jv_receipt.outlet_name}}</td>
+                                                            <td>{{jv_receipt.business_name}}</td>
+                                                            <td class="text-right">{{jv_receipt.available_amt}}</td>
+                                                            <td class="text-right">{{jv_receipt.balance_amount}}</td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -373,6 +376,7 @@
                                                     <div class="grey-box-header">{{$ctrl.checked_Count}} {{$ctrl.added_Title}}</div>
                                                     <div class="grey-box-body">
                                                         <p class="grey-box-info sm">{{$ctrl.checked_List}}</p>
+                                                        <input type="hidden" name="selected_invoices" class="form-control" value="{{$ctrl.checked_List}}">
                                                     </div>
                                                 </div>
                                             </li>
@@ -412,22 +416,22 @@
                                         <div class="col-md-2" ng-show="$ctrl.search_ToButton">
                                             <div class="input-text form-group">
                                                 <label class="opacity-zero">Search Button</label>
-                                                <button type="button" class="btn btn-primary btn-square" id="search_toAcc">Search</button>
+                                                <button type="button" class="btn btn-primary btn-square button" id="search_toAcc">Search</button>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
-                                        <div class="col-md-3" ng-show="$ctrl.add_ToReceipt">
+                                        <div class="col-md-3" ng-if="$ctrl.add_ToReceipt">
                                             <div class="input-text form-group">
                                                 <label>Receipt No <sup class="mandatory">*</sup></label>
                                                 <input type="text" class="form-control" name="to_receipt_number" value="" id="to_receipt_number" placeholder="Enter Receipt Number" autocomplete="off" required>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
-                                        <div class="col-md-2" ng-show="$ctrl.add_ToButton">
+                                        <div class="col-md-2" ng-if="$ctrl.add_ToButton">
                                             <div class="input-text form-group">
                                                 <label class="opacity-zero">Add Button</label>
-                                                <button type="button" class="btn btn-primary btn-square" id="add_toAcc">Add</button>
+                                                <button type="button" class="btn btn-primary btn-square button" id="add_toAcc">Add</button>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
-                                        <div class="col-md-12" ng-show="$ctrl.checkedToAcc">
+                                        <div class="col-md-12" ng-if="$ctrl.checkedToAcc">
                                             <h6 class="tab-pane-title toAcc_Title"></h6>
                                             <div class="table-responsive">
                                                 <table class="table table-border-2" id="jv_ToAccList" style="width: 100% !important;">
@@ -496,6 +500,7 @@
                                                     <div class="grey-box-header">{{$ctrl.checked_Count}} {{$ctrl.added_Title}}</div>
                                                     <div class="grey-box-body">
                                                         <p class="grey-box-info sm">{{$ctrl.checked_List}}</p>
+                                                        <input type="hidden" name="selected_invoices" class="form-control" value="{{$ctrl.checked_List}}">
                                                     </div>
                                                 </div>
                                             </li>
@@ -527,19 +532,19 @@
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
                                                 <label>Transfer Amount <sup class="mandatory">*</sup></label>
-                                                <input type="text" class="form-control"  name="amount" placeholder="Enter Amount" autocomplete="off" />
+                                                <input type="text" class="form-control" ng-model="$ctrl.journal_voucher.amount" name="amount" placeholder="Enter Amount" autocomplete="off" />
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
                                                 <label>Reason <sup class="mandatory">*</sup></label>
-                                                <input type="text" class="form-control"  name="reason" placeholder="Enter Reason" autocomplete="off" />
+                                                <input type="text" class="form-control" ng-model="$ctrl.journal_voucher.reason" name="reason" placeholder="Enter Reason" autocomplete="off" />
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
                                         <div class="col-md-6">
                                             <div class="input-text form-group">
                                                 <label>Remarks</label>
-                                                <input type="text" class="form-control" name="remarks" placeholder="Enter Remarks" autocomplete="off" />
+                                                <input type="text" class="form-control" ng-model="$ctrl.journal_voucher.remarks" name="remarks" placeholder="Enter Remarks" autocomplete="off" />
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
                                         <div class="col-md-12">

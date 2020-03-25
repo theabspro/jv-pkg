@@ -1,18 +1,23 @@
 <?php
 
 namespace Abs\JVPkg;
+use Abs\ApprovalPkg\ApprovalTypeStatus;
 use Abs\BasicPkg\Config;
+use Abs\BusinessPkg\Sbu;
 use Abs\CustomerPkg\Customer;
+use Abs\InvoicePkg\Invoice;
 use Abs\JVPkg\JournalVoucher;
 use Abs\JVPkg\Ledger;
+use Abs\ReceiptPkg\Receipt;
+use App\ActivityLog;
 use App\Http\Controllers\Controller;
+use App\Outlet;
 use App\Vendor;
 use Artisaninweb\SoapWrapper\SoapWrapper;
 use Auth;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
-use Validator;
 use Yajra\Datatables\Datatables;
 
 class JournalVoucherController extends Controller {
@@ -65,9 +70,9 @@ class JournalVoucherController extends Controller {
 			->orderby('journal_vouchers.id', 'desc');
 		// dd($journal_vouchers);
 		return Datatables::of($journal_vouchers)
-			->addColumn('number', function ($journal_vouchers) {
+			->addColumn('voucher_number', function ($journal_vouchers) {
 				$status = $journal_vouchers->status == 'Active' ? 'green' : 'red';
-				return '<span class="status-indicator ' . $status . '"></span>' . $journal_vouchers->number;
+				return '<span class="status-indicator ' . $status . '"></span>' . $journal_vouchers->voucher_number;
 			})
 			->addColumn('from_ac_code', function ($journal_vouchers) {
 				if ($journal_vouchers->from_account_type_id == 1440) {
@@ -179,26 +184,51 @@ class JournalVoucherController extends Controller {
 	}
 
 	public function saveJournalVoucher(Request $request) {
-		//dd($request->all());
+		dd($request->all());
 		try {
-			$error_messages = [
-				'name.required' => 'Name is Required',
-				'name.unique' => 'Name is already taken',
-				'delivery_time.required' => 'Delivery Time is Required',
-				'charge.required' => 'Charge is Required',
-			];
-			$validator = Validator::make($request->all(), [
-				'name' => [
-					'required:true',
-					'unique:journal_vouchers,name,' . $request->id . ',id,company_id,' . Auth::user()->company_id,
-				],
-				'delivery_time' => 'required',
-				'charge' => 'required',
-				'logo_id' => 'mimes:jpeg,jpg,png,gif,ico,bmp,svg|nullable|max:10000',
-			], $error_messages);
-			if ($validator->fails()) {
-				return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+			// $error_messages = [
+			// 	'name.required' => 'Name is Required',
+			// 	'name.unique' => 'Name is already taken',
+			// 	'delivery_time.required' => 'Delivery Time is Required',
+			// 	'charge.required' => 'Charge is Required',
+			// ];
+			// $validator = Validator::make($request->all(), [
+			// 	'name' => [
+			// 		'required:true',
+			// 		'unique:journal_vouchers,name,' . $request->id . ',id,company_id,' . Auth::user()->company_id,
+			// 	],
+			// 	'delivery_time' => 'required',
+			// 	'charge' => 'required',
+			// 	'logo_id' => 'mimes:jpeg,jpg,png,gif,ico,bmp,svg|nullable|max:10000',
+			// ], $error_messages);
+			// if ($validator->fails()) {
+			// 	return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+			// }
+			$approval_level = ApprovalTypeStatus::where('approval_type_id', 2)
+				->where('status', 'New')
+				->first()
+			;
+
+			// dd($approval_level);
+
+			if (!empty($jv_receipts)) {
+				$jv_receipts = array_column($request->jv_receipts, 'receipt_no');
+				$jv_receipt_count = count($jv_receipts);
+				$jv_receipt_count_unique = count(array_unique($jv_receipts));
+				if ($jv_receipt_count != $jv_receipt_count_unique) {
+					return response()->json(['success' => true, 'error' => ['Receipt number should be uniqe!']]);
+				}
 			}
+
+			if (empty($request->selected_invoices)) {
+				return response()->json(['success' => true, 'error' => ['Select Invoice!']]);
+			}
+			$selected_invoices = explode(', ', $request->selected_invoices);
+			foreach ($selected_invoices as $selected_invoice) {
+				$invoice_ids[] = Invoice::where('invoice_number', $selected_invoice)->pluck('id');
+			}
+
+			$receipt_ids = array_column($request->jv_receipts, 'id');
 
 			DB::beginTransaction();
 			if (!$request->id) {
@@ -211,6 +241,9 @@ class JournalVoucherController extends Controller {
 				$journal_voucher->updated_by_id = Auth::user()->id;
 				$journal_voucher->updated_at = Carbon::now();
 			}
+
+			$journal_voucher->date = date('Y-m-d', strtotime($request->date));
+			$journal_voucher->status_id = $approval_level->id;
 			$journal_voucher->fill($request->all());
 			$journal_voucher->company_id = Auth::user()->company_id;
 			if ($request->status == 'Inactive') {
@@ -222,37 +255,30 @@ class JournalVoucherController extends Controller {
 			}
 			$journal_voucher->save();
 
-			// if (!empty($request->logo_id)) {
-			// 	if (!File::exists(public_path() . '/themes/' . config('custom.admin_theme') . '/img/journal_voucher_logo')) {
-			// 		File::makeDirectory(public_path() . '/themes/' . config('custom.admin_theme') . '/img/journal_voucher_logo', 0777, true);
-			// 	}
+			$journal_voucher->voucher_number = 'JVA-' . $journal_voucher->id;
 
-			// 	$attacement = $request->logo_id;
-			// 	$remove_previous_attachment = Attachment::where([
-			// 		'entity_id' => $request->id,
-			// 		'attachment_of_id' => 20,
-			// 	])->first();
-			// 	if (!empty($remove_previous_attachment)) {
-			// 		$remove = $remove_previous_attachment->forceDelete();
-			// 		$img_path = public_path() . '/themes/' . config('custom.admin_theme') . '/img/journal_voucher_logo/' . $remove_previous_attachment->name;
-			// 		if (File::exists($img_path)) {
-			// 			File::delete($img_path);
-			// 		}
-			// 	}
-			// 	$random_file_name = $journal_voucher->id . '_journal_voucher_file_' . rand(0, 1000) . '.';
-			// 	$extension = $attacement->getClientOriginalExtension();
-			// 	$attacement->move(public_path() . '/themes/' . config('custom.admin_theme') . '/img/journal_voucher_logo', $random_file_name . $extension);
+			$journal_voucher->save();
 
-			// 	$attachment = new Attachment;
-			// 	$attachment->company_id = Auth::user()->company_id;
-			// 	$attachment->attachment_of_id = 20; //User
-			// 	$attachment->attachment_type_id = 40; //Primary
-			// 	$attachment->entity_id = $journal_voucher->id;
-			// 	$attachment->name = $random_file_name . $extension;
-			// 	$attachment->save();
-			// 	$journal_voucher->logo_id = $attachment->id;
-			// 	$journal_voucher->save();
-			// }
+			$journal_voucher->jvInvoice()->sync([]);
+			foreach ($invoice_ids as $invoice_id) {
+				$journal_voucher->jvInvoice()->attach($invoice_id);
+			}
+
+			$journal_voucher->jvReceipt()->sync([]);
+			foreach ($receipt_ids as $receipt_id) {
+				$journal_voucher->jvReceipt()->attach($receipt_id);
+			}
+
+			$activity = new ActivityLog;
+			$activity->date_time = Carbon::now();
+			$activity->user_id = Auth::user()->id;
+			$activity->module = 'Journal Voucher';
+			$activity->entity_id = $request->id;
+			$activity->entity_type_id = 384;
+			$activity->activity_id = $request->id == NULL ? 280 : 281;
+			$activity->activity = $request->id == NULL ? 280 : 281;
+			$activity->details = json_encode($activity);
+			$activity->save();
 
 			DB::commit();
 			if (!($request->id)) {
@@ -288,20 +314,62 @@ class JournalVoucherController extends Controller {
 		$customer_invoice = json_decode($getResult->GetCustomerinvoiceResult, true);
 
 		if (!empty($customer_invoice)) {
-			$data = $customer_invoice['Table'];
-			if (!empty($data)) {
-				// dd($data);
-				return Datatables::of($data)
-					->addColumn('child_checkbox', function ($data) {
-						// dd($data['INVOICE']);
-						$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $data['INVOICE'] . "' name='child_boxes' value='" . $data['INVOICE'] . "' class='jv_Checkbox'/><label for='child_" . $data['INVOICE'] . "'></label></div></td>";
+			$datas = $customer_invoice['Table'];
+			if (!empty($datas)) {
+				// dd($datas);
+				foreach ($datas as $data) {
+					// dd($data);
 
-						return $checkbox;
-					})
-					->rawColumns(['child_checkbox'])
-					->make(true);
+					$outlet = Outlet::select('id')->where('code', $data['OUTLET'])->first();
+					$business = Sbu::select('id')->where('name', $data['BUSINESSUNIT'])->first();
+					// dd(Auth::user()->company_id, $request->accountNumber);
+					// dd($data['INVOICE']);
+					$invoice = Invoice::firstOrNew([
+						'invoice_number' => $data['INVOICE'],
+					]);
+					$invoice->customer_id = $request->customer_id;
+					$invoice->company_id = Auth::user()->company_id;
+					$invoice->invoice_number = $data['INVOICE'];
+					$invoice->invoice_date = $data['TRANSDATE'];
+					$invoice->invoice_amount = $data['AMOUNTCUR'];
+					$invoice->received_amount = $data['SETTLEAMOUNTCUR'];
+					$invoice->remarks = $data['TXT'];
+					$invoice->outlet_id = $outlet->id;
+					$invoice->sbu_id = $business->id;
+					$invoice->created_at = Carbon::now();
+					$invoice->updated_at = NULL;
+
+					$invoice->save();
+				}
 			}
 		}
+
+		$invoices_lists = Invoice::select(
+			'invoices.id',
+			'invoices.invoice_number',
+			DB::raw('DATE_FORMAT(invoices.invoice_date,"%d/%m/%Y") as invoice_date'),
+			'outlets.code as outlet_name',
+			'sbus.name as business_name',
+			DB::raw('format((invoices.invoice_amount),0,"en_IN") as invoice_amount'),
+			DB::raw('format((invoices.received_amount),0,"en_IN") as received_amount'),
+			DB::raw('COALESCE(invoices.remarks, "--") as remarks'),
+			DB::raw('format((invoices.invoice_amount - invoices.received_amount),0,"en_IN") as balence_amount')
+		)
+			->leftjoin('outlets', 'outlets.id', 'invoices.outlet_id')
+			->leftjoin('sbus', 'sbus.id', 'invoices.sbu_id')
+			->where('customer_id', $request->customer_id)
+		// ->get()
+		;
+		// dd($invoices_lists);
+		return Datatables::of($invoices_lists)
+			->addColumn('child_checkbox', function ($invoices_list) {
+				// dd($data['INVOICE']);
+				$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $invoices_list->id . "' name='child_boxes' value='" . $invoices_list->invoice_number . "' class='jv_Checkbox'/><label for='child_" . $invoices_list->id . "'></label></div></td>";
+
+				return $checkbox;
+			})
+			->rawColumns(['child_checkbox'])
+			->make(true);
 	}
 
 	public function getCustomerReceipt(Request $request) {
@@ -316,20 +384,43 @@ class JournalVoucherController extends Controller {
 		$customer_receipt = json_decode($getResult->GetCustomerReceiptResult, true);
 
 		if (!empty($customer_receipt)) {
-			$receipts = $customer_receipt['Table'];
-			if (!empty($receipts)) {
-				// dd($receipts);
-				// return Datatables::of($data)
-				// 	->addColumn('action', function ($data) {
-				// 		$action = '<td><button class="btn-delete voucher_no" type="button" value="' . $data['VOUCHER'] . '" ><img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" /></button>';
-				// 		return $action;
-				// 	})
-				// 	->make(true)
-				// ;
-				// if (!empty($customer_receipt)) {
-				// 	$data = $customer_receipt['Table'];
-				// 	if (!empty($data)) {
-				// 		return Datatables::of($data)->make(true);
+			$datas = $customer_receipt['Table'];
+			if (!empty($datas)) {
+				foreach ($datas as $data) {
+					$outlet = Outlet::select('id')->where('code', $data['OUTLET'])->first();
+					$business = Sbu::select('id')->where('name', $data['BUSINESSUNIT'])->first();
+					// dd(Auth::user()->company_id, $request->accountNumber);
+					$receipt = Receipt::firstOrNew([
+						'permanent_receipt_no' => $data['VOUCHER'],
+					]);
+					$receipt->company_id = Auth::user()->company_id;
+					$receipt->date = $data['DOCUMENTDATE'];
+					$receipt->outlet_id = $outlet->id;
+					$receipt->sbu_id = $business->id;
+					$receipt->description = $data['TXT'];
+					$receipt->permanent_receipt_no = $data['VOUCHER'];
+					$receipt->temporary_receipt_no = $data['VOUCHER'];
+					$receipt->amount = $data['AMOUNTMST'];
+					$receipt->settled_amount = $data['SETTLEAMOUNTMST'];
+					$receipt->balance_amount = $data['BALANCE'];
+					$receipt->save();
+				}
+				$receipts = Receipt::select(
+					'receipts.id',
+					'receipts.permanent_receipt_no as receipt_no',
+					'receipts.description',
+					'outlets.code as outlet_name',
+					'sbus.name as business_name',
+					'receipts.amount as available_amt',
+					'receipts.balance_amount as balance_amount',
+					DB::raw('DATE_FORMAT(receipts.date,"%d/%m/%Y") as receipt_date')
+				)
+					->leftjoin('outlets', 'outlets.id', 'receipts.outlet_id')
+					->leftjoin('sbus', 'sbus.id', 'receipts.sbu_id')
+					->where('permanent_receipt_no', $request->receiptNumber)
+					->first()
+				;
+
 				return response()->json(['receipts' => $receipts]);
 			}
 		} else {
@@ -338,8 +429,20 @@ class JournalVoucherController extends Controller {
 	}
 
 	public function deleteJournalVoucher(Request $request) {
+		dd($request->all());
 		DB::beginTransaction();
 		try {
+
+			$activity = new ActivityLog;
+			$activity->date_time = Carbon::now();
+			$activity->user_id = Auth::user()->id;
+			$activity->module = 'Journal Voucher';
+			$activity->entity_id = $request->id;
+			$activity->entity_type_id = 384;
+			$activity->activity_id = 282;
+			$activity->activity = 282;
+			$activity->details = json_encode($activity);
+			$activity->save();
 			$journal_voucher = JournalVoucher::withTrashed()->where('id', $request->id)->first();
 			// if (!is_null($journal_voucher->logo_id)) {
 			// 	Attachment::where('company_id', Auth::user()->company_id)->where('attachment_of_id', 20)->where('entity_id', $request->id)->forceDelete();
