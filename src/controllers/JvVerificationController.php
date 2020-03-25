@@ -55,6 +55,11 @@ class JvVerificationController extends Controller {
 
 		// dd($jv_verification);
 		return Datatables::of($jv_verification)
+			->addColumn('child_checkbox', function ($jv_verification) {
+				$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $jv_verification->id . "' name='child_boxes' value='" . $jv_verification->id . "' class='jv_verfication_checkbox'/><label for='child_" . $jv_verification->id . "'></label></div></td>";
+
+				return $checkbox;
+			})
 			->addColumn('number', function ($jv_verification) {
 				$status = $jv_verification->status == 'Active' ? 'green' : 'red';
 				return '<span class="status-indicator ' . $status . '"></span>' . $jv_verification->voucher_number;
@@ -91,6 +96,7 @@ class JvVerificationController extends Controller {
 
 				return $output;
 			})
+			->rawColumns(['child_checkbox', 'action'])
 			->make(true);
 	}
 
@@ -248,6 +254,36 @@ class JvVerificationController extends Controller {
 				'success' => false,
 				'error' => $e->getMessage(),
 			]);
+		}
+	}
+
+	public function jvMultipleApproval(Request $request) {
+		$send_for_approvals = JournalVoucher::whereIn('id', $request->send_for_approval)->where('status_id', 7)->pluck('id')->toArray();
+		// $next_status = ApprovalLevel::where('approval_type_id', 1)->pluck('next_status_id')->first();
+		$approval_level = ApprovalLevel::where('id', $request->approval_level_id)
+			->leftJoin('approval_type_approval_level as atal', 'atal.approval_level_id', 'approval_levels.id')
+			->where('atal.approval_type_id', 2)
+			->first();
+		// dd($send_for_approvals);
+		if (count($send_for_approvals) == 0) {
+			return response()->json(['success' => false, 'errors' => ['No Approval 1 Pending Status in the list!']]);
+		} else {
+			DB::beginTransaction();
+			try {
+				foreach ($send_for_approvals as $key => $value) {
+					// return $this->saveApprovalStatus($value, $next_status);
+					$send_approval = JournalVoucher::find($value);
+					$send_approval->status_id = $next_status;
+					$send_approval->updated_by_id = Auth()->user()->id;
+					$send_approval->updated_at = date("Y-m-d H:i:s");
+					$send_approval->save();
+				}
+				DB::commit();
+				return response()->json(['success' => true, 'message' => 'JV Verification Approved successfully']);
+			} catch (Exception $e) {
+				DB::rollBack();
+				return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
+			}
 		}
 	}
 }
