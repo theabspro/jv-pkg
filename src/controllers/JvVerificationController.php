@@ -185,7 +185,8 @@ class JvVerificationController extends Controller {
 		// 	['id' => '1', 'name' => 'test'],
 		// 	['id' => '2', 'name' => 'test1'],
 		// ];
-
+// dd($journal_vouchers->date);
+$journal_vouchers->jv_date = date('d/m/Y', strtotime($journal_vouchers->date));
 		// dd($attacment);
 
 		$this->data['journal_vouchers'] = $journal_vouchers;

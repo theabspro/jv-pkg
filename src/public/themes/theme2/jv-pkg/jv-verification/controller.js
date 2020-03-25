@@ -1,6 +1,6 @@
 app.component('jvVerificationList', {
     templateUrl: jv_verification_list_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location) {
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $window) {
         $scope.loading = true;
         // $route.reload();
         // console.log(base_path);
@@ -9,8 +9,10 @@ app.component('jvVerificationList', {
         self.level_id = $routeParams.level_id;
         // setTimeout(function(){
         //     window.location.href = ('#!/verification/7221/level/'+ $routeParams.level_id +'/list');
-        // },500);
-
+        // },900);
+        // $scope.reloadRoute = function(){
+        //     $window.location.reload();
+        // }
         var table_scroll;
         table_scroll = $('.page-main-content.list-page-content').height() - 37;
         var dataTable = $('#jv_verification_list').DataTable({
@@ -169,7 +171,7 @@ app.component('jvVerificationList', {
 //------------------------------------------------------------------------------------------------------------------------
 app.component('jvVerificationView', {
     templateUrl: jv_verification_form_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element, $mdSelect) {
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element, $mdSelect, $timeout) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.angular_routes = angular_routes;
@@ -196,7 +198,7 @@ app.component('jvVerificationView', {
             self.attachment = response.data.attachment;
             self.ref_attachements_url_link = jv_attachements_url;
             self.action = response.data.action;
-
+            self.jv_date = self.journal_vouchers.date;
             self.invoice_numbers = [];
             angular.forEach(response.data.invoice_details, function(value,key){
                 self.invoice_numbers.push(value.invoice_number);                
@@ -205,9 +207,9 @@ app.component('jvVerificationView', {
 
             self.receipt_numbers = [];
             angular.forEach(response.data.receipt_details, function(value,key){
-                self.receipt_numbers.push(value.permanent_receipt_no);                
+                self.receipt_numbers.push(value.temporary_receipt_no);                
             });
-
+            self.receipts = self.receipt_numbers.join(', ');
             $rootScope.loading = false;
         });
 
@@ -251,9 +253,12 @@ app.component('jvVerificationView', {
                     })
                     .done(function(res) {
                         if (res.success == true) {
+                            $('#approve-popup').modal('hide');
                             custom_noty('success',res.message);
-                            $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
-                            $scope.$apply();
+                            $timeout(function() {
+                                $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
+                                $scope.$apply();
+                            }, 1000);
                         } else {
                             if (!res.success == true) {
                                 $('.submit').button('reset');
@@ -301,9 +306,12 @@ app.component('jvVerificationView', {
                     })
                     .done(function(res) {
                         if (res.success == true) {
+                            $('#reject-popup').modal('hide');
                             custom_noty('success',res.message);
-                            $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
-                            $scope.$apply();
+                            $timeout(function() {
+                                $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
+                                $scope.$apply();
+                            }, 1000);
                         } else {
                             if (!res.success == true) {
                                 $('.submit').button('reset');

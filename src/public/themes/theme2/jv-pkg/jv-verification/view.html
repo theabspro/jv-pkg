@@ -5,7 +5,7 @@
         <div class="page-header-inner">
             <div class="page-header-content-left">
                 <div class="page-header-content button-block">
-                    <a href="#!/static/cndn/service/list" type="button" class="btn-back btn-img"><img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" /></a>
+                    <a href="#!/verification/7221/level/{{$ctrl.level_id}}/list" type="button" class="btn-back btn-img"><img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" /></a>
                 </div><!-- Page Header Content -->
                 <div class="page-header-content title-block">
                     <h1 class="title"><b>{{$ctrl.action}} JV Verification</b></h1>
@@ -40,7 +40,7 @@
                                         <ul class="grid-row">
                                             <li class="grid-col-3">
                                                 <span class="grid-col-label">Date</span>
-                                                <span class="grid-col-value" >{{$ctrl.journal_vouchers.date}}</span>
+                                                <span class="grid-col-value" >{{$ctrl.journal_vouchers.jv_date}}</span>
                                             </li>
                                             <li class="grid-col-3">
                                                 <span class="grid-col-label">Type</span>
@@ -185,7 +185,8 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <a class="btn btn-secondary btn-prev">Previous</a>
-                                                <button type="button" class="btn btn-primary">Update</button>
+                                                <a class="btn btn-cancel btn-min-wdth" data-toggle="modal" data-target="#reject-popup"> Reject</a>
+                                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#approve-popup">Approve</button>
                                             </div><!-- Column -->
                                         </div><!-- Row -->
                                     </div><!-- Tab Footer -->
