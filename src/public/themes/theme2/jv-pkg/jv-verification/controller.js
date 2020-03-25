@@ -3,13 +3,13 @@ app.component('jvVerificationList', {
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location) {
         $scope.loading = true;
         // $route.reload();
-        console.log(base_path);
+        // console.log(base_path);
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.level_id = $routeParams.level_id;
-        setTimeout(function(){
-            window.location.href = ('#!/verification/7221/level/'+ $routeParams.level_id +'/list');
-        },500);
+        // setTimeout(function(){
+        //     window.location.href = ('#!/verification/7221/level/'+ $routeParams.level_id +'/list');
+        // },500);
 
         var table_scroll;
         table_scroll = $('.page-main-content.list-page-content').height() - 37;
@@ -58,6 +58,7 @@ app.component('jvVerificationList', {
             },
 
             columns: [
+                { data: 'child_checkbox', searchable: false },
                 { data: 'action', class: 'action', name: 'action', searchable: false },
                 { data: 'number', name: 'journal_vouchers.number', searchable: true },
                 { data: 'jv_status', name: 'approval_type_statuses.status', searchable: false },
@@ -109,6 +110,56 @@ app.component('jvVerificationList', {
             $("#email").val('');
             dataTables.fnFilter();
         }
+
+        $('#send_for_approval').on('click', function() { //alert('dsf');
+            if ($('.jv_verfication_checkbox:checked').length > 0) {
+                var send_for_approval = []
+                $('input[name="child_boxes"]:checked').each(function() {
+                    send_for_approval.push(this.value);
+                });
+                console.log(send_for_approval);
+                return false;
+                $http.post(
+                    laravel_routes['jvMultipleApproval'], {
+                        send_for_approval: send_for_approval,
+                    }
+                ).then(function(response) {
+                    if (response.data.success == true) {
+                        custom_noty('success', response.data.message);
+                            $('#jv_verification_list').DataTable().ajax.reload();
+                            $scope.$apply();
+                        // $timeout(function() {
+                        //     RefreshTable();
+                        // }, 1000);
+                    } else {
+                        custom_noty('error', response.data.errors);
+                    }
+                });
+            } else {
+                custom_noty('error', 'Please Select Checkbox');
+            }
+        })
+        // $('.refresh_table').on("click", function() {
+        //     RefreshTable();
+        // });
+        $('#parent').on('click', function() {
+            if (this.checked) {
+                $('.jv_verfication_checkbox').each(function() {
+                    this.checked = true;
+                });
+            } else {
+                $('.jv_verfication_checkbox').each(function() {
+                    this.checked = false;
+                });
+            }
+        });
+        $(document.body).on('click', '.jv_verfication_checkbox', function() {
+            if ($('.jv_verfication_checkbox:checked').length == $('.jv_verfication_checkbox').length) {
+                $('#parent').prop('checked', true);
+            } else {
+                $('#parent').prop('checked', false);
+            }
+        });
 
         $rootScope.loading = false;
     }
