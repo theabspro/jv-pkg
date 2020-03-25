@@ -358,21 +358,18 @@ class JournalVoucherController extends Controller {
 			->leftjoin('outlets', 'outlets.id', 'invoices.outlet_id')
 			->leftjoin('sbus', 'sbus.id', 'invoices.sbu_id')
 			->where('customer_id', $request->customer_id)
-			->get()
+		// ->get()
 		;
-
-		return response()->json(['invoices' => $invoices_lists]);
-
 		// dd($invoices_lists);
-		// return Datatables::of($invoices_lists)
-		// 	->addColumn('child_checkbox', function ($invoices_list) {
-		// 		// dd($data['INVOICE']);
-		// 		$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $invoices_list->id . "' name='child_boxes' value='" . $invoices_list->invoice_number . "' class='jv_Checkbox'/><label for='child_" . $invoices_list->id . "'></label></div></td>";
+		return Datatables::of($invoices_lists)
+			->addColumn('child_checkbox', function ($invoices_list) {
+				// dd($data['INVOICE']);
+				$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $invoices_list->id . "' name='child_boxes' value='" . $invoices_list->invoice_number . "' class='jv_Checkbox'/><label for='child_" . $invoices_list->id . "'></label></div></td>";
 
-		// 		return $checkbox;
-		// 	})
-		// 	->rawColumns(['child_checkbox'])
-		// 	->make(true);
+				return $checkbox;
+			})
+			->rawColumns(['child_checkbox'])
+			->make(true);
 	}
 
 	public function getCustomerReceipt(Request $request) {

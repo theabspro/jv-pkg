@@ -508,7 +508,7 @@ app.component('journalVoucherForm', {
                             columns: [
                                 { data: 'child_checkbox', searchable: false },
                                 { data: 'invoice_number', searchable: true },
-                                { data: 'invoice_date', name: 'invoice_date', searchable: false },
+                                { data: 'invoice_date', name: 'TRANSDATE', searchable: false },
                                 { data: 'remarks', name: 'remarks', searchable: false },
                                 { data: 'outlet_name', name: 'outlets.code', searchable: true },
                                 { data: 'business_name', name: 'sbus.name', searchable: true },
