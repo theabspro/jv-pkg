@@ -118,10 +118,11 @@ app.component('jvVerificationList', {
                     send_for_approval.push(this.value);
                 });
                 console.log(send_for_approval);
-                return false;
+                // return false;
                 $http.post(
                     laravel_routes['jvMultipleApproval'], {
                         send_for_approval: send_for_approval,
+                        approval_level_id: $routeParams.level_id,
                     }
                 ).then(function(response) {
                     if (response.data.success == true) {

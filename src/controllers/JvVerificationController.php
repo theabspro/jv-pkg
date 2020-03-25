@@ -258,32 +258,32 @@ class JvVerificationController extends Controller {
 	}
 
 	public function jvMultipleApproval(Request $request) {
-		$send_for_approvals = JournalVoucher::whereIn('id', $request->send_for_approval)->where('status_id', 7)->pluck('id')->toArray();
-		// $next_status = ApprovalLevel::where('approval_type_id', 1)->pluck('next_status_id')->first();
+		// dd($request->all());
+		$send_for_approvals = JournalVoucher::whereIn('id', $request->send_for_approval)->pluck('id')->toArray();
+		// dd($send_for_approvals);
 		$approval_level = ApprovalLevel::where('id', $request->approval_level_id)
 			->leftJoin('approval_type_approval_level as atal', 'atal.approval_level_id', 'approval_levels.id')
 			->where('atal.approval_type_id', 2)
 			->first();
-		// dd($send_for_approvals);
-		if (count($send_for_approvals) == 0) {
-			return response()->json(['success' => false, 'errors' => ['No Approval 1 Pending Status in the list!']]);
-		} else {
+			// dd($approval_level->next_status_id);
+		// if (count($send_for_approvals) == 0) {
+		// 	return response()->json(['success' => false, 'errors' => ['No Approval 1 Pending Status in the list!']]);
+		// } else {
 			DB::beginTransaction();
 			try {
 				foreach ($send_for_approvals as $key => $value) {
-					// return $this->saveApprovalStatus($value, $next_status);
-					$send_approval = JournalVoucher::find($value);
-					$send_approval->status_id = $next_status;
-					$send_approval->updated_by_id = Auth()->user()->id;
-					$send_approval->updated_at = date("Y-m-d H:i:s");
-					$send_approval->save();
+					$journal_voucher = JournalVoucher::find($value);
+					$journal_voucher->status_id = $approval_level->next_status_id;
+					$journal_voucher->updated_by_id = Auth()->user()->id;
+					$journal_voucher->updated_at = date("Y-m-d H:i:s");
+					$journal_voucher->save();
 				}
 				DB::commit();
-				return response()->json(['success' => true, 'message' => 'JV Verification Approved successfully']);
+				return response()->json(['success' => true, 'message' => $approval_level->name .' Approved successfully']);
 			} catch (Exception $e) {
 				DB::rollBack();
 				return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
 			}
-		}
+		// }
 	}
 }
