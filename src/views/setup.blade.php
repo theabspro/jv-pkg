@@ -98,7 +98,7 @@
     // var get_from_list_based_level_id = "{{url('verification/get-list')}}";
     var jv_attachements_url = "{{URL::to('/storage/app/public/journal-vouchers/attachments')}}";
     // var base_path = "{{base_path()}}";
-    var ref_attachements_url = "{{URL::to('/storage/app/public/journal-voucher/attachments')}}";
+    var ref_attachements_url = "{{URL::to('/storage/app/public/journal-vouchers/attachments')}}";
 
 
     //LEDGER
