@@ -163,13 +163,27 @@ class JournalVoucherController extends Controller {
 		} else {
 			$journal_voucher = JournalVoucher::withTrashed()->with([
 				'attachments',
+				'jvInvoice',
+				'jvInvoice.outlet',
+				'jvInvoice.business',
+				'jvReceipt',
+				'jvReceipt.outlet',
+				'jvReceipt.business',
 			])->find($id);
+
+			$journal_voucher->from_cusromer = JournalVoucher::join('customers', 'customers.id', 'journal_vouchers.from_account_id')
+				->find($id)
+			;
+			$journal_voucher->to_cusromer = JournalVoucher::join('customers', 'customers.id', 'journal_vouchers.to_account_id')
+				->find($id)
+			;
+
 			// $attachment = Attachment::where('id', $journal_voucher->logo_id)->first();
 			$action = 'Edit';
 			$journal_voucher->date = date('d-m-Y', strtotime($journal_voucher->date));
 		}
 		$this->data['journal_voucher'] = $journal_voucher;
-		$this->data['jv_type_list'] = collect(JVType::where('company_id', Auth::user()->company_id)->select('id', 'short_name')->get())->prepend(['id' => '', 'short_name' => 'Select JV Type']);
+		$this->data['jv_type_list'] = collect(JVType::where('company_id', Auth::user()->company_id)->select('id', 'short_name', 'name')->get())->prepend(['id' => '', 'name' => 'Select JV Type']);
 		// $this->data['attachment'] = $attachment;
 		$this->data['action'] = $action;
 		$this->data['theme'];
@@ -187,7 +201,7 @@ class JournalVoucherController extends Controller {
 				->leftJoin('configs as c2', 'c2.id', 'jv_type_field.value')
 				->whereIn('jv_type_field.field_id', [1420, 1421, 1422]) //From Acc & To Acc
 				->where('jv_types.id', $request->id)
-				->select('jv_type_field.field_id', 'c1.name as field_name', 'jv_type_field.value', 'c2.name as value_name', 'jv_type_field.is_open', 'jv_type_field.is_editable', 'jv_types.short_name')
+				->select('jv_type_field.field_id', 'c1.name as field_name', 'jv_type_field.value', 'c2.name as value_name', 'jv_type_field.is_open', 'jv_type_field.is_editable', 'jv_types.short_name', 'jv_types.name')
 				->get();
 
 			foreach ($jv_types as $key => $jv_type) {
@@ -346,7 +360,7 @@ class JournalVoucherController extends Controller {
 				$journal_voucher->updated_at = Carbon::now();
 			}
 
-			$journal_voucher->date = date('Y-m-d', strtotime($request->date));
+			$journal_voucher->date = date('Y-m-d H:i:s', strtotime($request->date));
 			// dd(date('Y-m-d', strtotime($request->date)));
 			$journal_voucher->status_id = $jv_type_status->initial_status_id;
 			$journal_voucher->fill($request->all());

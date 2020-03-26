@@ -286,6 +286,32 @@ app.component('journalVoucherForm', {
                     $scope.onSelectedToAcc(self.journal_voucher.to_account_type_id);
                     $scope.onSelectedJournal(self.journal_voucher.journal_id);
                 },2500);
+                if(self.journal_voucher.transfer_type == 1 ){
+                    self.edit_addFromButton = true;
+                    $("input[name=transfer_type][value=invoice]").prop('checked', true).attr('disabled', true);
+                    $("input[name=transfer_type][value=receipt]").attr('disabled', true);
+                    self.search_FromButton = false;
+                    self.checkedFromAcc = true;
+                    self.search_ToButton = false;
+                    self.search_fromAcc = false;
+                    self.add_FromReceipt = false;
+                    self.add_FromButton = false;
+                    self.add_ToButton = false;
+                    self.add_ToReceipt = false;
+                    // $('#foo').trigger('click');
+                }else if(self.journal_voucher.transfer_type == 2 ){
+                    self.edit_addFromButton = false;
+                    $("input[name=transfer_type+][value=receipt]").prop('checked', true).attr('disabled', true);
+                    $("input[name=transfer_type+][value=invoice]").attr('disabled', true);
+                    self.search_FromButton = false;
+                    self.checkedFromAcc = false;
+                    self.search_ToButton = true;
+                    self.add_FromReceipt = true;
+                    self.add_FromButton = true;
+                    self.add_ToButton = false;
+                    self.add_ToReceipt = false;
+                    // $('#foo').trigger('cslick');
+                }
                 
                 //ATTACHMENTS
                 if (self.journal_voucher.attachments.length) {
@@ -300,6 +326,8 @@ app.component('journalVoucherForm', {
                     });
                 }
             } else {
+                self.edit_addFromButton = false;
+                self.journal_voucher.jv_receipts = [];
                 self.switch_value = 'Active';
             }
         });
@@ -351,63 +379,6 @@ app.component('journalVoucherForm', {
                 self.jv_types = response.data.jv_types;
                 self.jv_account_type_list = response.data.jv_account_type_list;
 
-                $scope.onSelectedFromAcc = function($selected_fromValue) {
-                    if($selected_fromValue == 1440){
-                        self.journal_voucher.from_name = "Customer";
-                        self.journal_voucher.from_id = 1440;
-                    }else if($selected_fromValue == 1441){
-                        self.journal_voucher.from_name = 'Vendor';
-                        self.journal_voucher.from_id = 1441;
-                    }else if($selected_fromValue == 1442){
-                        self.journal_voucher.from_name = 'Ledger';   
-                        self.journal_voucher.from_id = 1442;
-                    }
-                    var fromAccount_value = $selected_fromValue;
-                    // alert(fromAccount_value);
-                    if (fromAccount_value != '') {
-                        self.fromAcc_field = false;
-                    } else if (fromAccount_value == '') {
-                        self.fromAcc_field = true;
-                    }
-                    console.log(self.journal_voucher.from_name);
-                    console.log(self.journal_voucher.from_id);
-                }
-
-                $scope.onSelectedToAcc = function($selected_toValue) {
-                if($selected_toValue == 1440){
-                    self.journal_voucher.to_name = 'Customer';
-                    self.journal_voucher.to_id = 1440;
-                }else if($selected_toValue == 1441){
-                    self.journal_voucher.to_name = 'Vendor';
-                    self.journal_voucher.to_id = 1441;
-                }else if($selected_toValue == 1442){
-                    self.journal_voucher.to_name = 'Ledger'; 
-                    self.journal_voucher.to_id = 1442;  
-                }
-                    var toAccount_value = $selected_toValue;
-                    // alert(toAccount_value);
-                    if (toAccount_value != '') {
-                        self.toAcc_field = false;
-                    } else if (toAccount_value == '') {
-                        self.toAcc_field = true;
-                    }
-                    console.log(self.journal_voucher.to_name);
-                    console.log(self.journal_voucher.to_id);
-                }
-
-                //JOURNAL 
-                $scope.onSelectedJournal = function($id){
-                    console.log($id);
-                    if($id){
-                        angular.forEach(self.journals_list, function(value, key){
-                            if(value.id = $id){
-                                self.journal_voucher.journal_name = value.name;
-                            }
-                        });
-                        console.log(self.journal_voucher.journal_name);
-                    }
-                }
-
                 if (self.jv_types != null) {
                     if (self.jv_types[1].value != null && self.jv_types[1].value == 1440) {
                         self.fromAcc_field = false;
@@ -425,8 +396,69 @@ app.component('journalVoucherForm', {
                     self.fromAcc_field = true; //console.log('initial_fromValue ' + self.fromAcc_field);
                     self.toAcc_field = true; //console.log('initial_toValue ' + self.toAcc_field);
                 }
+                // $scope.$apply();
             });
         }
+
+         $scope.onSelectedFromAcc = function($selected_fromValue) {
+                if($selected_fromValue == 1440){
+                    self.journal_voucher.from_name = "Customer";
+                    self.journal_voucher.from_id = 1440;
+                }else if($selected_fromValue == 1441){
+                    self.journal_voucher.from_name = 'Vendor';
+                    self.journal_voucher.from_id = 1441;
+                }else if($selected_fromValue == 1442){
+                    self.journal_voucher.from_name = 'Ledger';   
+                    self.journal_voucher.from_id = 1442;
+                }
+                var fromAccount_value = $selected_fromValue;
+                // alert(fromAccount_value);
+                if (fromAccount_value != '') {
+                    self.fromAcc_field = false;
+                } else if (fromAccount_value == '') {
+                    self.fromAcc_field = true;
+                }
+                // console.log(self.journal_voucher.from_name);
+                // console.log(self.journal_voucher.from_id);
+                $scope.$apply();
+            }
+
+            $scope.onSelectedToAcc = function($selected_toValue) {
+            if($selected_toValue == 1440){
+                self.journal_voucher.to_name = 'Customer';
+                self.journal_voucher.to_id = 1440;
+            }else if($selected_toValue == 1441){
+                self.journal_voucher.to_name = 'Vendor';
+                self.journal_voucher.to_id = 1441;
+            }else if($selected_toValue == 1442){
+                self.journal_voucher.to_name = 'Ledger'; 
+                self.journal_voucher.to_id = 1442;  
+            }
+                var toAccount_value = $selected_toValue;
+                // alert(toAccount_value);
+                if (toAccount_value != '') {
+                    self.toAcc_field = false;
+                } else if (toAccount_value == '') {
+                    self.toAcc_field = true;
+                }
+                // console.log(self.journal_voucher.to_name);
+                // console.log(self.journal_voucher.to_id);
+                $scope.$apply();
+            }
+
+            //JOURNAL 
+            $scope.onSelectedJournal = function($id){
+                console.log($id);
+                if($id){
+                    angular.forEach(self.journals_list, function(value, key){
+                        if(value.id = $id){
+                            self.journal_voucher.journal_name = value.name;
+                        }
+                    });
+                    // console.log(self.journal_voucher.journal_name);
+                }
+                $scope.$apply();
+            }
 
         //SEARCH CUSTOMER
         self.searchCustomer = function(query) {
@@ -545,13 +577,11 @@ app.component('journalVoucherForm', {
             $scope.$apply();
         });
 
-        self.jv_receipts = [];
-
     // $(documen).ready(function () {
         $(document).on("click",".button",function(e){
             alert($(this).attr('id'));
             var buttonId = $(this).attr('id');
-            console.log(buttonId);
+            // console.log(buttonId);
             $(buttonId).button('loading');
         // $('#search_fromAcc').on('click', function() {
             // $('#search_fromAcc').button('loading');
@@ -805,8 +835,8 @@ app.component('journalVoucherForm', {
                     ).then(function(response) { 
                         console.log(response.data);
                         if (!response.data.errors) {
-                            self.jv_receipts.push(response.data.receipts);
-                            console.log(self.jv_receipts);
+                            self.journal_voucher.jv_receipts.push(response.data.receipts);
+                            console.log(self.journal_voucher.jv_receipts);
                         } else {
                             custom_noty('error',response.data.errors);
                         }
@@ -899,9 +929,6 @@ app.component('journalVoucherForm', {
                                     layout: 'topRight',
                                     text: errors
                                 }).show();
-                                setTimeout(function() {
-                                    $noty.close();
-                                }, 3000);
                             } else {
                                 $('.submit').button('reset');
                                 $location.path('/jv-pkg/journal-voucher/list');

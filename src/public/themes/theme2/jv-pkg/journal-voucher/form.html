@@ -86,7 +86,7 @@
                                                 </md-select-header>
                                                 <md-optgroup label="jv_type">
                                                     <md-option ng-value="jv_type.id" ng-repeat="jv_type in $ctrl.jv_type_list | filter:searchJVType">
-                                                        {{jv_type.short_name}}
+                                                        {{jv_type.name}}
                                                     </md-option>
                                                 </md-optgroup>
                                             </md-select>
@@ -182,7 +182,7 @@
                                         <ul class="grey-list mb-20">
                                             <li>
                                                 <div class="grey-box">
-                                                    <div class="grey-box-header">Journal Type : <b>{{$ctrl.jv_types[0].short_name}}</b></div>
+                                                    <div class="grey-box-header">Journal Type : <b>{{$ctrl.jv_types[0].name}}</b></div>
                                                 </div>
                                             </li>
                                             <li>
@@ -242,7 +242,7 @@
                                             <div class="input-text form-group">
                                                 <label>From A/c Code <sup class="mandatory">*</sup></label>
                                                 <div class="autocomplete-refresh">
-                                                    <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.fromCustomerSearchText)" md-selected-item="$ctrl.journal_voucher.from_account_id" md-search-text="$ctrl.fromCustomerSearchText" md-search-text-change="$ctrl.customerChanged('fromAcc')"  md-selected-item-change="getCustomerDetails('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true" ng-disabled="$ctrl.fromAcc_field">
+                                                    <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.fromCustomerSearchText)" md-selected-item="$ctrl.journal_voucher.from_cusromer.code" md-search-text="$ctrl.fromCustomerSearchText" md-search-text-change="$ctrl.customerChanged('fromAcc')"  md-selected-item-change="getCustomerDetails('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true" ng-disabled="$ctrl.fromAcc_field">
                                                         <md-item-template>
                                                         <span>
                                                             {{option.name}} - {{option.code}}
@@ -252,8 +252,8 @@
                                                         No Customers matching "{{ctrl.fromCustomerSearchText}}" were found.
                                                         </md-not-found>
                                                     </md-autocomplete>
-                                                    <input type="hidden" name="from_account_id" value="{{$ctrl.journal_voucher.from_account_id.id}}" class="required fromAcc">
-                                                    <input type="hidden" name="from_account_code" value="{{$ctrl.journal_voucher.from_account_id.code}}" class="required fromAccCode">
+                                                    <input type="hidden" name="from_account_id" value="{{$ctrl.journal_voucher.from_cusromer.id}}" class="required fromAcc">
+                                                    <input type="hidden" name="from_account_code" value="{{$ctrl.journal_voucher.from_cusromer.code}}" class="required fromAccCode">
                                                 </div>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
@@ -297,6 +297,45 @@
                                                 </table>
                                             </div><!-- Table Responsive -->
                                         </div><!-- Column -->
+                                        <div class="col-md-12" ng-show="$ctrl.edit_addFromButton">
+                                            <h6 class="tab-pane-title fromAcc_Title">Receipts</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-border-2" id="receipt_FromAccList" style="width: 100% !important;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Action</th>
+                                                            <th>Receipt No</th>
+                                                            <th>Receipt Date</th>
+                                                            <th>Description</th>
+                                                            <th>Outlet</th>
+                                                            <th>Business Unit</th>
+                                                            <th class="text-right">Receipt Amount</th>
+                                                            <th class="text-right">Available Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr ng-repeat="(index, jv_receipt) in $ctrl.journal_voucher.jv_receipt">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][id]" value="{{jv_receipt.id}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][receipt_no]" value="{{jv_receipt.receipt_no}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][amount]" value="{{jv_receipt.amount}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][balance_amount]" value="{{jv_receipt.balance_amount}}">
+                                                            <!-- <td class="action">
+                                                                <a href="javascript:void(0)" ng-click="removeJvReceipt(jv_receipt.id, index)">
+                                                                    <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
+                                                                </a>
+                                                            </td> -->
+                                                            <td>{{jv_receipt.permanent_receipt_no}}</td>
+                                                            <td>{{jv_receipt.date}}</td>
+                                                            <td>{{jv_receipt.description}}</td>
+                                                            <td>{{jv_receipt.outlet.code}}</td>
+                                                            <td>{{jv_receipt.business.name}}</td>
+                                                            <td class="text-right">{{jv_receipt.amount}}</td>
+                                                            <td class="text-right">{{jv_receipt.balance_amount}}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div><!-- Table Responsive -->
+                                        </div><!-- Column -->
                                         <div class="col-md-12" ng-show="$ctrl.add_FromButton">
                                             <h6 class="tab-pane-title fromAcc_Title">Receipts</h6>
                                             <div class="table-responsive">
@@ -314,7 +353,7 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr ng-repeat="(index, jv_receipt) in $ctrl.jv_receipts">
+                                                        <tr ng-repeat="(index, jv_receipt) in $ctrl.journal_voucher.jv_receipts">
                                                         <input type="hidden" name="jv_receipts[{{index}}][id]" value="{{jv_receipt.id}}">
                                                         <input type="hidden" name="jv_receipts[{{index}}][receipt_no]" value="{{jv_receipt.receipt_no}}">
                                                         <input type="hidden" name="jv_receipts[{{index}}][available_amt]" value="{{jv_receipt.available_amt}}">
@@ -361,7 +400,7 @@
                                         <ul class="grey-list mb-20">
                                             <li>
                                                 <div class="grey-box">
-                                                    <div class="grey-box-header">Journal Type : <b>{{$ctrl.jv_types[0].short_name}}</b></div>
+                                                    <div class="grey-box-header">Journal Type : <b>{{$ctrl.jv_types[0].name}}</b></div>
                                                 </div>
                                             </li>
                                             <li>
@@ -418,7 +457,7 @@
                                             <div class="input-text form-group">
                                                 <label>To A/c Code <sup class="mandatory">*</sup></label>
                                                 <div class="autocomplete-refresh">
-                                                    <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.toCustomerSearchText)" md-selected-item="$ctrl.journal_voucher.to_account_id" md-search-text="$ctrl.toCustomerSearchText" md-search-text-change="$ctrl.customerChanged('toAcc')"  md-selected-item-change="getCustomerDetails('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true" ng-disabled="$ctrl.toAcc_field">
+                                                    <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.toCustomerSearchText)" md-selected-item="$ctrl.journal_voucher.to_cusromer.code" md-search-text="$ctrl.toCustomerSearchText" md-search-text-change="$ctrl.customerChanged('toAcc')"  md-selected-item-change="getCustomerDetails('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true" ng-disabled="$ctrl.toAcc_field">
                                                         <md-item-template>
                                                         <span>
                                                             {{option.name}} - {{option.code}}
@@ -428,8 +467,8 @@
                                                         No Customers matching "{{ctrl.toCustomerSearchText}}" were found.
                                                         </md-not-found>
                                                     </md-autocomplete>
-                                                    <input type="hidden" name="to_account_id" value="{{$ctrl.journal_voucher.to_account_id.id}}" class="required toAcc">
-                                                    <input type="hidden" name="to_account_code" value="{{$ctrl.journal_voucher.to_account_id.code}}" class="required toAccCode">
+                                                    <input type="hidden" name="to_account_id" value="{{$ctrl.journal_voucher.to_cusromer.id}}" class="required toAcc">
+                                                    <input type="hidden" name="to_account_code" value="{{$ctrl.journal_voucher.to_cusromer.code}}" class="required toAccCode">
                                                 </div>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
@@ -462,8 +501,47 @@
                                                 </table>
                                             </div><!-- Table Responsive -->
                                         </div><!-- Column -->
-                                        <div class="col-md-12" ng-show="$ctrl.add_ToButton">
+                                        <div class="col-md-12" ng-show="$ctrl.edit_addToButton">
                                             <h6 class="tab-pane-title fromAcc_Title">Receipts</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-border-2" id="receipt_FromAccList" style="width: 100% !important;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Action</th>
+                                                            <th>Receipt No</th>
+                                                            <th>Receipt Date</th>
+                                                            <th>Description</th>
+                                                            <th>Outlet</th>
+                                                            <th>Business Unit</th>
+                                                            <th class="text-right">Receipt Amount</th>
+                                                            <th class="text-right">Available Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr ng-repeat="(index, jv_receipt) in $ctrl.journal_voucher.jv_receipt">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][id]" value="{{jv_receipt.id}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][receipt_no]" value="{{jv_receipt.receipt_no}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][amount]" value="{{jv_receipt.amount}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][balance_amount]" value="{{jv_receipt.balance_amount}}">
+                                                            <!-- <td class="action">
+                                                                <a href="javascript:void(0)" ng-click="removeJvReceipt(jv_receipt.id, index)">
+                                                                    <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
+                                                                </a>
+                                                            </td> -->
+                                                            <td>{{jv_receipt.permanent_receipt_no}}</td>
+                                                            <td>{{jv_receipt.date}}</td>
+                                                            <td>{{jv_receipt.description}}</td>
+                                                            <td>{{jv_receipt.outlet.code}}</td>
+                                                            <td>{{jv_receipt.business.name}}</td>
+                                                            <td class="text-right">{{jv_receipt.amount}}</td>
+                                                            <td class="text-right">{{jv_receipt.balance_amount}}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div><!-- Table Responsive -->
+                                        </div><!-- Column -->
+                                        <div class="col-md-12" ng-show="$ctrl.add_ToButton">
+                                            <h6 class="tab-pane-title toAcc_Title">Receipts</h6>
                                             <div class="table-responsive">
                                                 <table class="table table-border-2" id="receipt_ToAccList" style="width: 100% !important;">
                                                     <thead>
@@ -479,7 +557,7 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr ng-repeat="(index, jv_receipt) in $ctrl.jv_receipts">
+                                                        <tr ng-repeat="(index, jv_receipt) in $ctrl.journal_voucher.jv_receipts">
                                                         <input type="hidden" name="jv_receipts[{{index}}][id]" value="{{jv_receipt.id}}">
                                                         <input type="hidden" name="jv_receipts[{{index}}][receipt_no]" value="{{jv_receipt.receipt_no}}">
                                                         <input type="hidden" name="jv_receipts[{{index}}][available_amt]" value="{{jv_receipt.available_amt}}">
@@ -524,7 +602,7 @@
                                         <ul class="grey-list mb-20">
                                             <li>
                                                 <div class="grey-box">
-                                                    <div class="grey-box-header">Journal Type : <b>{{$ctrl.jv_types[0].short_name}}</b></div>
+                                                    <div class="grey-box-header">Journal Type : <b>{{$ctrl.jv_types[0].name}}</b></div>
                                                 </div>
                                             </li>
                                             <li>
@@ -610,9 +688,7 @@
                                             <div class="input-text form-group">
                                                 <label>Attachments</label>
                                                 <div class="jva-attachments">
-                                                    <li>
-                                                        <input type="file" class="image_uploadify" accept="/*" name="journal_attachments[]" multiple />
-                                                    </li>
+                                                    <input type="file" class="image_uploadify" accept="/*" name="journal_attachments[]" multiple />
                                                 </div>
                                                 <input type="hidden" name="attachment_removal_ids" id="attachment_removal_ids" value="">
                                             </div><!-- Form Group -->
