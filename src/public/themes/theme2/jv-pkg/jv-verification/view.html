@@ -154,16 +154,16 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="timeline-wrap">
-                                            <div class="timeline-log">
+                                            <div class="timeline-log" ng-repeat="(index, activity_log) in $ctrl.activity_logs">
                                                 <div class="timeline-left">
-                                                    <p class="timeline-date">12 Jan 2020 <span class="timeline-time">11 : 15 am</span></p>
+                                                    <p class="timeline-date">{{ activity_log.activity_date }} <span class="timeline-time">{{ activity_log.activity_time }}</span></p>
                                                 </div>
                                                 <div class="timeline-content">
-                                                    <h6 class="timeline-content-title">Created</h6>
-                                                    <p class="timeline-content-info">by Selvakumar / E2134677 / Administrator </p>
+                                                    <h6 class="timeline-content-title">{{ activity_log.status }}</h6>
+                                                    <p class="timeline-content-info">by {{ activity_log.created_user }} / {{ activity_log.user_role }} </p>
                                                 </div>
-                                            </div><!-- Timeline Log -->
-                                            <div class="timeline-log">
+                                            </div>
+                                            <!-- <div class="timeline-log">
                                                 <div class="timeline-left">
                                                     <p class="timeline-date"> <span class="timeline-time">11 : 30 am</span></p>
                                                 </div>
@@ -171,8 +171,8 @@
                                                     <h6 class="timeline-content-title">Sent to Approval</h6>
                                                     <p class="timeline-content-info">by Selvakumar / E2134677 / Administrator </p>
                                                 </div>
-                                            </div><!-- Timeline Log -->
-                                            <div class="timeline-log">
+                                            </div> -->
+                                            <!-- <div class="timeline-log">
                                                 <div class="timeline-left">
                                                     <p class="timeline-date">13 Jan 2020 <span class="timeline-time">11 : 30 am</span></p>
                                                 </div>
@@ -180,7 +180,7 @@
                                                     <h6 class="timeline-content-title">Approved</h6>
                                                     <p class="timeline-content-info">by Rajesh Kumar / E2134677 / Manager </p>
                                                 </div>
-                                            </div><!-- Timeline Log -->
+                                            </div> -->
                                         </div><!-- Timeline Wrap -->
                                     </div><!-- Column -->
                                     <div class="tab-pane-footer">

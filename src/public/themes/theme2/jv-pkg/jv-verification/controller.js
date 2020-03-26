@@ -257,7 +257,7 @@ app.component('jvVerificationView', {
                 approval_level_id: $routeParams.level_id,
             }
         }).then(function(response) {
-            console.log(response.data);
+            console.log(response.data.activity_logs);
             self.journal_vouchers = response.data.journal_vouchers;
             self.reject_reason = response.data.reject_reason;
             self.from_account_type = response.data.from_account_type;
@@ -269,6 +269,7 @@ app.component('jvVerificationView', {
             self.invoice_details = response.data.invoice_details;
             self.receipt_details = response.data.receipt_details;
             self.attachment = response.data.attachment;
+            self.activity_logs = response.data.activity_logs;
             self.ref_attachements_url_link = jv_attachements_url;
             self.action = response.data.action;
             self.jv_date = self.journal_vouchers.date;
