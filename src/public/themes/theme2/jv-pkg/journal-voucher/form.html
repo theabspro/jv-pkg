@@ -109,7 +109,7 @@
                                                 Journal Name
                                                 <sup class="mandatory">*</sup>
                                             </label>
-                                            <md-select ng-model="$ctrl.journal_voucher.journal" placeholder="Select Journal" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader">
+                                            <md-select ng-model="$ctrl.journal_voucher.journal_id" placeholder="Select Journal" ng-change="onSelectedJournal($ctrl.journal_voucher.journal_id);" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader">
                                                 <md-select-header class="demo-select-header">
                                                     <input ng-model="searchJournal" type="search" placeholder="Search Journal" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                                                 </md-select-header>
@@ -119,7 +119,7 @@
                                                     </md-option>
                                                 </md-optgroup>
                                             </md-select>
-                                            <input type="hidden" name="journal_id" value='{{$ctrl.journal_voucher.journal}}' class="required">
+                                            <input type="hidden" name="journal_id" value='{{$ctrl.journal_voucher.journal_id}}' class="required">
                                         </div><!-- Feild -->
                                     </div><!-- Column -->
                                     <div class="col-md-3" ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.journal_voucher.type_id != NULL">
@@ -128,7 +128,7 @@
                                                 From Account
                                                 <sup class="mandatory">*</sup>
                                             </label>
-                                            <md-select ng-model="$ctrl.journal_voucher.from_account_type_id"  ng-change="onSelectedFromAcc($ctrl.journal_voucher.from_account_type_id.id)" placeholder="Select From Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader">
+                                            <md-select ng-model="$ctrl.journal_voucher.from_account_type_id"  ng-change="onSelectedFromAcc($ctrl.journal_voucher.from_account_type_id)" placeholder="Select From Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader">
                                                 <md-select-header class="demo-select-header">
                                                     <input ng-model="searchFromAccount" type="search" placeholder="Search From Account" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                                                 </md-select-header>
@@ -147,7 +147,7 @@
                                                 To Account
                                                 <sup class="mandatory">*</sup>
                                             </label>
-                                            <md-select ng-model="$ctrl.journal_voucher.to_account_type_id" ng-change="onSelectedToAcc($ctrl.journal_voucher.to_account_type_id.id)" placeholder="Select To Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader">
+                                            <md-select ng-model="$ctrl.journal_voucher.to_account_type_id" ng-change="onSelectedToAcc($ctrl.journal_voucher.to_account_type_id)" placeholder="Select To Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader">
                                                 <md-select-header class="demo-select-header">
                                                     <input ng-model="searchToAccount" type="search" placeholder="Search To Account" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                                                 </md-select-header>
@@ -166,7 +166,7 @@
                                                 <a class="btn btn-primary btn-min-wdth btn-nxt">
                                                     Next
                                                 </a>
-                                                <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+                                                <button type="submit" class="btn btn-primary submit">Submit</button>
                                             </div>
                                         </div>
                                     </div><!-- Tab Footer -->
@@ -188,18 +188,29 @@
                                             <li>
                                                 <div class="grey-box">
                                                     <div class="grey-box-header">Journal Name : <b ng-if="$ctrl.journal">{{$ctrl.journal.name}}</b>
-                                                    <b ng-if="$ctrl.journals_list">{{$ctrl.journal_voucher.journal.name}}</b></div>
+                                                    <b ng-if="$ctrl.journals_list">{{$ctrl.journal_voucher.journal_name}}</b></div>
                                                 </div>
                                             </li>
                                             <li>
                                                 <div class="grey-box">
-                                                    <div class="grey-box-header">Transfer Type : <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.jv_types[2].value_name}}</b>
-                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_account_type_id.name}} to {{$ctrl.journal_voucher.to_account_type_id.name}}</b>
-                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.journal_voucher.to_account_type_id.name}}</b>
-                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_account_type_id.name}} to {{$ctrl.jv_types[2].value_name}}</b>
-                                                    </div>
+                                                    <div class="grey-box-header">Transfer Type : <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.jv_types[2].value_name}}
                                                     <input type="hidden" name="from_account_type_id" id="from_account_type_id" value='{{$ctrl.jv_types[1].value}}'>
                                                     <input type="hidden" name="to_account_type_id" id="to_account_type_id" value='{{$ctrl.jv_types[2].value}}'>
+                                                    </b>
+                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_name}} to {{$ctrl.journal_voucher.to_name}}
+                                                     <input type="hidden" name="from_account_type_id" id="from_account_type_id" value='{{$ctrl.journal_voucher.from_id}}'>
+                                                    <input type="hidden" name="to_account_type_id" id="to_account_type_id" value='{{$ctrl.journal_voucher.to_id}}'>
+                                                    </b>
+                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.journal_voucher.to_name}}
+                                                    <input type="hidden" name="from_account_type_id" id="from_account_type_id" value='{{$ctrl.jv_types[1].value}}'>
+                                                    <input type="hidden" name="to_account_type_id" id="to_account_type_id" value='{{$ctrl.journal_voucher.to_id}}'>
+                                                    </b>
+                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_name}} to {{$ctrl.jv_types[2].value_name}}
+                                                    <input type="hidden" name="from_account_type_id" id="from_account_type_id" value='{{$ctrl.journal_voucher.from_id}}'>
+                                                    <input type="hidden" name="to_account_type_id" id="to_account_type_id" value='{{$ctrl.jv_types[2].value}}'>
+                                                    </b>
+                                                    </div>
+                                                   
                                                 </div>
                                             </li>
                                         </ul>
@@ -212,6 +223,15 @@
                                                         <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.address}}</p>
                                                         <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.mobile_no ? '+91 '+ $ctrl.fromAccountCustomer.mobile_no : ''}}</p>
                                                         <p class="grey-box-info sm">{{$ctrl.fromAccountCustomer.email ? $ctrl.fromAccountCustomer.email : ''}}</p>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="flex-col-3" ng-show="$ctrl.check_List">
+                                                <div class="grey-box">
+                                                    <div class="grey-box-header">{{$ctrl.checked_Count}} {{$ctrl.added_Title}}</div>
+                                                    <div class="grey-box-body">
+                                                        <p class="grey-box-info sm">{{$ctrl.checked_List}}</p>
+                                                        <input type="hidden" name="selected_invoices" class="form-control" value="{{$ctrl.checked_List}}">
                                                     </div>
                                                 </div>
                                             </li>
@@ -254,7 +274,7 @@
                                                 <button type="button" class="btn btn-primary btn-square button" id="search_fromAcc">Search</button>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
-                                        <div class="col-md-3" ng-show="$ctrl.add_FromReceipt">
+                                        <div class="col-md-3" ng-if="$ctrl.add_FromReceipt">
                                             <div class="input-text form-group">
                                                 <label>Receipt No <sup class="mandatory">*</sup></label>
                                                 <input type="text" class="form-control" name="from_receipt_number" value="" id="from_receipt_number" placeholder="Enter Receipt Number" autocomplete="off" required>
@@ -325,7 +345,7 @@
                                         <div class="col-md-12">
                                             <a class="btn btn-secondary btn-prev">Previous</a>
                                             <a class="btn btn-primary btn-min-wdth btn-nxt">Next</a>
-                                            <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+                                            <button type="submit" class="btn btn-primary submit">Submit</button>
                                         </div>
                                     </div>
                                 </div><!-- Tab Footer -->
@@ -347,15 +367,15 @@
                                             <li>
                                                 <div class="grey-box">
                                                     <div class="grey-box-header">Journal Name : <b ng-if="$ctrl.journal">{{$ctrl.journal.name}}</b>
-                                                    <b ng-if="$ctrl.journals_list">{{$ctrl.journal_voucher.journal.name}}</b></div>
+                                                    <b ng-if="$ctrl.journals_list">{{$ctrl.journal_voucher.journal_name}}</b></div>
                                                 </div>
                                             </li>
                                             <li>
                                                 <div class="grey-box">
                                                     <div class="grey-box-header">Transfer Type : <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.jv_types[2].value_name}}</b>
-                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_account_type_id.name}} to {{$ctrl.journal_voucher.to_account_type_id.name}}</b>
-                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.journal_voucher.to_account_type_id.name}}</b>
-                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_account_type_id.name}} to {{$ctrl.jv_types[2].value_name}}</b></div>
+                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_name}} to {{$ctrl.journal_voucher.to_name}}</b>
+                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.journal_voucher.to_name}}</b>
+                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_name}} to {{$ctrl.jv_types[2].value_name}}</b></div>
                                                 </div>
                                             </li>
                                         </ul>
@@ -442,6 +462,45 @@
                                                 </table>
                                             </div><!-- Table Responsive -->
                                         </div><!-- Column -->
+                                        <div class="col-md-12" ng-show="$ctrl.add_ToButton">
+                                            <h6 class="tab-pane-title fromAcc_Title">Receipts</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-border-2" id="receipt_ToAccList" style="width: 100% !important;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Action</th>
+                                                            <th>Receipt No</th>
+                                                            <th>Receipt Date</th>
+                                                            <th>Description</th>
+                                                            <th>Outlet</th>
+                                                            <th>Business Unit</th>
+                                                            <th class="text-right">Receipt Amount</th>
+                                                            <th class="text-right">Available Amount</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr ng-repeat="(index, jv_receipt) in $ctrl.jv_receipts">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][id]" value="{{jv_receipt.id}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][receipt_no]" value="{{jv_receipt.receipt_no}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][available_amt]" value="{{jv_receipt.available_amt}}">
+                                                        <input type="hidden" name="jv_receipts[{{index}}][balance_amount]" value="{{jv_receipt.balance_amount}}">
+                                                            <td class="action">
+                                                                <a href="javascript:void(0)" ng-click="removeJvReceipt(jv_receipt.id, index)">
+                                                                    <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
+                                                                </a>
+                                                            </td>
+                                                            <td>{{jv_receipt.receipt_no}}</td>
+                                                            <td>{{jv_receipt.receipt_date}}</td>
+                                                            <td>{{jv_receipt.description}}</td>
+                                                            <td>{{jv_receipt.outlet_name}}</td>
+                                                            <td>{{jv_receipt.business_name}}</td>
+                                                            <td class="text-right">{{jv_receipt.available_amt}}</td>
+                                                            <td class="text-right">{{jv_receipt.balance_amount}}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div><!-- Table Responsive -->
+                                        </div><!-- Column -->
                                     </div><!-- Row -->
                                 </div><!-- Column -->
                                 <div class="tab-pane-footer">
@@ -449,7 +508,7 @@
                                         <div class="col-md-12">
                                             <a class="btn btn-secondary btn-prev">Previous</a>
                                             <a class="btn btn-primary btn-min-wdth btn-nxt">Next</a>
-                                            <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+                                            <button type="submit" class="btn btn-primary submit">Submit</button>
                                         </div>
                                     </div>
                                 </div><!-- Tab Footer -->
@@ -471,15 +530,15 @@
                                             <li>
                                                 <div class="grey-box">
                                                     <div class="grey-box-header">Journal Name : <b ng-if="$ctrl.journal">{{$ctrl.journal.name}}</b>
-                                                    <b ng-if="$ctrl.journals_list">{{$ctrl.journal_voucher.journal.name}}</b></div>
+                                                    <b ng-if="$ctrl.journals_list">{{$ctrl.journal_voucher.journal_name}}</b></div>
                                                 </div>
                                             </li>
                                             <li>
                                                 <div class="grey-box">
                                                     <div class="grey-box-header">Transfer Type : <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.jv_types[2].value_name}}</b>
-                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_account_type_id.name}} to {{$ctrl.journal_voucher.to_account_type_id.name}}</b>
-                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.journal_voucher.to_account_type_id.name}}</b>
-                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_account_type_id.name}} to {{$ctrl.jv_types[2].value_name}}</b></div>
+                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_name}} to {{$ctrl.journal_voucher.to_name}}</b>
+                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value != NULL && $ctrl.jv_types[2].value == NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.jv_types[1].value_name}} to {{$ctrl.journal_voucher.to_name}}</b>
+                                                    <b ng-if="$ctrl.jv_types != NULL && $ctrl.jv_types[1].value == NULL && $ctrl.jv_types[2].value != NULL && $ctrl.journal_voucher.type_id != NULL">{{$ctrl.journal_voucher.from_name}} to {{$ctrl.jv_types[2].value_name}}</b></div>
                                                 </div>
                                             </li>
                                         </ul>
@@ -551,8 +610,11 @@
                                             <div class="input-text form-group">
                                                 <label>Attachments</label>
                                                 <div class="jva-attachments">
-                                                    <input type="file" class="image_uploadify" accept="image/*,application/pdf" name="journal_attachments[]" multiple />
+                                                    <li>
+                                                        <input type="file" class="image_uploadify" accept="/*" name="journal_attachments[]" multiple />
+                                                    </li>
                                                 </div>
+                                                <input type="hidden" name="attachment_removal_ids" id="attachment_removal_ids" value="">
                                             </div><!-- Form Group -->
                                         </div>
                                     </div><!-- Row -->
@@ -561,7 +623,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <a class="btn btn-secondary btn-prev">Previous</a>
-                                            <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+                                            <button type="submit" class="btn btn-primary submit">Submit</button>
                                         </div>
                                     </div>
                                 </div><!-- Tab Footer -->

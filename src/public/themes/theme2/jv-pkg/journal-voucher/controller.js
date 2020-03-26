@@ -138,6 +138,8 @@ app.component('journalVoucherForm', {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.angular_routes = angular_routes;
+        var attachment_removal_ids = [];
+
         $http({
             url: laravel_routes['getJournalVoucherFormData'],
             method: "GET",
@@ -160,10 +162,37 @@ app.component('journalVoucherForm', {
                 } else {
                     self.switch_value = 'Active';
                 }
+                // self.jv_attachements_url = jv_attachements_url;
                 $scope.onSelectedJVType(self.journal_voucher.type_id);
+                setTimeout(function(){
+                    $scope.onSelectedFromAcc(self.journal_voucher.from_account_type_id);
+                    $scope.onSelectedToAcc(self.journal_voucher.to_account_type_id);
+                    $scope.onSelectedJournal(self.journal_voucher.journal_id);
+                },2500);
+                
+                //ATTACHMENTS
+                if (self.journal_voucher.attachments.length) {
+                    $(self.journal_voucher.attachments).each(function(key, attachment) {
+                        var design = '<div class="imageuploadify-container" data-attachment_id="' + attachment.id + '" style="margin-left: 0px; margin-right: 0px;">' +
+                            '<div class="imageuploadify-btn-remove"><button type="button" class="btn btn-danger glyphicon glyphicon-remove"></button> ' +
+                            ' <div class="imageuploadify-details"><div class="imageuploadify-file-icon"></div><span class="imageuploadify-file-name"><a href="'+jv_attachements_url+'/'+attachment.name+'">' + attachment.name + '' +
+                            '</span><span class="imageuploadify-file-type">image/jpeg</span>' +
+                            '</a><span class="imageuploadify-file-size">369960</span></div>' +
+                            '</div></div>';
+                        $('.imageuploadify-images-list').append(design);
+                    });
+                }
             } else {
                 self.switch_value = 'Active';
             }
+        });
+
+        //ATTACHMENT REMOVE
+        $(document).on('click', ".main-wrap .imageuploadify-container .imageuploadify-btn-remove button", function() {
+            var attachment_id = $(this).parent().parent().data('attachment_id');
+            attachment_removal_ids.push(attachment_id);
+            $('#attachment_removal_ids').val(JSON.stringify(attachment_removal_ids));
+            $(this).parent().parent().remove();
         });
 
         /* Tab Funtion */
@@ -205,7 +234,17 @@ app.component('journalVoucherForm', {
                 self.jv_types = response.data.jv_types;
                 self.jv_account_type_list = response.data.jv_account_type_list;
 
-                $scope.onSelectedFromAcc = function($selected_fromValue) {//console.log($selected_fromValue);
+                $scope.onSelectedFromAcc = function($selected_fromValue) {
+                    if($selected_fromValue == 1440){
+                        self.journal_voucher.from_name = "Customer";
+                        self.journal_voucher.from_id = 1440;
+                    }else if($selected_fromValue == 1441){
+                        self.journal_voucher.from_name = 'Vendor';
+                        self.journal_voucher.from_id = 1441;
+                    }else if($selected_fromValue == 1442){
+                        self.journal_voucher.from_name = 'Ledger';   
+                        self.journal_voucher.from_id = 1442;
+                    }
                     var fromAccount_value = $selected_fromValue;
                     // alert(fromAccount_value);
                     if (fromAccount_value != '') {
@@ -213,14 +252,42 @@ app.component('journalVoucherForm', {
                     } else if (fromAccount_value == '') {
                         self.fromAcc_field = true;
                     }
+                    console.log(self.journal_voucher.from_name);
+                    console.log(self.journal_voucher.from_id);
                 }
-                $scope.onSelectedToAcc = function($selected_toValue) {//console.log($selected_toValue);
+
+                $scope.onSelectedToAcc = function($selected_toValue) {
+                if($selected_toValue == 1440){
+                    self.journal_voucher.to_name = 'Customer';
+                    self.journal_voucher.to_id = 1440;
+                }else if($selected_toValue == 1441){
+                    self.journal_voucher.to_name = 'Vendor';
+                    self.journal_voucher.to_id = 1441;
+                }else if($selected_toValue == 1442){
+                    self.journal_voucher.to_name = 'Ledger'; 
+                    self.journal_voucher.to_id = 1442;  
+                }
                     var toAccount_value = $selected_toValue;
                     // alert(toAccount_value);
                     if (toAccount_value != '') {
                         self.toAcc_field = false;
                     } else if (toAccount_value == '') {
                         self.toAcc_field = true;
+                    }
+                    console.log(self.journal_voucher.to_name);
+                    console.log(self.journal_voucher.to_id);
+                }
+
+                //JOURNAL 
+                $scope.onSelectedJournal = function($id){
+                    console.log($id);
+                    if($id){
+                        angular.forEach(self.journals_list, function(value, key){
+                            if(value.id = $id){
+                                self.journal_voucher.journal_name = value.name;
+                            }
+                        });
+                        console.log(self.journal_voucher.journal_name);
                     }
                 }
 
@@ -243,6 +310,7 @@ app.component('journalVoucherForm', {
                 }
             });
         }
+
         //SEARCH CUSTOMER
         self.searchCustomer = function(query) {
             if (query) {
@@ -342,6 +410,7 @@ app.component('journalVoucherForm', {
             //alert('radio');
             if ($(this).val() == 'invoice') {
                 self.search_FromButton = true;
+                self.checkedFromAcc = true;
                 self.search_ToButton = false;
                 self.add_FromReceipt = false;
                 self.add_FromButton = false;
@@ -349,6 +418,7 @@ app.component('journalVoucherForm', {
                 self.add_ToReceipt = true;
             } else if($(this).val() == 'receipt') {
                 self.search_FromButton = false;
+                self.checkedFromAcc = false;
                 self.search_ToButton = true;
                 self.add_FromReceipt = true;
                 self.add_FromButton = true;
@@ -360,8 +430,8 @@ app.component('journalVoucherForm', {
 
         self.jv_receipts = [];
 
-        $(".button").on("click",function(){
-            // alert(this.id);
+    // $(documen).ready(function () {
+        $(document).on("click",".button",function(e){
             alert($(this).attr('id'));
             var buttonId = $(this).attr('id');
             console.log(buttonId);
@@ -434,6 +504,7 @@ app.component('journalVoucherForm', {
             $(buttonId).button('reset');
             if(($("input[name='transfer_type']").is(":checked") == true) && ($('.fromAcc').val() != '' || $('.toAcc').val() != '')) {
                 if(buttonId == 'search_fromAcc' || buttonId =='search_toAcc'){
+                    console.log('searchButton');
                     if (buttonId == 'search_fromAcc') {
                         self.checkedFromAcc = true;
                         $('.fromAcc_Title').html('Invoices');
@@ -459,7 +530,10 @@ app.component('journalVoucherForm', {
                         var customer_code = $('.toAccCode').val();
                     }
 
+                    // $(dataTable_id).DataTable().ajax.reload(function(json) {});
                     setTimeout(function() {
+                        // e.preventDefault();
+                        // alert();
                         var dataTable;
                         var table_scroll;
                         table_scroll = $('.page-main-content.list-page-content').height() - 37;
@@ -559,6 +633,8 @@ app.component('journalVoucherForm', {
                         });
                         $(document.body).on('click', '.jv_Checkbox', function() {
                             if ($('.jv_Checkbox').is(':checked') == true) {
+                                console.log('sample 1');
+
                                 self.check_List = true; //console.log('jv_Checkbox ' + self.check_List);
                                 if ($('.jv_Checkbox:checked').length == $('.jv_Checkbox').length) {
                                     $('#parent_checkbox').prop('checked', true);
@@ -577,6 +653,7 @@ app.component('journalVoucherForm', {
                                     console.log(self.checked_List);
                                 }
                             } else {
+                                console.log('sample');
                                 self.check_List = false; //console.log('jv_Checkbox ' + self.check_List);
                                 self.added_Title = '';
                                 self.checked_Count = $('.jv_Checkbox:checked').length;
@@ -584,8 +661,9 @@ app.component('journalVoucherForm', {
                             }
                             $scope.$apply();
                         });
-                    }, 2000);
+                    }, 3000);
                 } else if ((buttonId == 'add_fromAcc' || buttonId =='add_toAcc') && ($('#from_receipt_number').val() != '' || $('#to_receipt_number').val() != '')) {
+                    console.log('addButton');
                     if (buttonId == 'add_fromAcc') {
                         self.checkedFromAcc = false;
                         self.add_FromButton = true;
@@ -617,86 +695,6 @@ app.component('journalVoucherForm', {
                         }
                     });
 
-                    // console.log(self.journal_voucher.jv_receipts);
-
-                    // if (!self.journal_voucher.jv_receipts) {
-                    //     self.journal_voucher.jv_receipts = [];
-                    // }
-                    // if (res.add) {
-                    //     self.journal_voucher.jv_receipts.push(res.service_item);
-                    // } else {
-                    //     var edited_service_invoice_item_primary_id = self.service_invoice.service_invoice_items[self.update_item_key].id;
-                    //     self.service_invoice.service_invoice_items[self.update_item_key] = res.service_item;
-                    //     self.service_invoice.service_invoice_items[self.update_item_key].id = edited_service_invoice_item_primary_id;
-                    // }
-                    //return
-                    // setTimeout(function() {
-                    //     var dataTable;
-                    //     var table_scroll;
-                    //     table_scroll = $('.page-main-content.list-page-content').height() - 37;
-                    //     dataTable = $(dataTable_id).DataTable({
-                    //         // "dom": cndn_dom_structure,
-                    //         "language": {
-                    //             // "search": "",
-                    //             // "searchPlaceholder": "Search",
-                    //             // "lengthMenu": "Rows _MENU_",
-                    //             "paginate": {
-                    //                 "next": '<i class="icon ion-ios-arrow-forward"></i>',
-                    //                 "previous": '<i class="icon ion-ios-arrow-back"></i>'
-                    //             },
-                    //         },
-                    //         scrollX: true,
-                    //         scrollY: table_scroll + "px",
-                    //         scrollCollapse: true,
-                    //         stateSave: true,
-                    //         stateSaveCallback: function(settings, data) {
-                    //             localStorage.setItem('SIDataTables_' + settings.sInstance, JSON.stringify(data));
-                    //         },
-                    //         stateLoadCallback: function(settings) {
-                    //             var state_save_val = JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
-                    //             if (state_save_val) {
-                    //                 $('#search').val(state_save_val.search.search);
-                    //             }
-                    //             return JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
-                    //         },
-                    //         processing: true,
-                    //         serverSide: true,
-                    //         paging: true,
-                    //         searching: false,
-                    //         ordering: false,
-                    //         retrieve: true,
-                    //         ajax: {
-                    //             url: laravel_routes['getCustomerReceipt'],
-                    //             type: "GET",
-                    //             dataType: "json",
-                    //             data: function(d) {
-                    //                 d.accountNumber= customer_code;
-                    //                 d.receiptNumber = receipt_number;
-                    //             },
-                    //         },
-                            
-                    //         columns: [
-                    //             { data: 'action', class: 'action', searchable: false },
-                    //             { data: 'VOUCHER', searchable: true },
-                    //             { data: 'TRANSDATE', name: 'TRANSDATE', searchable: true },
-                    //             { data: 'TXT', name: 'TXT', searchable: true },
-                    //             { data: 'OUTLET', name: 'OUTLET', searchable: true },
-                    //             { data: 'BUSINESSUNIT', name: 'BUSINESSUNIT', searchable: true },
-                    //             { data: 'AMOUNTMST', name: 'AMOUNTMST', searchable: true, class: 'text-right' },
-                    //             { data: 'BALANCE', name: 'BALANCE', searchable: true, class: 'text-right' },
-                    //         ],
-                    //         "initComplete": function(settings, json) {
-                    //             // $('.dataTables_length select').select2();
-                    //         },
-                    //         rowCallback: function(row, data) {
-                    //             $(row).addClass('highlight-row');
-                    //         },
-                    //         infoCallback: function(settings, start, end, max, total, pre) {
-                    //             // $('#table_info').html(total)
-                    //             $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
-                    //         },
-                    //     });
-                    // }, 3000);
                     //REMOVE SERVICE INVOICE ITEM
                     $scope.removeJvReceipt = function(receipt_id, index) {
                         self.jv_receipt_removal_id = [];
@@ -717,7 +715,8 @@ app.component('journalVoucherForm', {
                 self.checkedToAcc = false;
             }
         // });
-});
+        });
+    // });
         var form_id = '#form';
         var v = jQuery(form_id).validate({
             ignore: '',
@@ -751,7 +750,7 @@ app.component('journalVoucherForm', {
             },
             submitHandler: function(form) {
                 let formData = new FormData($(form_id)[0]);
-                $('#submit').button('loading');
+                $('.submit').button('loading');
                 $.ajax({
                         url: laravel_routes['saveJournalVoucher'],
                         method: "POST",
@@ -773,7 +772,7 @@ app.component('journalVoucherForm', {
                             $scope.$apply();
                         } else {
                             if (!res.success == true) {
-                                $('#submit').button('reset');
+                                $('.submit').button('reset');
                                 var errors = '';
                                 for (var i in res.errors) {
                                     errors += '<li>' + res.errors[i] + '</li>';
@@ -787,14 +786,14 @@ app.component('journalVoucherForm', {
                                     $noty.close();
                                 }, 3000);
                             } else {
-                                $('#submit').button('reset');
+                                $('.submit').button('reset');
                                 $location.path('/jv-pkg/journal-voucher/list');
                                 $scope.$apply();
                             }
                         }
                     })
                     .fail(function(xhr) {
-                        $('#submit').button('reset');
+                        $('.submit').button('reset');
                         $noty = new Noty({
                             type: 'error',
                             layout: 'topRight',

@@ -18,6 +18,7 @@ class JournalVoucher extends Model {
 		'date',
 		'journal_id',
 		// 'voucher_number',
+		'transfer_type',
 		'from_account_type_id',
 		'from_account_id',
 		'to_account_type_id',
@@ -44,6 +45,10 @@ class JournalVoucher extends Model {
 
 	public function jvReceipt() {
 		return $this->belongsToMany('Abs\ReceiptPkg\Receipt', 'jv_receipts', 'jv_id', 'receipt_id');
+	}
+
+	public function attachments() {
+		return $this->hasMany('Abs\BasicPkg\Attachment', 'entity_id', 'id')->where('attachment_of_id', 223)->where('attachment_type_id', 244);
 	}
 
 	public static function createFromObject($record_data) {

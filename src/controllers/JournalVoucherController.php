@@ -1,12 +1,13 @@
 <?php
 
 namespace Abs\JVPkg;
-use Abs\ApprovalPkg\ApprovalTypeStatus;
+use Abs\BasicPkg\Attachment;
 use Abs\BasicPkg\Config;
 use Abs\BusinessPkg\Sbu;
 use Abs\CustomerPkg\Customer;
 use Abs\InvoicePkg\Invoice;
 use Abs\JVPkg\JournalVoucher;
+use Abs\JVPkg\JVType;
 use Abs\JVPkg\Ledger;
 use Abs\ReceiptPkg\Receipt;
 use App\ActivityLog;
@@ -18,6 +19,8 @@ use Auth;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Validator;
 use Yajra\Datatables\Datatables;
 
 class JournalVoucherController extends Controller {
@@ -116,9 +119,12 @@ class JournalVoucherController extends Controller {
 			// $attachment = new Attachment;
 			$action = 'Add';
 		} else {
-			$journal_voucher = JournalVoucher::withTrashed()->find($id);
+			$journal_voucher = JournalVoucher::withTrashed()->with([
+				'attachments',
+			])->find($id);
 			// $attachment = Attachment::where('id', $journal_voucher->logo_id)->first();
 			$action = 'Edit';
+			$journal_voucher->date = date('d-m-Y', strtotime($journal_voucher->date));
 		}
 		$this->data['journal_voucher'] = $journal_voucher;
 		$this->data['jv_type_list'] = collect(JVType::where('company_id', Auth::user()->company_id)->select('id', 'short_name')->get())->prepend(['id' => '', 'short_name' => 'Select JV Type']);
@@ -184,51 +190,107 @@ class JournalVoucherController extends Controller {
 	}
 
 	public function saveJournalVoucher(Request $request) {
-		dd($request->all());
+		// dd($request->all());
 		try {
-			// $error_messages = [
-			// 	'name.required' => 'Name is Required',
-			// 	'name.unique' => 'Name is already taken',
-			// 	'delivery_time.required' => 'Delivery Time is Required',
-			// 	'charge.required' => 'Charge is Required',
-			// ];
-			// $validator = Validator::make($request->all(), [
-			// 	'name' => [
-			// 		'required:true',
-			// 		'unique:journal_vouchers,name,' . $request->id . ',id,company_id,' . Auth::user()->company_id,
-			// 	],
-			// 	'delivery_time' => 'required',
-			// 	'charge' => 'required',
-			// 	'logo_id' => 'mimes:jpeg,jpg,png,gif,ico,bmp,svg|nullable|max:10000',
-			// ], $error_messages);
-			// if ($validator->fails()) {
-			// 	return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
-			// }
-			$approval_level = ApprovalTypeStatus::where('approval_type_id', 2)
-				->where('status', 'New')
-				->first()
-			;
+			$error_messages = [
+				'type_id.required' => 'JV Type is required',
+				'date.required' => 'Date is required',
+				'journal_id.required' => 'Journal is required',
+				'from_account_type_id.required' => 'From Account Type is required',
+				'to_account_type_id.required' => 'To Account Type is required',
+				'from_account_id.required' => 'From Account is required',
+				'to_account_id.required' => 'To Account is required',
+				'amount.required' => 'Amount is required',
+				'reason.required' => 'Reason is required',
+			];
 
-			// dd($approval_level);
+			$validator = Validator::make($request->all(), [
+				'type_id' => [
+					'required:true',
+				],
+				'date' => [
+					'required:true',
+				],
+				'journal_id' => [
+					'required:true',
+				],
+				'from_account_type_id' => [
+					'required:true',
+				],
+				'to_account_type_id' => [
+					'required:true',
+				],
+				'from_account_id' => [
+					'required:true',
+				],
+				'to_account_id' => [
+					'required:true',
+				],
+				'amount' => [
+					'required:true',
+				],
+				'reason' => [
+					'required:true',
+				],
+			], $error_messages);
 
-			if (!empty($jv_receipts)) {
+			if ($validator->fails()) {
+				return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+			}
+
+			// $approval_level = ApprovalTypeStatus::where('approval_type_id', 2)
+			// 	->where('status', 'New')
+			// 	->first()
+			// ;
+
+			$jv_type_status = JVType::where('id', $request->type_id)->first();
+
+			// dd($jv_type_status->initial_status_id);
+
+			if (!empty($request->jv_receipts)) {
 				$jv_receipts = array_column($request->jv_receipts, 'receipt_no');
+				$balence_amount = array_column($request->jv_receipts, 'balance_amount');
 				$jv_receipt_count = count($jv_receipts);
 				$jv_receipt_count_unique = count(array_unique($jv_receipts));
 				if ($jv_receipt_count != $jv_receipt_count_unique) {
-					return response()->json(['success' => true, 'error' => ['Receipt number should be uniqe!']]);
+					return response()->json(['success' => true, 'errors' => ['Receipt number should be uniqe!']]);
 				}
 			}
 
 			if (empty($request->selected_invoices)) {
-				return response()->json(['success' => true, 'error' => ['Select Invoice!']]);
+				return response()->json(['success' => true, 'errors' => ['Select Invoice!']]);
 			}
 			$selected_invoices = explode(', ', $request->selected_invoices);
 			foreach ($selected_invoices as $selected_invoice) {
+				$invoice_amounts[] = Invoice::where('invoice_number', $selected_invoice)->pluck('invoice_amount')->toArray();
+				$received_amounts[] = Invoice::where('invoice_number', $selected_invoice)->pluck('received_amount');
+			}
+			foreach ($selected_invoices as $selected_invoice) {
 				$invoice_ids[] = Invoice::where('invoice_number', $selected_invoice)->pluck('id');
 			}
-
 			$receipt_ids = array_column($request->jv_receipts, 'id');
+
+			// dd($invoice_amounts);
+			$total_invoice_amount = 0;
+			foreach ($invoice_amounts as $key => $invoice_amount) {
+				foreach ($invoice_amount as $val) {
+					$total_invoice_amount += $val;
+				}
+			}
+
+			$total_received_amount = 0;
+			foreach ($received_amounts as $key => $received_amount) {
+				foreach ($received_amount as $val) {
+					$total_received_amount += $val;
+				}
+			}
+
+			$balence_invoice_amount = $total_invoice_amount - $total_received_amount;
+			$invoice_receipt_min_amount = min(array_sum($balence_amount), $balence_invoice_amount);
+
+			if ($invoice_receipt_min_amount < $request->amount) {
+				return response()->json(['success' => false, 'errors' => ['Transfer amount exceeds from invoice and receipt!']]);
+			}
 
 			DB::beginTransaction();
 			if (!$request->id) {
@@ -243,7 +305,8 @@ class JournalVoucherController extends Controller {
 			}
 
 			$journal_voucher->date = date('Y-m-d', strtotime($request->date));
-			$journal_voucher->status_id = $approval_level->id;
+			// dd(date('Y-m-d', strtotime($request->date)));
+			$journal_voucher->status_id = $jv_type_status->initial_status_id;
 			$journal_voucher->fill($request->all());
 			$journal_voucher->company_id = Auth::user()->company_id;
 			if ($request->status == 'Inactive') {
@@ -252,6 +315,12 @@ class JournalVoucherController extends Controller {
 			} else {
 				$journal_voucher->deleted_by_id = NULL;
 				$journal_voucher->deleted_at = NULL;
+			}
+
+			if ($request->transfer_type == 'invoice') {
+				$journal_voucher->transfer_type = 1;
+			} elseif ($request->transfer_type == 'receipt') {
+				$journal_voucher->transfer_type = 2;
 			}
 			$journal_voucher->save();
 
@@ -267,6 +336,31 @@ class JournalVoucherController extends Controller {
 			$journal_voucher->jvReceipt()->sync([]);
 			foreach ($receipt_ids as $receipt_id) {
 				$journal_voucher->jvReceipt()->attach($receipt_id);
+			}
+
+			//ATTACHMENT REMOVAL
+			$attachment_removal_ids = json_decode($request->attachment_removal_ids);
+			if (!empty($attachment_removal_ids)) {
+				Attachment::whereIn('id', $attachment_removal_ids)->forceDelete();
+			}
+
+			//SAVE ATTACHMENTS
+			$attachement_path = storage_path('app/public/journal-vouchers/attachments/');
+			Storage::makeDirectory($attachement_path, 0777);
+			if (!empty($request->journal_attachments)) {
+				foreach ($request->journal_attachments as $key => $journal_attachment) {
+					$value = rand(1, 100);
+					$image = $journal_attachment;
+					$extension = $image->getClientOriginalExtension();
+					$name = $journal_voucher->id . 'journal_voucher_attachment' . $value . '.' . $extension;
+					$journal_attachment->move(storage_path('app/public/journal-vouchers/attachments/'), $name);
+					$attachement = new Attachment;
+					$attachement->attachment_of_id = 223;
+					$attachement->attachment_type_id = 244;
+					$attachement->entity_id = $journal_voucher->id;
+					$attachement->name = $name;
+					$attachement->save();
+				}
 			}
 
 			$activity = new ActivityLog;
