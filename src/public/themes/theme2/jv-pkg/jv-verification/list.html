@@ -6,7 +6,7 @@
                     <h1 class="title type-2">JV Verification</h1>
                 </div><!-- Page Header Content -->
                 <div class="page-header-content button-block">
-                    <button class="btn btn-bordered" data-toggle="modal" data-target="#journal_voucher-filter-modal"><i class="icon ion-md-funnel"></i>Filter</button>
+                    <button class="btn btn-bordered my-tooltip" data-toggle="modal" data-target="#jv-verification-filter-modal" ng-shortcut="'meta+shift+f'" ng-shortcut-click data-title="ctrl+shift+f"><i class="icon ion-md-funnel"></i>Filter</button>
                 </div><!-- Page Header Content -->
             </div><!-- Page Header Content Left -->
             <div class="page-header-content-right">
@@ -16,10 +16,17 @@
                         <li class="red">Inactive</li>
                     </ul>
                 </div><!-- Page Header Content -->
+                <div class="page-header-content reset-block">
+                    <div class="reset-wrap">
+                        <button class="btn-reset reset-tooltip refresh my-tooltip" ng-shortcut="'meta+shift+r'" ng-shortcut-click data-title="ctrl+shift+r">
+                            <img class="img-responsive" src="./public/theme/img/content/reset.svg" alt="Reset" />
+                        </button>
+                    </div>
+                </div><!-- Page Header Content -->
                 <div class="page-header-content search-block">
                     <div class="search_filter">
                         <label>
-                            <input type="search" id="search_jv_verification" class="form-control" placeholder="Search" />
+                            <input type="search" id="search_jv_verification" class="form-control" placeholder="Search" autofocus/>
                             <button class="btn-clear" ng-click="clear_search()">Clear</button>
                         </label>
                     </div><!-- Search Filter -->
@@ -73,49 +80,100 @@
     </div><!-- Page Main Content -->
 </div><!-- Content Wrap -->
 <!-- Filter Modal -->
-<div class="modal fade filter" id="journal_voucher-filter-modal" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade filter" id="jv-verification-filter-modal" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close ripple" data-dismiss="modal" aria-label="Close"><i class="icon ion-md-close"></i></button>
-                <h5 class="modal-title" id="myModalLabel">Journal Voucher Filter</h5>
+                <h5 class="modal-title" id="myModalLabel">Filter</h5>
             </div><!-- Modal Header -->
             <div class="modal-body">
-                <div class="modal-form">
-                    <div class="row">
+                <div class="modal-form mb-30">
+                    <div class="row modal-row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>JournalVoucher Code</label>
-                                <input type="text" class="form-control" id="journal_voucher_code" name="journal_voucher_code" placeholder="Enter JournalVoucher Code" autocomplete="off">
-                            </div><!-- Field -->
+                                <label>Date</label>
+                                <div class="input-group date">
+                                    <input class="form-control daterange align-left" placeholder="Select a Date Range" name="jv_date" id="jv_date" value="" autocomplete="off">
+                                    <span class="input-group-addon">
+                                        <img class="img-responsive" src="./public/theme/img/content/calender-gray-icon.svg" alt="Calendar Image" />
+                                    </span>
+                                </div><!-- Input Group -->
+                            </div><!-- Feild -->
+                        </div>
+                        <div class="col-md-6">
+                            <div class="input-text form-group">
+                                <label>JV Number</label>
+                                <input type="text" class="form-control" name="voucher_number" id="voucher_number" value="" placeholder="Enter Voucher Number" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="input-text form-group">
+                                <label>Type</label>
+                                <md-select ng-model="$ctrl.type_id" placeholder="Select JV Type" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedType($ctrl.type_id)">
+                                    <md-select-header class="demo-select-header ng-hide">
+                                        <input ng-model="searchCategory" type="search" placeholder="Search for a JV Type" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                    </md-select-header>
+                                    <md-optgroup label="Travel List">
+                                        <md-option ng-value="type.id" ng-repeat="type in $ctrl.extras.type_list | filter:searchTravel">{{type.short_name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" name="type_id" id="type_id" value="">
+                            </div><!-- Feild -->
                         </div><!-- Column -->
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label>JournalVoucher Name</label>
-                                <input type="text" class="form-control" id="journal_voucher_name" name="journal_voucher_name" placeholder="Enter JournalVoucher Name" autocomplete="off">
-                            </div><!-- Field -->
+                            <div class="input-text form-group">
+                                <label>From A/c Type</label>
+                                <md-select ng-model="$ctrl.from_account_type_id" placeholder="Select From A/c Type" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedFromAccType($ctrl.from_account_type_id)">
+                                    <md-select-header class="demo-select-header ng-hide">
+                                        <input ng-model="searchCategory" type="search" placeholder="Search for a From A/c Type" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                    </md-select-header>
+                                    <md-optgroup label="Travel List">
+                                        <md-option ng-value="from_acc_type.id" ng-repeat="from_acc_type in $ctrl.extras.from_acc_list | filter:searchTravel">{{from_acc_type.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" name="from_account_type_id" id="from_account_type_id" value="">
+                            </div><!-- Feild -->
                         </div><!-- Column -->
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Mobile Number</label>
-                                <input type="text" class="form-control" id="mobile_no" name="mobile_no" placeholder="Enter Mobile Number" autocomplete="off">
-                            </div><!-- Field -->
+                            <div class="input-text form-group">
+                                <label>To A/c Type</label>
+                                <md-select ng-model="$ctrl.to_account_type_id" placeholder="Select To A/c Type" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedToAccType($ctrl.to_account_type_id)">
+                                    <md-select-header class="demo-select-header ng-hide">
+                                        <input ng-model="searchCategory" type="search" placeholder="Search for a To A/c Type" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                    </md-select-header>
+                                    <md-optgroup label="Travel List">
+                                        <md-option ng-value="to_acc_type.id" ng-repeat="to_acc_type in $ctrl.extras.to_acc_list | filter:searchTravel">{{to_acc_type.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" name="to_account_type_id" id="to_account_type_id" value="">
+                            </div><!-- Feild -->
                         </div><!-- Column -->
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="text" class="form-control" id="email" name="email" placeholder="Enter Email" autocomplete="off">
-                            </div><!-- Field -->
+                            <div class="input-text form-group">
+                                <label>JV Status</label>
+                                <md-select ng-model="$ctrl.status_id" ng-change="getSelectedStatus($ctrl.status_id)" placeholder="Select JV Status" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedStatus($ctrl.status_id)">
+                                    <md-select-header class="demo-select-header ng-hide">
+                                        <input ng-model="searchCategory" type="search" placeholder="Search for a JV Status" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                    </md-select-header>
+                                    <md-optgroup label="Travel List">
+                                        <md-option ng-value="jv_status.id" ng-repeat="jv_status in $ctrl.extras.jv_statuses | filter:searchTravel">{{jv_status.status}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" name="status_id" id="status_id" value="">
+                            </div><!-- Feild -->
                         </div><!-- Column -->
+                    </div>
+                    <div class="row modal-row">
                         <div class="col-md-6">
-                            <button type="button" class="btn btn-rose" ng-click="reset_filter()">Reset Filter</button>
+                            <button type="button" class="btn btn-rose my-tooltip" ng-click="reset_filter(); $ctrl.type_id=''; $ctrl.from_account_type_id=''; $ctrl.to_account_type_id=''; $ctrl.status_id=''" ng-shortcut="'meta+shift+t'" ng-shortcut-click data-title="ctrl+shift+t">Reset Filter</button>
                         </div>
                     </div><!-- Row -->
                 </div><!-- Modal Form -->
             </div><!-- Modal Body -->
         </div><!-- Modal Content -->
     </div><!-- Modal Dialog -->
-</div><!-- Modal -->
+</div><!-- Modal Content -->
 <!-- Modal -->
 <div class="modal fade alert-modal failure" id="delete_journal_voucher" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">

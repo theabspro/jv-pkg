@@ -2,6 +2,7 @@
 
 namespace Abs\JVPkg;
 use Abs\ApprovalPkg\ApprovalLevel;
+use Abs\ApprovalPkg\ApprovalTypeStatus;
 use Abs\CustomerPkg\Customer;
 use Abs\InvoicePkg\Invoice;
 use Abs\JVPkg\JournalVoucher;
@@ -21,12 +22,33 @@ class JvVerificationController extends Controller {
 		$this->data['theme'] = config('custom.admin_theme');
 	}
 
+	public function getVerificationFilter() {
+		$this->data['extras'] = [
+			'from_acc_list' => collect(Config::select('id', 'name')->where('config_type_id', 27)->get())->prepend(['id' => '', 'name' => 'Select From A/c Type']),
+			'to_acc_list' => collect(Config::select('id', 'name')->where('config_type_id', 27)->get())->prepend(['id' => '', 'name' => 'Select To A/c Type']),
+			'jv_statuses' => collect(ApprovalTypeStatus::select('id', 'status')->where('approval_type_id', 2)->orderBy('id', 'asc')->get())->prepend(['id' => '', 'status' => 'Select JV Status']),
+			'type_list' => collect(JVType::where('company_id', Auth::user()->company_id)->select('id', 'short_name')->get())->prepend(['id' => '', 'short_name' => 'Select JV Type']),
+		];
+		return response()->json($this->data);
+	}
+
 	public function getJvVerificationList(Request $request) {
 		$approval_level = ApprovalLevel::where('id', $request->approval_level_id)
 			->leftJoin('approval_type_approval_level as atal', 'atal.approval_level_id', 'approval_levels.id')
 			->where('atal.approval_type_id', 2)
 			->first();
 		// dd($approval_level->current_status_id);
+			// dd($request->all());
+		if (!empty($request->jv_date)) {
+			$jv_date = explode('to', $request->jv_date);
+			$first_date_this_month = date('Y-m-d', strtotime($jv_date[0]));
+			$last_date_this_month = date('Y-m-d', strtotime($jv_date[1]));
+		} else {
+			$first_date_this_month = '';
+			$last_date_this_month = '';
+		}
+		$voucher_number_filter = $request->voucher_number;
+
 		$jv_verification = JournalVoucher::withTrashed()
 			->select([
 				'journal_vouchers.*',
@@ -44,11 +66,36 @@ class JvVerificationController extends Controller {
 			->leftJoin('configs as to_account_types', 'to_account_types.id', 'journal_vouchers.to_account_type_id')
 			->where('journal_vouchers.company_id', Auth::user()->company_id)
 			->where('journal_vouchers.status_id', $approval_level->current_status_id)
-		/*->where(function ($query) use ($request) {
-				if (!empty($request->question)) {
-					$query->where('journal_vouchers.question', 'LIKE', '%' . $request->question . '%');
+			->where(function ($query) use ($first_date_this_month, $last_date_this_month) {
+				if (!empty($first_date_this_month) && !empty($last_date_this_month)) {
+					$query->whereRaw("DATE(journal_vouchers.date) BETWEEN '" . $first_date_this_month . "' AND '" . $last_date_this_month . "'");
 				}
-			})*/
+			})
+			->where(function ($query) use ($voucher_number_filter) {
+				if ($voucher_number_filter != null) {
+					$query->where('journal_vouchers.voucher_number', 'like', "%" . $voucher_number_filter . "%");
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->type_id)) {
+					$query->where('journal_vouchers.type_id', $request->type_id);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->from_account_type_id)) {
+					$query->where('journal_vouchers.from_account_type_id', $request->from_account_type_id);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->to_account_type_id)) {
+					$query->where('journal_vouchers.to_account_type_id', $request->to_account_type_id);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->status_id)) {
+					$query->where('journal_vouchers.status_id', $request->status_id);
+				}
+			})
 		// ->orderby('journal_vouchers.id', 'desc')
 		// ->get()
 		;
