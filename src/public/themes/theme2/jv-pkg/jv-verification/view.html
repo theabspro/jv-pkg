@@ -5,7 +5,7 @@
         <div class="page-header-inner">
             <div class="page-header-content-left">
                 <div class="page-header-content button-block">
-                    <a href="#!/static/cndn/service/list" type="button" class="btn-back btn-img"><img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" /></a>
+                    <a href="#!/verification/7221/level/{{$ctrl.level_id}}/list" type="button" class="btn-back btn-img my-tooltip" ng-shortcut="'meta+shift+left'" ng-shortcut-click data-title="ctrl+shift+left"><img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" /></a>
                 </div><!-- Page Header Content -->
                 <div class="page-header-content title-block">
                     <h1 class="title"><b>{{$ctrl.action}} JV Verification</b></h1>
@@ -40,7 +40,7 @@
                                         <ul class="grid-row">
                                             <li class="grid-col-3">
                                                 <span class="grid-col-label">Date</span>
-                                                <span class="grid-col-value" >{{$ctrl.journal_vouchers.date}}</span>
+                                                <span class="grid-col-value" >{{$ctrl.journal_vouchers.jv_date}}</span>
                                             </li>
                                             <li class="grid-col-3">
                                                 <span class="grid-col-label">Type</span>
@@ -123,12 +123,14 @@
                                         <div class="jva-attachments" ng-if="$ctrl.attachment">
                                             <div class="imageuploadify well">
                                                 <div class="imageuploadify-images-list">
-                                                    <div class="imageuploadify-container" ng-repeat="(key,attachment) in $ctrl.attachment">
-                                                        <div class="imageuploadify-view-icon">
+                                                    <div ng-repeat="(key,attachment) in $ctrl.attachment">
+                                                        <!-- <div class="imageuploadify-view-icon">
                                                             <img class="img-responsive" src="./public/theme/img/content/attachment.svg" alt="Icon" />
-                                                        </div>
-                                                        <div class="imageuploadify-details">
-                                                            <span class="imageuploadify-file-name"><a href="{{$ctrl.ref_attachements_url_link}}/{{attachment.name}}" download>{{attachment.name}}</a></span>
+                                                        </div> -->
+                                                        <div class="imageuploadify-container" data-attachment_id="{{attachment.id}}" style="margin-left: 0px; margin-right: 0px; ">
+                                                            <div class="imageuploadify-details">
+                                                                <span class="imageuploadify-file-name"><a href="{{$ctrl.ref_attachements_url_link}}/{{attachment.name}}" download>{{attachment.name}}</a></span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -138,9 +140,9 @@
                                     <div class="tab-pane-footer">
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <a class="btn btn-cancel btn-min-wdth" data-toggle="modal" data-target="#reject-popup"> Reject</a>
-                                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#approve-popup">Approve</button>
-                                                <a class="btn btn-secondary btn-min-wdth btn-nxt">Next</a>
+                                                <a class="btn btn-cancel btn-min-wdth my-tooltip" data-toggle="modal" data-target="#reject-popup" ng-shortcut="'meta+shift+r'" ng-shortcut-click data-title="ctrl+shift+r"> Reject</a>
+                                                <button type="button" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">Approve</button>
+                                                <a class="btn btn-secondary btn-min-wdth btn-nxt my-tooltip" ng-shortcut="'meta+shift+down'" ng-shortcut-click data-title="ctrl+shift+down">Next</a>
                                             </div>
                                         </div>
                                     </div><!-- Tab Footer -->
@@ -184,8 +186,9 @@
                                     <div class="tab-pane-footer">
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <a class="btn btn-secondary btn-prev">Previous</a>
-                                                <button type="button" class="btn btn-primary">Update</button>
+                                                <a class="btn btn-secondary btn-prev my-tooltip" ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">Previous</a>
+                                                <a class="btn btn-cancel btn-min-wdth my-tooltip" data-toggle="modal" data-target="#reject-popup" ng-shortcut="'meta+shift+r'" ng-shortcut-click data-title="ctrl+shift+r"> Reject</a>
+                                                <button type="button" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">Approve</button>
                                             </div><!-- Column -->
                                         </div><!-- Row -->
                                     </div><!-- Tab Footer -->
@@ -211,8 +214,8 @@
                 <input type="hidden" name="journal_voucher_id" value="{{$ctrl.journal_vouchers.id}}" id=journal_voucher_id>
                 <input type="hidden" name="approval_level_id" value="{{$ctrl.level_id}}" id=approval_level_id>
                 <input type="hidden" name="verification_type" value="approve" id=verification_type>
-                <a href="#!" class="btn btn-cancel" data-dismiss="modal">Cancel</a>
-                <button type="submit" class="btn btn-primary approve">Proceed</button>
+                <a href="#!" class="btn btn-cancel my-tooltip" data-dismiss="modal" ng-shortcut="'meta+shift+c'" ng-shortcut-click data-title="ctrl+shift+c">Cancel</a>
+                <button type="submit" class="btn btn-primary approve my-tooltip" ng-shortcut="'meta+shift+p'" ng-shortcut-click data-title="ctrl+shift+p">Proceed</button>
             </div><!-- Modal Footer -->
         </div><!-- Modal Content -->
     </form>
@@ -248,8 +251,8 @@
                 </div>
             </div><!-- Modal Body -->
             <div class="modal-footer text-right">
-                <a href="#!" class="btn btn-cancel" data-dismiss="modal">Cancel</a>
-                <button type="submit" class="btn btn-primary reject">Proceed</button>
+                <a href="#!" class="btn btn-cancel my-tooltip" data-dismiss="modal" ng-shortcut="'meta+shift+c'" ng-shortcut-click data-title="ctrl+shift+c">Cancel</a>
+                <button type="submit" class="btn btn-primary reject my-tooltip" ng-shortcut="'meta+shift+p'" ng-shortcut-click data-title="ctrl+shift+p">Proceed</button>
             </div><!-- Modal Footer -->
         </form>
         </div><!-- Modal Content -->
