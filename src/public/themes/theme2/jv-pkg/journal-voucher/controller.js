@@ -59,8 +59,10 @@ app.component('journalVoucherList', {
                 },
 
                 columns: [
+                    { data: 'child_checkbox', searchable: false },
                     { data: 'action', class: 'action', name: 'action', searchable: false },
                     { data: 'voucher_number', name: 'journal_vouchers.voucher_number', searchable: true },
+                    { data: 'jv_status', name: 'approval_type_statuses.status', searchable: false },
                     { data: 'jv_date', searchable: false },
                     { data: 'jv_type', name: 'journal_vouchers.type_id', searchable: false },
                     { data: 'from_account_type', name: 'from_account_types.name', searchable: false },
@@ -68,7 +70,6 @@ app.component('journalVoucherList', {
                     { data: 'to_account_type', name: 'to_account_types.name', searchable: false },
                     { data: 'to_ac_code', searchable: false },
                     { data: 'amount', name: 'journal_vouchers.amount', searchable: false },
-                    { data: 'jv_status', name: 'approval_type_statuses.status', searchable: false },
                 ],
                 "initComplete": function(settings, json) {
                     $('.dataTables_length select').select2();
@@ -191,6 +192,57 @@ app.component('journalVoucherList', {
                 }
             });
         }
+
+        $('#send_for_approval').on('click', function() { //alert('dsf');
+            if ($('.journal_voucher_checkbox:checked').length > 0) {
+                var send_for_approval = []
+                $('input[name="child_boxes"]:checked').each(function() {
+                    send_for_approval.push(this.value);
+                });
+                console.log(send_for_approval);
+                // return false;
+                $http.post(
+                    laravel_routes['journalVoucherMultipleApproval'], {
+                        send_for_approval: send_for_approval,
+                        // approval_level_id: $routeParams.level_id,
+                    }
+                ).then(function(response) {
+                    if (response.data.success == true) {
+                        custom_noty('success', response.data.message);
+                            $('#journal_vouchers_list').DataTable().ajax.reload();
+                            $scope.$apply();
+                        // $timeout(function() {
+                        //     RefreshTable();
+                        // }, 1000);
+                    } else {
+                        custom_noty('error', response.data.errors);
+                    }
+                });
+            } else {
+                custom_noty('error', 'Please Select Checkbox');
+            }
+        })
+        // $('.refresh_table').on("click", function() {
+        //     RefreshTable();
+        // });
+        $('#parent').on('click', function() {
+            if (this.checked) {
+                $('.journal_voucher_checkbox').each(function() {
+                    this.checked = true;
+                });
+            } else {
+                $('.journal_voucher_checkbox').each(function() {
+                    this.checked = false;
+                });
+            }
+        });
+        $(document.body).on('click', '.journal_voucher_checkbox', function() {
+            if ($('.journal_voucher_checkbox:checked').length == $('.journal_voucher_checkbox').length) {
+                $('#parent').prop('checked', true);
+            } else {
+                $('#parent').prop('checked', false);
+            }
+        });
 
         $rootScope.loading = false;
     }
