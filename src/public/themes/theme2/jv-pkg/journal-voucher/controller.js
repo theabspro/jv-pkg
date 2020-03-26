@@ -1,86 +1,172 @@
 app.component('journalVoucherList', {
     templateUrl: journal_voucher_list_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location) {
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect) {
         $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
+        $http.get(
+            laravel_routes['getVerificationFilter'],
+        ).then(function(response) { console.log(response.data);
+            self.extras = response.data.extras;
+            $rootScope.loading = false;
+            //console.log(self.extras);
+        });
         var table_scroll;
-        table_scroll = $('.page-main-content.list-page-content').height() - 37;
-        var dataTable = $('#journal_vouchers_list').DataTable({
-            "dom": cndn_dom_structure,
-            "language": {
-                // "search": "",
-                // "searchPlaceholder": "Search",
-                "lengthMenu": "Rows _MENU_",
-                "paginate": {
-                    "next": '<i class="icon ion-ios-arrow-forward"></i>',
-                    "previous": '<i class="icon ion-ios-arrow-back"></i>'
+        var dataTable;
+        setTimeout(function() {
+            table_scroll = $('.page-main-content.list-page-content').height() - 37;
+            dataTable = $('#journal_vouchers_list').DataTable({
+                "dom": cndn_dom_structure,
+                "language": {
+                    // "search": "",
+                    // "searchPlaceholder": "Search",
+                    "lengthMenu": "Rows _MENU_",
+                    "paginate": {
+                        "next": '<i class="icon ion-ios-arrow-forward"></i>',
+                        "previous": '<i class="icon ion-ios-arrow-back"></i>'
+                    },
                 },
-            },
-            pageLength: 10,
-            processing: true,
-            stateSaveCallback: function(settings, data) {
-                localStorage.setItem('CDataTables_' + settings.sInstance, JSON.stringify(data));
-            },
-            stateLoadCallback: function(settings) {
-                var state_save_val = JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
-                if (state_save_val) {
-                    $('#search_journal_voucher').val(state_save_val.search.search);
-                }
-                return JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
-            },
-            serverSide: true,
-            paging: true,
-            stateSave: true,
-            ordering: false,
-            scrollY: table_scroll + "px",
-            scrollCollapse: true,
-            ajax: {
-                url: laravel_routes['getJournalVoucherList'],
-                type: "GET",
-                dataType: "json",
-                data: function(d) {
-                    d.journal_voucher_code = $('#journal_voucher_code').val();
-                    d.journal_voucher_name = $('#journal_voucher_name').val();
-                    d.mobile_no = $('#mobile_no').val();
-                    d.email = $('#email').val();
+                pageLength: 10,
+                processing: true,
+                stateSaveCallback: function(settings, data) {
+                    localStorage.setItem('CDataTables_' + settings.sInstance, JSON.stringify(data));
                 },
-            },
+                stateLoadCallback: function(settings) {
+                    var state_save_val = JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
+                    if (state_save_val) {
+                        $('#search_journal_voucher').val(state_save_val.search.search);
+                    }
+                    return JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
+                },
+                serverSide: true,
+                paging: true,
+                stateSave: true,
+                ordering: false,
+                scrollY: table_scroll + "px",
+                scrollCollapse: true,
+                ajax: {
+                    url: laravel_routes['getJournalVoucherList'],
+                    type: "GET",
+                    dataType: "json",
+                    data: function(d) {
+                        d.voucher_number = $('#voucher_number').val();
+                        d.jv_date = $('#jv_date').val();
+                        d.type_id = $('#type_id').val();
+                        d.from_account_type_id = $('#from_account_type_id').val();
+                        d.to_account_type_id = $('#to_account_type_id').val();
+                        d.status_id = $('#status_id').val();
+                    },
+                },
 
-            columns: [
-                { data: 'action', class: 'action', name: 'action', searchable: false },
-                { data: 'voucher_number', name: 'journal_vouchers.voucher_number', searchable: true },
-                { data: 'jv_date', searchable: false },
-                { data: 'jv_type', name: 'journal_vouchers.type_id', searchable: false },
-                { data: 'from_account_type', name: 'from_account_types.name', searchable: false },
-                { data: 'from_ac_code', searchable: false },
-                { data: 'to_account_type', name: 'to_account_types.name', searchable: false },
-                { data: 'to_ac_code', searchable: false },
-                { data: 'amount', name: 'journal_vouchers.amount', searchable: false },
-                { data: 'jv_status', name: 'approval_type_statuses.status', searchable: false },
-            ],
-            "infoCallback": function(settings, start, end, max, total, pre) {
-                $('#table_info').html(total)
-                $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
-            },
-            rowCallback: function(row, data) {
-                $(row).addClass('highlight-row');
+                columns: [
+                    { data: 'action', class: 'action', name: 'action', searchable: false },
+                    { data: 'voucher_number', name: 'journal_vouchers.voucher_number', searchable: true },
+                    { data: 'jv_date', searchable: false },
+                    { data: 'jv_type', name: 'journal_vouchers.type_id', searchable: false },
+                    { data: 'from_account_type', name: 'from_account_types.name', searchable: false },
+                    { data: 'from_ac_code', searchable: false },
+                    { data: 'to_account_type', name: 'to_account_types.name', searchable: false },
+                    { data: 'to_ac_code', searchable: false },
+                    { data: 'amount', name: 'journal_vouchers.amount', searchable: false },
+                    { data: 'jv_status', name: 'approval_type_statuses.status', searchable: false },
+                ],
+                "initComplete": function(settings, json) {
+                    $('.dataTables_length select').select2();
+                },
+                "infoCallback": function(settings, start, end, max, total, pre) {
+                    $('#table_info').html(total)
+                    $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
+                },
+                rowCallback: function(row, data) {
+                    $(row).addClass('highlight-row');
+                }
+            });
+        }, 1000);
+        $('.modal').bind('click', function(event) {
+            if ($('.md-select-menu-container').hasClass('md-active')) {
+                $mdSelect.hide();
             }
         });
-        $('.dataTables_length select').select2();
-
+        $('.refresh').on('click', function() {
+            $('#journal_vouchers_list').DataTable().ajax.reload();
+        });
+        $("#search_journal_voucher").on('keyup', function() {
+            dataTable
+                .search(this.value)
+                .draw();
+        });
         $scope.clear_search = function() {
             $('#search_journal_voucher').val('');
             $('#journal_vouchers_list').DataTable().search('').draw();
         }
 
-        var dataTables = $('#journal_vouchers_list').dataTable();
-        $("#search_journal_voucher").keyup(function() {
-            dataTables.fnFilter(this.value);
+        $('body').on('click', '.applyBtn', function() { //alert('sd');
+            setTimeout(function() {
+                dataTable.draw();
+            }, 900);
         });
-        $('.refresh_table').on("click", function() {
-            $('#journal_vouchers_list').DataTable().ajax.reload();
+        $('body').on('click', '.cancelBtn', function() { //alert('sd');
+            setTimeout(function() {
+                dataTable.draw();
+            }, 900);
         });
+
+        $('.align-left.daterange').daterangepicker({
+            autoUpdateInput: false,
+            "opens": "left",
+            locale: {
+                cancelLabel: 'Clear',
+                format: "DD-MM-YYYY"
+            }
+        });
+
+        $('.daterange').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('DD-MM-YYYY') + ' to ' + picker.endDate.format('DD-MM-YYYY'));
+        });
+
+        $('.daterange').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
+        });
+        //FOR FILTER
+        $('#voucher_number').keyup(function() {
+            setTimeout(function() {
+                dataTable.draw();
+            }, 900);
+        });
+
+        $scope.onSelectedType = function(selected_type) {
+            setTimeout(function() {
+                $('#type_id').val(selected_type);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.onSelectedFromAccType = function(selected_from_acc_type) {
+            setTimeout(function() {
+                $('#from_account_type_id').val(selected_from_acc_type);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.onSelectedToAccType = function(selected_to_acc_type) {
+            setTimeout(function() {
+                $('#to_account_type_id').val(selected_to_acc_type);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.getSelectedStatus = function(selected_status_id) {
+            setTimeout(function() {
+                $('#status_id').val(selected_status_id);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.reset_filter = function() {
+            $('#voucher_number').val('');
+            $('#jv_date').val('');
+            $('#type_id').val('');
+            $('#from_account_type_id').val('');
+            $('#to_account_type_id').val('');
+            $('#status_id').val('');
+            dataTable.draw();
+        }
 
         //DELETE
         $scope.deleteJournalVoucher = function($id) {
@@ -104,27 +190,6 @@ app.component('journalVoucherList', {
                     $location.path('/jv-pkg/journal-voucher/list');
                 }
             });
-        }
-
-        //FOR FILTER
-        $('#journal_voucher_code').on('keyup', function() {
-            dataTables.fnFilter();
-        });
-        $('#journal_voucher_name').on('keyup', function() {
-            dataTables.fnFilter();
-        });
-        $('#mobile_no').on('keyup', function() {
-            dataTables.fnFilter();
-        });
-        $('#email').on('keyup', function() {
-            dataTables.fnFilter();
-        });
-        $scope.reset_filter = function() {
-            $("#journal_voucher_name").val('');
-            $("#journal_voucher_code").val('');
-            $("#mobile_no").val('');
-            $("#email").val('');
-            dataTables.fnFilter();
         }
 
         $rootScope.loading = false;

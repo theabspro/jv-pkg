@@ -8,9 +8,11 @@ use Abs\InvoicePkg\Invoice;
 use Abs\JVPkg\JournalVoucher;
 use Abs\ReceiptPkg\Receipt;
 use App\Attachment;
+use App\ActivityLog;
 use App\Config;
 use App\Entity;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Auth;
 use DB;
 use Illuminate\Http\Request;
@@ -227,11 +229,15 @@ class JvVerificationController extends Controller {
 			->get();
 
 		$this->data['reject_reason'] = $reject_reason = Entity::where('entity_type_id', 21)->get();
-
-		// $this->data['attachment'] = $attacment = [
-		// 	['id' => '1', 'name' => 'test'],
-		// 	['id' => '2', 'name' => 'test1'],
-		// ];
+		$this->data['activity_logs'] = $activity_logs = ActivityLog::where('entity_type_id', 384)
+		->whereIn('activity_id', [280,7221])
+		->Join('journal_vouchers', 'journal_vouchers.id', 'activity_logs.entity_id')
+		->Join('approval_type_statuses', 'approval_type_statuses.id', 'journal_vouchers.status_id')
+		->leftJoin('users', 'users.id', 'activity_logs.user_id')
+		->leftJoin('roles', 'roles.id', 'users.role_id')
+		->select('activity_logs.user_id', DB::raw('DATE_FORMAT(activity_logs.date_time,"%d %b %Y") as activity_date'), DB::raw('DATE_FORMAT(activity_logs.date_time,"%h:%i %p") as activity_time'), 'users.ecode as created_user', 'roles.display_name as user_role', 'approval_type_statuses.status')
+		->get();
+		// dd($activity_logs);
 // dd($journal_vouchers->date);
 $journal_vouchers->jv_date = date('d/m/Y', strtotime($journal_vouchers->date));
 		// dd($attacment);
@@ -265,6 +271,16 @@ $journal_vouchers->jv_date = date('d/m/Y', strtotime($journal_vouchers->date));
 					'rejection_reason' => NULL,
 				]);
 				if ($approve) {
+					$activity = new ActivityLog;
+					$activity->date_time = Carbon::now();
+					$activity->user_id = Auth::user()->id;
+					$activity->module = 'JV Verification';
+					$activity->entity_id = $request->journal_voucher_id;
+					$activity->entity_type_id = 384;
+					$activity->activity_id = 7221;
+					$activity->activity = 7221;
+					$activity->details = json_encode($activity);
+					$activity->save();
 					DB::commit();
 					return response()->json([
 						'success' => true,
@@ -283,6 +299,16 @@ $journal_vouchers->jv_date = date('d/m/Y', strtotime($journal_vouchers->date));
 					'rejection_reason' => $request->rejection_reason,
 				]);
 				if ($reject) {
+					$activity = new ActivityLog;
+					$activity->date_time = Carbon::now();
+					$activity->user_id = Auth::user()->id;
+					$activity->module = 'JV Verification';
+					$activity->entity_id = $request->journal_voucher_id;
+					$activity->entity_type_id = 384;
+					$activity->activity_id = 7221;
+					$activity->activity = 7221;
+					$activity->details = json_encode($activity);
+					$activity->save();
 					DB::commit();
 					return response()->json([
 						'success' => true,
@@ -325,6 +351,17 @@ $journal_vouchers->jv_date = date('d/m/Y', strtotime($journal_vouchers->date));
 					$journal_voucher->updated_by_id = Auth()->user()->id;
 					$journal_voucher->updated_at = date("Y-m-d H:i:s");
 					$journal_voucher->save();
+
+					$activity = new ActivityLog;
+					$activity->date_time = Carbon::now();
+					$activity->user_id = Auth::user()->id;
+					$activity->module = 'JV Verification';
+					$activity->entity_id = $value;
+					$activity->entity_type_id = 384;
+					$activity->activity_id = 7221;
+					$activity->activity = 7221;
+					$activity->details = json_encode($activity);
+					$activity->save();
 				}
 				DB::commit();
 				return response()->json(['success' => true, 'message' => $approval_level->name .' Approved successfully']);

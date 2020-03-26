@@ -50,6 +50,16 @@ class JournalVoucherController extends Controller {
 
 	public function getJournalVoucherList(Request $request) {
 		//dd('sdfad');
+		if (!empty($request->jv_date)) {
+			$jv_date = explode('to', $request->jv_date);
+			$first_date_this_month = date('Y-m-d', strtotime($jv_date[0]));
+			$last_date_this_month = date('Y-m-d', strtotime($jv_date[1]));
+		} else {
+			$first_date_this_month = '';
+			$last_date_this_month = '';
+		}
+		$voucher_number_filter = $request->voucher_number;
+
 		$journal_vouchers = JournalVoucher::withTrashed()
 			->leftJoin('jv_types', 'jv_types.id', 'journal_vouchers.type_id')
 			->leftJoin('approval_type_statuses', 'approval_type_statuses.id', 'journal_vouchers.status_id')
@@ -65,11 +75,36 @@ class JournalVoucherController extends Controller {
 				DB::raw('IF(journal_vouchers.deleted_at IS NULL, "Active","Inactive") as status'),
 			])
 			->where('journal_vouchers.company_id', Auth::user()->company_id)
-		/*->where(function ($query) use ($request) {
-				if (!empty($request->question)) {
-					$query->where('journal_vouchers.question', 'LIKE', '%' . $request->question . '%');
+			->where(function ($query) use ($first_date_this_month, $last_date_this_month) {
+				if (!empty($first_date_this_month) && !empty($last_date_this_month)) {
+					$query->whereRaw("DATE(journal_vouchers.date) BETWEEN '" . $first_date_this_month . "' AND '" . $last_date_this_month . "'");
 				}
-			})*/
+			})
+			->where(function ($query) use ($voucher_number_filter) {
+				if ($voucher_number_filter != null) {
+					$query->where('journal_vouchers.voucher_number', 'like', "%" . $voucher_number_filter . "%");
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->type_id)) {
+					$query->where('journal_vouchers.type_id', $request->type_id);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->from_account_type_id)) {
+					$query->where('journal_vouchers.from_account_type_id', $request->from_account_type_id);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->to_account_type_id)) {
+					$query->where('journal_vouchers.to_account_type_id', $request->to_account_type_id);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->status_id)) {
+					$query->where('journal_vouchers.status_id', $request->status_id);
+				}
+			})
 			->orderby('journal_vouchers.id', 'desc');
 		// dd($journal_vouchers);
 		return Datatables::of($journal_vouchers)
