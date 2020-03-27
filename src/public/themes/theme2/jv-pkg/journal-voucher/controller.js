@@ -175,8 +175,13 @@ app.component('journalVoucherList', {
         }
         $scope.deleteConfirm = function() {
             $id = $('#journal_voucher_id').val();
+            // alert($id);
             $http.get(
-                journal_voucher_delete_data_url + '/' + $id,
+                laravel_routes['deleteJournalVoucher'],{
+                    params:{
+                        id:$id,
+                    }
+                }
             ).then(function(response) {
                 if (response.data.success) {
                     $noty = new Noty({
@@ -569,7 +574,7 @@ app.component('journalVoucherForm', {
         $(document).on("click",'.button',function(e){
 
             console.log(self.action);
-            alert($(this).attr('id'));
+            // alert($(this).attr('id'));
             var buttonId = $(this).attr('id');
             // console.log(buttonId);
             $(buttonId).button('loading');

@@ -736,28 +736,28 @@ class JournalVoucherController extends Controller {
 	}
 
 	public function deleteJournalVoucher(Request $request) {
-		dd($request->all());
+		// dd($request->all());
 		DB::beginTransaction();
 		try {
-
-			$activity = new ActivityLog;
-			$activity->date_time = Carbon::now();
-			$activity->user_id = Auth::user()->id;
-			$activity->module = 'Journal Voucher';
-			$activity->entity_id = $request->id;
-			$activity->entity_type_id = 384;
-			$activity->activity_id = 282;
-			$activity->activity = 282;
-			$activity->details = json_encode($activity);
-			$activity->save();
-			$journal_voucher = JournalVoucher::withTrashed()->where('id', $request->id)->first();
-			// if (!is_null($journal_voucher->logo_id)) {
-			// 	Attachment::where('company_id', Auth::user()->company_id)->where('attachment_of_id', 20)->where('entity_id', $request->id)->forceDelete();
-			// }
-			JournalVoucher::withTrashed()->where('id', $request->id)->forceDelete();
-
-			DB::commit();
-			return response()->json(['success' => true, 'message' => 'Journal Voucher Deleted Successfully']);
+			$jornal_voucher = JournalVoucher::withTrashed()->where('id', $request->id)->forceDelete();
+			if ($jornal_voucher) {
+				$activity = new ActivityLog;
+				$activity->date_time = Carbon::now();
+				$activity->user_id = Auth::user()->id;
+				$activity->module = 'Journal Voucher';
+				$activity->entity_id = $request->id;
+				$activity->entity_type_id = 384;
+				$activity->activity_id = 282;
+				$activity->activity = 282;
+				$activity->details = json_encode($activity);
+				$activity->save();
+				$journal_voucher = JournalVoucher::withTrashed()->where('id', $request->id)->first();
+				// if (!is_null($journal_voucher->logo_id)) {
+				// 	Attachment::where('company_id', Auth::user()->company_id)->where('attachment_of_id', 20)->where('entity_id', $request->id)->forceDelete();
+				// }
+				DB::commit();
+				return response()->json(['success' => true, 'message' => 'Journal Voucher Deleted Successfully']);
+			}
 		} catch (Exception $e) {
 			DB::rollBack();
 			return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
