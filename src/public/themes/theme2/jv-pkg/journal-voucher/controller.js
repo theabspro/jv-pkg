@@ -293,12 +293,23 @@ app.component('journalVoucherForm', {
                 },2500);
                 if(self.journal_voucher.transfer_type == 1 ){
                     self.edit_addFromButton = true;
-                    $("input[name=transfer_type][value=invoice]").prop('checked', true).attr('disabled', true);
-                    $("input[name=transfer_type][value=receipt]").attr('disabled', true);
+                    self.from_receipts = false;
+                    self.to_receipts = true;
+
+                    $("input[name=transfer_type][value=invoice]").prop('checked', true).trigger('click');//.attr('disabled', true);
+                    // $("input[name=transfer_type][value=receipt]").attr('disabled', true);
                 }else if(self.journal_voucher.transfer_type == 2 ){
                     self.edit_addFromButton = false;
-                    $("input[name=transfer_type][value=receipt]").prop('checked', true).attr('disabled', true);
-                    $("input[name=transfer_type][value=invoice]").attr('disabled', true);
+                    self.to_receipts = false;
+                    self.from_receipts = true;
+                    //RECEIPT COUNT AND NUMBER SHOW
+                    self.receipts = [];
+                    angular.forEach(self.journal_voucher.jv_receipt,function(value, key){
+                        self.receipts.push(value.permanent_receipt_no);
+                    });
+                    self.receipt_nos = self.receipts.join(', ');
+                    $("input[name=transfer_type][value=receipt]").prop('checked', true).trigger('click');//.attr('disabled', true);
+                    // $("input[name=transfer_type][value=invoice]").attr('disabled', true);
                 }
                 
                 //ATTACHMENTS
@@ -829,12 +840,32 @@ app.component('journalVoucherForm', {
                             }
                         }
                     ).then(function(response) { 
-                        console.log(response.data.receipts);
+                        // console.log(response.data.receipts);
                         if (!response.data.errors) {
                             self.jv_receipts.push(response.data.receipts);
-                            console.log(self.jv_receipts);
+                            // console.log(self.jv_receipts);
                         } else {
                             custom_noty('error',response.data.errors);
+                        }
+
+                        if(buttonId == 'add_fromAcc'){
+                            self.receipts = [];
+                            angular.forEach(self.jv_receipts, function(value, key){
+                                self.receipts.push(value.receipt_no);
+                            });
+                            self.from_receipts = true;
+                            self.to_receipts = false;
+                            self.receipt_nos = self.receipts.join(', ');
+                            // console.log(self.jv_receipts.length);
+                        }else if(buttonId == 'add_toAcc') {
+                            self.receipts = [];
+                            angular.forEach(self.jv_receipts, function(value, key){
+                                self.receipts.push(value.receipt_no);
+                            });
+                            self.to_receipts = true;
+                            self.from_receipts = false;
+                            self.receipt_nos = self.receipts.join(', ');
+                            // console.log(self.jv_receipts.length);
                         }
                     });
 

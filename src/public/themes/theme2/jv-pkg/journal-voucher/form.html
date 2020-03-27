@@ -414,6 +414,14 @@
                                                     </div>
                                                 </div>
                                             </li>
+                                            <li class="flex-col-3" ng-if="$ctrl.from_receipts">
+                                                <div class="grey-box">
+                                                    <div class="grey-box-header">{{$ctrl.receipts.length}} <b>Receipts Added</b></div>
+                                                    <div class="grey-box-body">
+                                                        <p class="grey-box-info sm">{{$ctrl.receipt_nos}}</p>
+                                                    </div>
+                                                </div>
+                                            </li>
                                         </ul>
                                     </div><!-- Grey Wrap -->
                                     <div class="row">
@@ -580,17 +588,22 @@
                                                     </div>
                                                 </div>
                                             </li>
-                                            <!-- <li class="flex-col-3">
+                                            <li class="flex-col-3" ng-if="$ctrl.from_receipts">
                                                 <div class="grey-box">
-                                                    <div class="grey-box-header">Invoice No : <b>INV12346</b></div>
+                                                    <div class="grey-box-header">{{$ctrl.receipts.length}} <b>Receipts Added</b></div>
                                                     <div class="grey-box-body">
-                                                        <p class="grey-box-info sm">Date : 10/01/2020</p>
-                                                        <p class="grey-box-info sm">Outlet : MDU</p>
-                                                        <p class="grey-box-info sm">Business Unit : ALSERV</p>
-                                                        <p class="grey-box-info sm">Amount : 10,000</p>
+                                                        <p class="grey-box-info sm">{{$ctrl.receipt_nos}}</p>
                                                     </div>
                                                 </div>
-                                            </li> -->
+                                            </li>
+                                            <li class="flex-col-3" ng-if="$ctrl.to_receipts">
+                                                <div class="grey-box">
+                                                    <div class="grey-box-header">{{$ctrl.receipts.length}} <b>Receipts Added</b></div>
+                                                    <div class="grey-box-body">
+                                                        <p class="grey-box-info sm">{{$ctrl.receipt_nos}}</p>
+                                                    </div>
+                                                </div>
+                                            </li>
                                         </ul>
                                     </div><!-- Grey Wrap -->
                                     <div class="row">
