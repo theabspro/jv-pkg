@@ -824,7 +824,7 @@ app.component('journalVoucherForm', {
                             }
                         }
                     ).then(function(response) { 
-                        console.log(response.data);
+                        console.log(response.data.receipts);
                         if (!response.data.errors) {
                             self.jv_receipts.push(response.data.receipts);
                             console.log(self.jv_receipts);
@@ -939,3 +939,180 @@ app.component('journalVoucherForm', {
         });
     }
 });
+//------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------
+app.component('journalVoucherView', {
+    templateUrl: journal_voucher_view_template_url,
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element, $mdSelect, $timeout) {
+        var self = this;
+        self.hasPermission = HelperService.hasPermission;
+        // if (!self.hasPermission('add-lob') || !self.hasPermission('edit-lob')) {
+        //     window.location = "#!/page-permission-denied";
+        //     return false;
+        // }
+        self.angular_routes = angular_routes;
+        self.level_id = $routeParams.level_id;
+        self.ref_attachements_url_link = ref_attachements_url;
+        $http({
+            url: laravel_routes['viewJournalVoucher'],
+            method: "GET",
+            params: {
+                id: $routeParams.id,
+                // approval_level_id: $routeParams.level_id,
+            }
+        }).then(function(response) {
+            console.log(response.data.activity_logs);
+            self.journal_vouchers = response.data.journal_vouchers;
+            self.reject_reason = response.data.reject_reason;
+            self.from_account_type = response.data.from_account_type;
+            self.to_account_type = response.data.to_account_type;
+            self.from_customer_details = response.data.from_customer_details;
+            self.to_customer_details = response.data.to_customer_details;
+            self.receipt_count = response.data.receipt_count;
+            self.invoice_count = response.data.invoice_count;
+            self.invoice_details = response.data.invoice_details;
+            self.receipt_details = response.data.receipt_details;
+            self.attachment = response.data.attachment;
+            self.activity_logs = response.data.activity_logs;
+            // self.statuses = response.data.statuses;
+            self.ref_attachements_url_link = jv_attachements_url;
+            self.action = response.data.action;
+            self.jv_date = self.journal_vouchers.date;
+            self.invoice_numbers = [];
+            angular.forEach(response.data.invoice_details, function(value,key){
+                self.invoice_numbers.push(value.invoice_number);                
+            });
+            self.invoices = self.invoice_numbers.join(', ');
+
+            self.receipt_numbers = [];
+            angular.forEach(response.data.receipt_details, function(value,key){
+                self.receipt_numbers.push(value.temporary_receipt_no);                
+            });
+            self.receipts = self.receipt_numbers.join(', ');
+            $rootScope.loading = false;
+        });
+
+        $element.find('input').on('keydown', function(ev) {
+            ev.stopPropagation();
+        });
+        $scope.clearSearchTerm = function() {
+            $scope.searchTerm = '';
+        };
+        /* Modal Md Select Hide */
+        $('.modal').bind('click', function(event) {
+            if ($('.md-select-menu-container').hasClass('md-active')) {
+                $mdSelect.hide();
+            }
+        });
+
+        /* Tab Funtion */
+        $('.btn-nxt').on("click", function() {
+            $('.cndn-tabs li.active').next().children('a').trigger("click");
+            tabPaneFooter();
+        });
+        $('.btn-prev').on("click", function() {
+            $('.cndn-tabs li.active').prev().children('a').trigger("click");
+            tabPaneFooter();
+        });
+        $('.btn-pills').on("click", function() {
+            tabPaneFooter();
+        });
+
+        var from_approve = '#approve';
+        var v = jQuery(from_approve).validate({
+            submitHandler: function(form) {
+                let formDataapprove = new FormData($(from_approve)[0]);
+                $('.submit').button('loading');
+                $.ajax({
+                        url: laravel_routes['saveJvVerification'],
+                        method: "POST",
+                        data: formDataapprove,
+                        processData: false,
+                        contentType: false,
+                    })
+                    .done(function(res) {
+                        if (res.success == true) {
+                            $('#approve-popup').modal('hide');
+                            custom_noty('success',res.message);
+                            $timeout(function() {
+                                $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
+                                $scope.$apply();
+                            }, 1000);
+                        } else {
+                            if (!res.success == true) {
+                                $('.submit').button('reset');
+                                var errors = '';
+                                for (var i in res.errors) {
+                                    errors += '<li>' + res.errors[i] + '</li>';
+                                }
+                                custom_noty('error', errors);
+                            } else {
+                                $('.submit').button('reset');
+                                $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
+                                $scope.$apply();
+                            }
+                        }
+                    })
+                    .fail(function(xhr) {
+                        $('.submit').button('reset');
+                        custom_noty('error', 'Something went wrong at server');
+                    });
+            }
+        });
+
+        var form_reject = '#reject';
+        var v = jQuery(form_reject).validate({
+            ignore: '',
+            rules: {
+                'reject_reason': {
+                    required: true,
+                },
+                'rejection_reason': {
+                    required: true,
+                    minlength: 3,
+                    maxlength: 191,
+                },
+            },
+            submitHandler: function(form) {
+                let formDatareject = new FormData($(form_reject)[0]);
+                $('.submit').button('loading');
+                $.ajax({
+                        url: laravel_routes['saveJvVerification'],
+                        method: "POST",
+                        data: formDatareject,
+                        processData: false,
+                        contentType: false,
+                    })
+                    .done(function(res) {
+                        if (res.success == true) {
+                            $('#reject-popup').modal('hide');
+                            custom_noty('success',res.message);
+                            $timeout(function() {
+                                $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
+                                $scope.$apply();
+                            }, 1000);
+                        } else {
+                            if (!res.success == true) {
+                                $('.submit').button('reset');
+                                var errors = '';
+                                for (var i in res.errors) {
+                                    errors += '<li>' + res.errors[i] + '</li>';
+                                }
+                                custom_noty('error', errors);
+                            } else {
+                                $('.submit').button('reset');
+                                $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
+                                $scope.$apply();
+                            }
+                        }
+                    })
+                    .fail(function(xhr) {
+                        $('.submit').button('reset');
+                        custom_noty('error', 'Something went wrong at server');
+                    });
+            }
+        });
+    }
+});
+
+

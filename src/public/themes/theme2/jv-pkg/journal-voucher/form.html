@@ -15,7 +15,7 @@
                     <h1 class="title"><b>{{$ctrl.action}} Journal Voucher</b></h1>
                     <p class="subtitle">
                         <a href="#!/jv-pkg/journal-voucher/list">
-                            Journal Voucher List
+                            Journal Vouchers
                         </a> /
                         {{$ctrl.action}}
                     </p>
@@ -314,7 +314,10 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr ng-repeat="(index, jv_receipt) in $ctrl.jv_receipts">
+                                                        <tr ng-if="$ctrl.jv_receipts.length == 0">
+                                                            <td>No Data Found</td>
+                                                        </tr>
+                                                        <tr ng-if="$ctrl.jv_receipts.length != 0" ng-repeat="(index, jv_receipt) in $ctrl.jv_receipts">
                                                         <input type="hidden" name="jv_receipts[{{index}}][id]" value="{{jv_receipt.id}}">
                                                         <input type="hidden" name="jv_receipts[{{index}}][receipt_no]" value="{{jv_receipt.receipt_no}}">
                                                         <input type="hidden" name="jv_receipts[{{index}}][available_amt]" value="{{jv_receipt.available_amt}}">
@@ -479,7 +482,10 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr ng-repeat="(index, jv_receipt) in $ctrl.jv_receipts">
+                                                        <tr ng-if="$ctrl.jv_receipts.length == 0">
+                                                            <td>No Data Found</td>
+                                                        </tr>
+                                                        <tr ng-if="$ctrl.jv_receipts.length != 0" ng-repeat="(index, jv_receipt) in $ctrl.jv_receipts">
                                                         <input type="hidden" name="jv_receipts[{{index}}][id]" value="{{jv_receipt.id}}">
                                                         <input type="hidden" name="jv_receipts[{{index}}][receipt_no]" value="{{jv_receipt.receipt_no}}">
                                                         <input type="hidden" name="jv_receipts[{{index}}][available_amt]" value="{{jv_receipt.available_amt}}">

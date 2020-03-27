@@ -7,13 +7,13 @@ use Abs\CustomerPkg\Customer;
 use Abs\InvoicePkg\Invoice;
 use Abs\JVPkg\JournalVoucher;
 use Abs\ReceiptPkg\Receipt;
-use App\Attachment;
 use App\ActivityLog;
+use App\Attachment;
 use App\Config;
 use App\Entity;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 use Auth;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Yajra\Datatables\Datatables;
@@ -40,7 +40,7 @@ class JvVerificationController extends Controller {
 			->where('atal.approval_type_id', 2)
 			->first();
 		// dd($approval_level->current_status_id);
-			// dd($request->all());
+		// dd($request->all());
 		if (!empty($request->jv_date)) {
 			$jv_date = explode('to', $request->jv_date);
 			$first_date_this_month = date('Y-m-d', strtotime($jv_date[0]));
@@ -229,17 +229,66 @@ class JvVerificationController extends Controller {
 			->get();
 
 		$this->data['reject_reason'] = $reject_reason = Entity::where('entity_type_id', 21)->get();
-		$this->data['activity_logs'] = $activity_logs = ActivityLog::where('entity_type_id', 384)
-		->whereIn('activity_id', [280,7221])
-		->Join('journal_vouchers', 'journal_vouchers.id', 'activity_logs.entity_id')
-		->Join('approval_type_statuses', 'approval_type_statuses.id', 'journal_vouchers.status_id')
-		->leftJoin('users', 'users.id', 'activity_logs.user_id')
-		->leftJoin('roles', 'roles.id', 'users.role_id')
-		->select('activity_logs.user_id', DB::raw('DATE_FORMAT(activity_logs.date_time,"%d %b %Y") as activity_date'), DB::raw('DATE_FORMAT(activity_logs.date_time,"%h:%i %p") as activity_time'), 'users.ecode as created_user', 'roles.display_name as user_role', 'approval_type_statuses.status')
-		->get();
+
+		$activities = ActivityLog::select('activity_logs.details')
+			->where('activity_logs.entity_type_id', 384)
+			->whereIn('activity_logs.activity_id', [280, 7221])
+			->where('activity_logs.entity_id', $id)
+			->get();
+
+		// dd($activities);
+
+		foreach ($activities as $activity) {
+			$details = json_decode($activity->details);
+			foreach ($details as $detail) {
+				$status_ids[] = $detail->status_id;
+			}
+		}
+		// dd($status_id);
+		$activity_logs = ActivityLog::select(
+			'activity_logs.user_id',
+			DB::raw('DATE_FORMAT(activity_logs.date_time,"%d %b %Y") as activity_date'),
+			DB::raw('DATE_FORMAT(activity_logs.date_time,"%h:%i %p") as activity_time'),
+			'users.ecode as created_user',
+			'roles.display_name as user_role' //,
+			// 'approval_type_statuses.status'
+		)
+		// ->Join('journal_vouchers', 'journal_vouchers.id', 'activity_logs.entity_id')
+		// ->Join('approval_type_statuses', 'approval_type_statuses.id', 'journal_vouchers.status_id')
+			->leftJoin('users', 'users.id', 'activity_logs.user_id')
+			->leftJoin('roles', 'roles.id', 'users.role_id')
+			->where('activity_logs.entity_type_id', 384)
+		// ->where('activity_logs.activity_id', 280)
+			->whereIn('activity_logs.activity_id', [280, 7221])
+			->where('activity_logs.entity_id', $id)
+			->get();
+		// }
+		// dump($statuses);
+		foreach ($activity_logs as $key => $activity_log) {
+			$statuses = ApprovalTypeStatus::select('status')->whereIn('id', $status_ids)->get();
+			foreach ($statuses as $key1 => $status) {
+				if ($key == $key1) {
+					// dd($activity_log, $status);
+					$activity_log->status_name = $status->status;
+				}
+			}
+		}
+
 		// dd($activity_logs);
-// dd($journal_vouchers->date);
-$journal_vouchers->jv_date = date('d/m/Y', strtotime($journal_vouchers->date));
+		$this->data['activity_logs'] = $activity_logs;
+
+		// $this->data['activity_logs'] = $activity_logs = ActivityLog::where('entity_type_id', 384)
+		// 	->whereIn('activity_id', [280, 7221])
+		// 	->Join('journal_vouchers', 'journal_vouchers.id', 'activity_logs.entity_id')
+		// 	->Join('approval_type_statuses', 'approval_type_statuses.id', 'journal_vouchers.status_id')
+		// 	->leftJoin('users', 'users.id', 'activity_logs.user_id')
+		// 	->leftJoin('roles', 'roles.id', 'users.role_id')
+		// 	->select('activity_logs.user_id', DB::raw('DATE_FORMAT(activity_logs.date_time,"%d %b %Y") as activity_date'), DB::raw('DATE_FORMAT(activity_logs.date_time,"%h:%i %p") as activity_time'), 'users.ecode as created_user', 'roles.display_name as user_role', 'approval_type_statuses.status')
+		// 	->get();
+
+		// dd($activity_logs);
+		// dd($journal_vouchers->date);
+		$journal_vouchers->jv_date = date('d/m/Y', strtotime($journal_vouchers->date));
 		// dd($attacment);
 
 		$this->data['journal_vouchers'] = $journal_vouchers;
@@ -271,6 +320,7 @@ $journal_vouchers->jv_date = date('d/m/Y', strtotime($journal_vouchers->date));
 					'rejection_reason' => NULL,
 				]);
 				if ($approve) {
+					$status_id = $approval_level->next_status_id;
 					$activity = new ActivityLog;
 					$activity->date_time = Carbon::now();
 					$activity->user_id = Auth::user()->id;
@@ -279,7 +329,8 @@ $journal_vouchers->jv_date = date('d/m/Y', strtotime($journal_vouchers->date));
 					$activity->entity_type_id = 384;
 					$activity->activity_id = 7221;
 					$activity->activity = 7221;
-					$activity->details = json_encode($activity);
+					$result[] = [$activity, 'status_id' => $status_id];
+					$activity->details = json_encode($result);
 					$activity->save();
 					DB::commit();
 					return response()->json([
@@ -299,6 +350,7 @@ $journal_vouchers->jv_date = date('d/m/Y', strtotime($journal_vouchers->date));
 					'rejection_reason' => $request->rejection_reason,
 				]);
 				if ($reject) {
+					$status_id = $approval_level->reject_status_id;
 					$activity = new ActivityLog;
 					$activity->date_time = Carbon::now();
 					$activity->user_id = Auth::user()->id;
@@ -307,7 +359,8 @@ $journal_vouchers->jv_date = date('d/m/Y', strtotime($journal_vouchers->date));
 					$activity->entity_type_id = 384;
 					$activity->activity_id = 7221;
 					$activity->activity = 7221;
-					$activity->details = json_encode($activity);
+					$result[] = [$activity, 'status_id' => $status_id];
+					$activity->details = json_encode($result);
 					$activity->save();
 					DB::commit();
 					return response()->json([
@@ -339,36 +392,38 @@ $journal_vouchers->jv_date = date('d/m/Y', strtotime($journal_vouchers->date));
 			->leftJoin('approval_type_approval_level as atal', 'atal.approval_level_id', 'approval_levels.id')
 			->where('atal.approval_type_id', 2)
 			->first();
-			// dd($approval_level->next_status_id);
+		// dd($approval_level->next_status_id);
 		// if (count($send_for_approvals) == 0) {
 		// 	return response()->json(['success' => false, 'errors' => ['No Approval 1 Pending Status in the list!']]);
 		// } else {
-			DB::beginTransaction();
-			try {
-				foreach ($send_for_approvals as $key => $value) {
-					$journal_voucher = JournalVoucher::find($value);
-					$journal_voucher->status_id = $approval_level->next_status_id;
-					$journal_voucher->updated_by_id = Auth()->user()->id;
-					$journal_voucher->updated_at = date("Y-m-d H:i:s");
-					$journal_voucher->save();
+		DB::beginTransaction();
+		try {
+			foreach ($send_for_approvals as $key => $value) {
+				$journal_voucher = JournalVoucher::find($value);
+				$journal_voucher->status_id = $approval_level->next_status_id;
+				$journal_voucher->updated_by_id = Auth()->user()->id;
+				$journal_voucher->updated_at = date("Y-m-d H:i:s");
+				$journal_voucher->save();
 
-					$activity = new ActivityLog;
-					$activity->date_time = Carbon::now();
-					$activity->user_id = Auth::user()->id;
-					$activity->module = 'JV Verification';
-					$activity->entity_id = $value;
-					$activity->entity_type_id = 384;
-					$activity->activity_id = 7221;
-					$activity->activity = 7221;
-					$activity->details = json_encode($activity);
-					$activity->save();
-				}
-				DB::commit();
-				return response()->json(['success' => true, 'message' => $approval_level->name .' Approved successfully']);
-			} catch (Exception $e) {
-				DB::rollBack();
-				return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
+				$status_id = $approval_level->next_status_id;
+				$activity = new ActivityLog;
+				$activity->date_time = Carbon::now();
+				$activity->user_id = Auth::user()->id;
+				$activity->module = 'JV Verification';
+				$activity->entity_id = $value;
+				$activity->entity_type_id = 384;
+				$activity->activity_id = 7221;
+				$activity->activity = 7221;
+				$result[] = [$activity, 'status_id' => $status_id];
+				$activity->details = json_encode($result);
+				$activity->save();
 			}
+			DB::commit();
+			return response()->json(['success' => true, 'message' => $approval_level->name . ' Approved successfully']);
+		} catch (Exception $e) {
+			DB::rollBack();
+			return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
+		}
 		// }
 	}
 }

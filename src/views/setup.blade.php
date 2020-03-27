@@ -53,6 +53,10 @@
 	        template: '<journal-voucher-form></journal-voucher-form>',
 	        title: 'Edit Journal Voucher',
 	    }).
+	    when('/jv-pkg/journal-voucher/view/:id', {
+	        template: '<journal-voucher-view></journal-voucher-view>',
+	        title: 'View Journal Voucher',
+	    }).
 
 	    //JOURNAL VOUCHER VERIFICATION
 	    when('/verification/7221/level/:level_id/list', {
@@ -91,6 +95,7 @@
     //JOURNAL VOUCHER
     var journal_voucher_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/list.html')}}";
     var journal_voucher_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/form.html')}}";
+    var journal_voucher_view_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/view.html')}}";
 
     //JOURNAL VOUCHER VERIFICATION
     var jv_verification_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-verification/list.html')}}";
