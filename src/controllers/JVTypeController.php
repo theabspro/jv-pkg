@@ -153,7 +153,7 @@ class JVTypeController extends Controller {
 		$this->data['theme'];
 		$this->data['extras'] = [
 			// 'approval_type_status_list' => ApprovalTypeStatus::select('id', 'status')->get(),
-			'approval_type_list' => ApprovalType::select('id', 'name')->get(),
+			'approval_type_list' => ApprovalType::where('entity_id', 7221)->select('id', 'name')->get(),
 			'journal_list' => Journal::select('id', 'name')->get(),
 			'jv_account_type_list' => Config::select('id', 'name')->where('config_type_id', 27)->get(),
 		];
