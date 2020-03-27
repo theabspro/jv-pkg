@@ -2,8 +2,13 @@ app.component('jvTypeList', {
     templateUrl: jv_type_list_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element, $mdSelect) {
         $scope.loading = true;
+        $('#search_jv_type').focus();
         var self = this;
         self.hasPermission = HelperService.hasPermission;
+        if (!self.hasPermission('journal-voucher-types')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }
         self.add_permission = self.hasPermission('add-journal-voucher-type');
         var table_scroll;
         table_scroll = $('.page-main-content.list-page-content').height() - 37;
@@ -165,6 +170,10 @@ app.component('jvTypeForm', {
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
+        if (!self.hasPermission('add-journal-voucher-type') || !self.hasPermission('edit-journal-voucher-type')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }
         self.angular_routes = angular_routes;
         $http.get(
             laravel_routes['getJVTypeFormData'], {
@@ -386,6 +395,10 @@ app.component('jvTypeView', {
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
+        if (self.hasPermission('view-journal-voucher-type')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }
         self.angular_routes = angular_routes;
         $http.get(
             laravel_routes['getJVTypeView'], {

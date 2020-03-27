@@ -3,7 +3,12 @@ app.component('journalList', {
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect, $element) {
         $scope.loading = true;
         var self = this;
+        $('#search_journal').focus();
         self.hasPermission = HelperService.hasPermission;
+        if (!self.hasPermission('journals')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }
         self.add_permission = self.hasPermission('add-journal');
         var table_scroll;
         table_scroll = $('.page-main-content.list-page-content').height() - 37;
@@ -137,6 +142,10 @@ app.component('journalForm', {
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
+        if (!self.hasPermission('add-journal') || !self.hasPermission('edit-journal')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }
         self.angular_routes = angular_routes;
         $http.get(
             laravel_routes['getJournalFormData'], {

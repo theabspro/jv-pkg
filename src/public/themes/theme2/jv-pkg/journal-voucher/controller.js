@@ -2,8 +2,14 @@ app.component('journalVoucherList', {
     templateUrl: journal_voucher_list_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect) {
         $scope.loading = true;
+        $('#search_journal_voucher').focus();
         var self = this;
+        self.add_permission = self.hasPermission('add-journal-voucher');
         self.hasPermission = HelperService.hasPermission;
+        if (!self.hasPermission('journal-vouchers')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }
         $http.get(
             laravel_routes['getVerificationFilter'],
         ).then(function(response) { console.log(response.data);
@@ -259,9 +265,13 @@ app.component('journalVoucherForm', {
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
+        if (!self.hasPermission('add-journal-voucher') || !self.hasPermission('edit-journal-voucher')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }
         self.angular_routes = angular_routes;
         var attachment_removal_ids = [];
-
+       $("input:text:visible:first").focus();
         $http({
             url: laravel_routes['getJournalVoucherFormData'],
             method: "GET",
@@ -982,10 +992,10 @@ app.component('journalVoucherView', {
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element, $mdSelect, $timeout) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
-        // if (!self.hasPermission('add-lob') || !self.hasPermission('edit-lob')) {
-        //     window.location = "#!/page-permission-denied";
-        //     return false;
-        // }
+        if (self.hasPermission('view-journal-voucher')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }
         self.angular_routes = angular_routes;
         self.level_id = $routeParams.level_id;
         self.ref_attachements_url_link = ref_attachements_url;

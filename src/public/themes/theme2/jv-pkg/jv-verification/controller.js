@@ -2,6 +2,7 @@ app.component('jvVerificationList', {
     templateUrl: jv_verification_list_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $window, $mdSelect) {
         $scope.loading = true;
+        $('#search_jv_verification').focus();
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.level_id = $routeParams.level_id;
@@ -9,7 +10,6 @@ app.component('jvVerificationList', {
         //     window.location = "#!/page-permission-denied";
         //     return false;
         // }
-        
         $http.get(
             laravel_routes['getVerificationFilter'],
         ).then(function(response) { console.log(response.data);

@@ -2,8 +2,13 @@ app.component('ledgerList', {
     templateUrl: ledger_list_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect, $element) {
         $scope.loading = true;
+        $('#search_ledger').focus();
         var self = this;
         self.hasPermission = HelperService.hasPermission;
+         if (!self.hasPermission('ledgers')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }
         self.add_permission = self.hasPermission('add-ledger');
         var table_scroll;
         table_scroll = $('.page-main-content.list-page-content').height() - 37;
@@ -145,6 +150,10 @@ app.component('ledgerForm', {
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
+        if (!self.hasPermission('add-ledger') || !self.hasPermission('edit-ledger')) {
+            window.location = "#!/page-permission-denied";
+            return false;
+        }
         self.angular_routes = angular_routes;
         $http.get(
             laravel_routes['getLedgerFormData'], {
