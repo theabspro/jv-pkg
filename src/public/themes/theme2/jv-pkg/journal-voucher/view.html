@@ -140,8 +140,8 @@
                                     <div class="tab-pane-footer">
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <a class="btn btn-cancel btn-min-wdth my-tooltip" data-toggle="modal" data-target="#reject-popup" ng-shortcut="'meta+shift+r'" ng-shortcut-click data-title="ctrl+shift+r"> Reject</a>
-                                                <button type="button" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">Approve</button>
+                                                <a ng-if="$ctrl.final_approval_status.final_approved_status_id != $ctrl.journal_vouchers.status_id" class="btn btn-cancel btn-min-wdth my-tooltip" data-toggle="modal" data-target="#reject-popup" ng-shortcut="'meta+shift+r'" ng-shortcut-click data-title="ctrl+shift+r"> Reject</a>
+                                                <button ng-if="$ctrl.final_approval_status.final_approved_status_id != $ctrl.journal_vouchers.status_id" type="button" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">Approve</button>
                                                 <a class="btn btn-secondary btn-min-wdth btn-nxt my-tooltip" ng-shortcut="'meta+shift+down'" ng-shortcut-click data-title="ctrl+shift+down">Next</a>
                                             </div>
                                         </div>
@@ -187,8 +187,8 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <a class="btn btn-secondary btn-prev my-tooltip" ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">Previous</a>
-                                                <a class="btn btn-cancel btn-min-wdth my-tooltip" data-toggle="modal" data-target="#reject-popup" ng-shortcut="'meta+shift+r'" ng-shortcut-click data-title="ctrl+shift+r"> Reject</a>
-                                                <button type="button" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">Approve</button>
+                                                <a ng-if="$ctrl.final_approval_status.final_approved_status_id != $ctrl.journal_vouchers.status_id" class="btn btn-cancel btn-min-wdth my-tooltip" data-toggle="modal" data-target="#reject-popup" ng-shortcut="'meta+shift+r'" ng-shortcut-click data-title="ctrl+shift+r"> Reject</a>
+                                                <button ng-if="$ctrl.final_approval_status.final_approved_status_id != $ctrl.journal_vouchers.status_id" type="button" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">Approve</button>
                                             </div><!-- Column -->
                                         </div><!-- Row -->
                                     </div><!-- Tab Footer -->

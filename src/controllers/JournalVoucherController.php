@@ -36,7 +36,7 @@ class JournalVoucherController extends Controller {
 	}
 
 	public function getJournalVouchers(Request $request) {
-		$this->data['journal_vouchers'] = JournalVoucher::
+		$this->data['journal_vouchers'] = JournalVoucher::withTrashed()->
 			select([
 			'journal_vouchers.question',
 			'journal_vouchers.answer',
@@ -181,10 +181,10 @@ class JournalVoucherController extends Controller {
 				'jvReceipt.business',
 			])->find($id);
 
-			$journal_voucher->from_customer = JournalVoucher::join('customers', 'customers.id', 'journal_vouchers.from_account_id')
+			$journal_voucher->from_customer = JournalVoucher::withTrashed()->join('customers', 'customers.id', 'journal_vouchers.from_account_id')
 				->find($id)
 			;
-			$journal_voucher->to_customer = JournalVoucher::join('customers', 'customers.id', 'journal_vouchers.to_account_id')
+			$journal_voucher->to_customer = JournalVoucher::withTrashed()->join('customers', 'customers.id', 'journal_vouchers.to_account_id')
 				->find($id)
 			;
 
@@ -251,8 +251,8 @@ class JournalVoucherController extends Controller {
 		// dd($request->all());
 		$id = $request->id;
 		$approval_type_id = $request->approval_type_id;
-		$journal_voucher = JournalVoucher::find($id);
-		$journal_vouchers = JournalVoucher::
+		$journal_voucher = JournalVoucher::withTrashed()->find($id);
+		$journal_vouchers = JournalVoucher::withTrashed()->
 			// join('journals', 'journals.id', 'journal_vouchers.journal_id')
 			// ->join('jv_types', 'jv_types.id', 'journal_vouchers.type_id')
 			// ->join('configs as fati', 'fati.id', 'journal_vouchers.from_account_type_id')
@@ -265,6 +265,11 @@ class JournalVoucherController extends Controller {
 			'journal',
 		])
 			->find($id)
+		;
+
+		$this->data['final_approval_status_id'] = $jv_type_final_status = JVType::join('journal_vouchers', 'journal_vouchers.type_id', 'jv_types.id')
+			->where('journal_vouchers.id', $id)
+			->first()
 		;
 
 		if ($journal_voucher->from_account_type_id == 1440) {
@@ -766,7 +771,7 @@ class JournalVoucherController extends Controller {
 
 	public function journalVoucherMultipleApproval(Request $request) {
 		// dd($request->all());
-		$send_for_approvals = JournalVoucher::whereIn('id', $request->send_for_approval)->where('status_id', 7)->pluck('id')->toArray();
+		$send_for_approvals = JournalVoucher::withTrashed()->whereIn('id', $request->send_for_approval)->where('status_id', 7)->pluck('id')->toArray();
 		// dd($send_for_approvals);
 		$approval_level = ApprovalLevel::where('id', 7)
 			->leftJoin('approval_type_approval_level as atal', 'atal.approval_level_id', 'approval_levels.id')
@@ -779,7 +784,7 @@ class JournalVoucherController extends Controller {
 			DB::beginTransaction();
 			try {
 				foreach ($send_for_approvals as $key => $value) {
-					$journal_voucher = JournalVoucher::find($value);
+					$journal_voucher = JournalVoucher::withTrashed()->find($value);
 					$journal_voucher->status_id = $approval_level->next_status_id;
 					$journal_voucher->updated_by_id = Auth()->user()->id;
 					$journal_voucher->updated_at = date("Y-m-d H:i:s");

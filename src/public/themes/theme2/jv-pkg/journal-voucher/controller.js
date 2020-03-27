@@ -997,7 +997,7 @@ app.component('journalVoucherView', {
                 // approval_level_id: $routeParams.level_id,
             }
         }).then(function(response) {
-            console.log(response.data.activity_logs);
+            console.log(response.data);
             self.journal_vouchers = response.data.journal_vouchers;
             self.reject_reason = response.data.reject_reason;
             self.from_account_type = response.data.from_account_type;
@@ -1010,6 +1010,7 @@ app.component('journalVoucherView', {
             self.receipt_details = response.data.receipt_details;
             self.attachment = response.data.attachment;
             self.activity_logs = response.data.activity_logs;
+            self.final_approval_status = response.data.final_approval_status_id;
             // self.statuses = response.data.statuses;
             self.ref_attachements_url_link = jv_attachements_url;
             self.action = response.data.action;
