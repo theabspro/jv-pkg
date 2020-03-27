@@ -2,6 +2,7 @@
 
 namespace Abs\JVPkg;
 use Abs\BasicPkg\Attachment;
+use Abs\ApprovalPkg\ApprovalLevel;
 use Abs\BasicPkg\Config;
 use Abs\BusinessPkg\Sbu;
 use Abs\CustomerPkg\Customer;
@@ -108,6 +109,11 @@ class JournalVoucherController extends Controller {
 			->orderby('journal_vouchers.id', 'desc');
 		// dd($journal_vouchers);
 		return Datatables::of($journal_vouchers)
+			->addColumn('child_checkbox', function ($journal_vouchers) {
+				$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $journal_vouchers->id . "' name='child_boxes' value='" . $journal_vouchers->id . "' class='journal_voucher_checkbox'/><label for='child_" . $journal_vouchers->id . "'></label></div></td>";
+
+				return $checkbox;
+			})
 			->addColumn('voucher_number', function ($journal_vouchers) {
 				$status = $journal_vouchers->status == 'Active' ? 'green' : 'red';
 				return '<span class="status-indicator ' . $status . '"></span>' . $journal_vouchers->voucher_number;
@@ -143,6 +149,7 @@ class JournalVoucherController extends Controller {
 					';
 				return $output;
 			})
+			->rawColumns(['child_checkbox', 'action'])
 			->make(true);
 	}
 
@@ -600,6 +607,47 @@ class JournalVoucherController extends Controller {
 		} catch (Exception $e) {
 			DB::rollBack();
 			return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
+		}
+	}
+
+	public function journalVoucherMultipleApproval(Request $request) {
+		// dd($request->all());
+		$send_for_approvals = JournalVoucher::whereIn('id', $request->send_for_approval)->where('status_id', 7)->pluck('id')->toArray();
+		// dd($send_for_approvals);
+		$approval_level = ApprovalLevel::where('id', 7)
+			->leftJoin('approval_type_approval_level as atal', 'atal.approval_level_id', 'approval_levels.id')
+			->where('atal.approval_type_id', 2)
+			->first();
+			// dd($approval_level->next_status_id);
+		if (count($send_for_approvals) == 0) {
+			return response()->json(['success' => false, 'errors' => ['No New Status in the list!']]);
+		} else {
+			DB::beginTransaction();
+			try {
+				foreach ($send_for_approvals as $key => $value) {
+					$journal_voucher = JournalVoucher::find($value);
+					$journal_voucher->status_id = $approval_level->next_status_id;
+					$journal_voucher->updated_by_id = Auth()->user()->id;
+					$journal_voucher->updated_at = date("Y-m-d H:i:s");
+					$journal_voucher->save();
+
+					$activity = new ActivityLog;
+					$activity->date_time = Carbon::now();
+					$activity->user_id = Auth::user()->id;
+					$activity->module = 'JV Verification';
+					$activity->entity_id = $value;
+					$activity->entity_type_id = 384;
+					$activity->activity_id = 7221;
+					$activity->activity = 7221;
+					$activity->details = json_encode($activity);
+					$activity->save();
+				}
+				DB::commit();
+				return response()->json(['success' => true, 'message' => 'Journal Vouchers Approved successfully']);
+			} catch (Exception $e) {
+				DB::rollBack();
+				return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
+			}
 		}
 	}
 }

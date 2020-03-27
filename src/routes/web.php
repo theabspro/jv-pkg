@@ -11,6 +11,7 @@ Route::group(['namespace' => 'Abs\JVPkg', 'middleware' => ['web', 'auth'], 'pref
 	Route::post('/journal-voucher/get-customer-details', 'JournalVoucherController@getJVCustomerDetails')->name('getJVCustomerDetails');
 	Route::get('/journal-voucher/get-customer-invoice', 'JournalVoucherController@getCustomerInvoice')->name('getCustomerInvoice');
 	Route::get('/journal-voucher/get-customer-receipt', 'JournalVoucherController@getCustomerReceipt')->name('getCustomerReceipt');
+	Route::post('/journal-voucher/multiple-approvals', 'JournalVoucherController@journalVoucherMultipleApproval')->name('journalVoucherMultipleApproval');
 
 	//JOURNALS
 	Route::get('/journal/get-list', 'JournalController@getJournalList')->name('getJournalList');
