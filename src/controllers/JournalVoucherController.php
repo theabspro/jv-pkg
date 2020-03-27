@@ -150,6 +150,8 @@ class JournalVoucherController extends Controller {
 		$id = $r->id;
 		if (!$id) {
 			$journal_voucher = new JournalVoucher;
+			$journal_voucher->from_customer = [];
+			$journal_voucher->to_customer = [];
 			$journal_voucher->date = date('d-m-Y');
 			// $attachment = new Attachment;
 			$action = 'Add';
@@ -164,10 +166,10 @@ class JournalVoucherController extends Controller {
 				'jvReceipt.business',
 			])->find($id);
 
-			$journal_voucher->from_cusromer = JournalVoucher::join('customers', 'customers.id', 'journal_vouchers.from_account_id')
+			$journal_voucher->from_customer = JournalVoucher::join('customers', 'customers.id', 'journal_vouchers.from_account_id')
 				->find($id)
 			;
-			$journal_voucher->to_cusromer = JournalVoucher::join('customers', 'customers.id', 'journal_vouchers.to_account_id')
+			$journal_voucher->to_customer = JournalVoucher::join('customers', 'customers.id', 'journal_vouchers.to_account_id')
 				->find($id)
 			;
 
@@ -353,10 +355,11 @@ class JournalVoucherController extends Controller {
 				$journal_voucher->updated_at = Carbon::now();
 			}
 
-			$journal_voucher->date = date('Y-m-d H:i:s', strtotime($request->date));
-			// dd(date('Y-m-d', strtotime($request->date)));
+			// dd(date('Y-m-d H:i:s', strtotime($request->date)));
 			$journal_voucher->status_id = $jv_type_status->initial_status_id;
 			$journal_voucher->fill($request->all());
+			$journal_voucher->date = date('Y-m-d', strtotime($request->date));
+
 			$journal_voucher->company_id = Auth::user()->company_id;
 			if ($request->status == 'Inactive') {
 				$journal_voucher->deleted_at = Carbon::now();
