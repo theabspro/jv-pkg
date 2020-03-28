@@ -1,0 +1,93 @@
+<div class="grey-wrap">
+    <!-- ISSUE : REPEATED CODE NOT MODULARIZED AND REUSED-->
+    <ul class="grey-list mb-20">
+        <li ng-show="$ctrl.jv.type">
+            <div class="grey-box">
+                <div class="grey-box-header">
+                    JV Type :
+                    <b>{{$ctrl.jv.type.name}}</b>
+                </div>
+            </div>
+        </li>
+        <li ng-show="$ctrl.jv.journal">
+            <div class="grey-box">
+                <div class="grey-box-header">
+                    Journal : <b>{{$ctrl.jv.journal.name}}</b>
+                </div>
+            </div>
+        </li>
+        <li ng-show="$ctrl.jv.type">
+            <div class="grey-box-header">
+                Transfer Type :
+                <b>
+                    {{$ctrl.jv.from_account_type.name}} to {{$ctrl.jv.to_account_type.name}}
+                </b>
+            </div>
+        </li>
+    </ul>
+    <ul class="flex-row">
+        <li class="flex-col-3" ng-show="$ctrl.jv.from_account">
+            <div class="grey-box">
+                <!-- ISSUE : Repeated condition check -->
+                <!--                 <div class="grey-box-header">From Account : <b ng-show="!isObjectEmpty($ctrl.fromAccountCustomer)">{{$ctrl.fromAccountCustomer.code}}</b></div>
+                <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.fromAccountCustomer)">
+ -->
+                <div class="grey-box-header">From Account : <b>{{$ctrl.jv.from_account.code}}</b></div>
+                <div class="grey-box-body">
+                    <p class="grey-box-info sm">{{$ctrl.jv.from_account.name}}</p>
+                    <p class="grey-box-info sm">{{$ctrl.jv.from_account.address}}</p>
+                    <p class="grey-box-info sm">{{$ctrl.jv.from_account.mobile_no ? '+91 '+ $ctrl.jv.from_account.mobile_no : ''}}</p>
+                    <p class="grey-box-info sm">{{$ctrl.jv.from_account.email ? $ctrl.jv.from_account.email : ''}}</p>
+                </div>
+            </div>
+        </li>
+        <li class="flex-col-3" ng-show="true">
+            <div class="grey-box">
+                <div class="grey-box-header">{{$ctrl.checked_Count}} {{$ctrl.added_Title}}</div>
+                <div class="grey-box-body">
+                    <p class="grey-box-info sm">{{$ctrl.checked_List}}</p>
+                    <input type="hidden" name="selected_invoices" class="form-control" value="{{$ctrl.checked_List}}">
+                </div>
+            </div>
+        </li>
+        <li class="flex-col-3" ng-show="$ctrl.jv.from_account">
+            <div class="grey-box">
+                <!-- ISSUE : Repeated condition check -->
+                <!--                 <div class="grey-box-header">To Account : <b ng-show="!isObjectEmpty($ctrl.toAccountCustomer)">{{$ctrl.toAccountCustomer.code}}</b></div>
+                <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.toAccountCustomer)">
+ -->
+                <div class="grey-box-header">To Account : <b>{{$ctrl.jv.to_account.code}}</b></div>
+                <div class="grey-box-body">
+                    <p class="grey-box-info sm">
+                        {{$ctrl.jv.to_account.name}}
+                    </p>
+                    <p class="grey-box-info sm">
+                        {{$ctrl.jv.to_account.address}}
+                    </p>
+                    <p class="grey-box-info sm">
+                        {{$ctrl.jv.to_account.mobile_no ? '+91 '+ $ctrl.jv.to_account.mobile_no : ''}}
+                    </p>
+                    <p class="grey-box-info sm">
+                        {{$ctrl.jv.to_account.email ? $ctrl.jv.to_account.email : ''}}
+                    </p>
+                </div>
+            </div>
+        </li>
+        <li class="flex-col-3" ng-if="$ctrl.jv.from_receipts">
+            <div class="grey-box">
+                <div class="grey-box-header">{{$ctrl.jv.receipts.length}} <b>Receipts Added</b></div>
+                <div class="grey-box-body">
+                    <p class="grey-box-info sm">{{$ctrl.receipt_nos}}</p>
+                </div>
+            </div>
+        </li>
+        <li class="flex-col-3" ng-if="$ctrl.jv.to_receipts">
+            <div class="grey-box">
+                <div class="grey-box-header">{{$ctrl.receipts.length}} <b>Receipts Added</b></div>
+                <div class="grey-box-body">
+                    <p class="grey-box-info sm">{{$ctrl.receipt_nos}}</p>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div><!-- Grey Wrap -->

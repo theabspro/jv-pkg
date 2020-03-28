@@ -194,6 +194,9 @@ class JournalVoucherController extends Controller {
 		}
 		$this->data['journal_voucher'] = $journal_voucher;
 		$this->data['jv_type_list'] = collect(JVType::where('company_id', Auth::user()->company_id)->select('id', 'short_name', 'name')->get())->prepend(['id' => '', 'name' => 'Select JV Type']);
+		$this->data['journal_list'] = collect(Journal::where('company_id', Auth::user()->company_id)->select('id', 'name')->get());
+		$this->data['account_type_list'] = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
+
 		// $this->data['attachment'] = $attachment;
 		$this->data['action'] = $action;
 		$this->data['theme'];
@@ -204,45 +207,104 @@ class JournalVoucherController extends Controller {
 		return response()->json($this->data);
 	}
 
-	public function jvTypes(Request $request) {
-		if (!empty($request->id)) {
-			$this->data['jv_types'] = $jv_types = JVType::Join('jv_type_field', 'jv_type_field.jv_type_id', 'jv_types.id')
-				->leftJoin('configs as c1', 'c1.id', 'jv_type_field.field_id')
-				->leftJoin('configs as c2', 'c2.id', 'jv_type_field.value')
-				->whereIn('jv_type_field.field_id', [1420, 1421, 1422]) //From Acc & To Acc
-				->where('jv_types.id', $request->id)
-				->select('jv_type_field.field_id', 'c1.name as field_name', 'jv_type_field.value', 'c2.name as value_name', 'jv_type_field.is_open', 'jv_type_field.is_editable', 'jv_types.short_name', 'jv_types.name')
-				->get();
+	//ISSUE: NOT USED PROPER NAMING
+	// public function jvTypes(Request $request) {
+	public function getJV(Request $request) {
+		$error_messages = [
+			'id.required' => 'ID is required',
+		];
 
-			foreach ($jv_types as $key => $jv_type) {
-				if ($jv_type->is_open == 0 && $jv_type->is_editable == 0) {
-					if ($jv_type->field_id == 1420 && $jv_type->value != NULL) {
-						$this->data['journal'] = Journal::Join('jv_type_field', 'jv_type_field.value', 'journals.id')
-							->select('journals.id', 'journals.name')
-							->first();
-						$this->data['journals_list'] = null;
-					} elseif ($jv_type->field_id == 1421 && $jv_type->value != NULL) {
-						$this->data['jv_account_type_list'] = null;
-					} elseif ($jv_type->field_id == 1422 && $jv_type->value != NULL) {
-						$this->data['jv_account_type_list'] = null;
-					}
-				} elseif ($jv_type->is_open == 1 && $jv_type->is_editable == 1) {
-					if ($jv_type->field_id == 1420 && $jv_type->value == NULL) {
-						$this->data['journals_list'] = collect(Journal::where('company_id', Auth::user()->company_id)->select('id', 'name')->get());
-						$this->data['journal'] = null;
-					} elseif ($jv_type->field_id == 1421 && $jv_type->value == NULL) {
-						$this->data['jv_account_type_list'] = $jv_account_type_list = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
-					} elseif ($jv_type->field_id == 1422 && $jv_type->value == NULL) {
-						$this->data['jv_account_type_list'] = $jv_account_type_list = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
-					}
+		$validator = Validator::make($request->all(), [
+			'id' => [
+				'required:true',
+			],
+		], $error_messages);
+
+		if ($validator->fails()) {
+			return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+		}
+
+		//NEW CODE
+		$this->data['jv_type'] = $jv_type = JVType::with([
+			'fields',
+		])->find($request->id);
+
+		foreach ($jv_type->fields as $field) {
+			if (!$field->pivot->is_editable) {
+				if ($field->pivot->field_id == 1420) {
+					//JOURNAL
+					$jv_type->journal_editable = false;
+					$jv_type->journal = Journal::select([
+						'journals.id',
+						'journals.name',
+					])->find($field->pivot->value);
+				} elseif ($field->pivot->field_id == 1421) {
+					//FROM ACCOUNT TYPE
+					$jv_type->from_account_type_editable = false;
+					$jv_type->from_account_type = Config::find($field->pivot->value);
+				} else {
+					//TO ACCOUNT TYPE
+					$jv_type->to_account_type_editable = false;
+					$jv_type->to_account_type = Config::find($field->pivot->value);
+				}
+			} else {
+				if ($field->pivot->field_id == 1420) {
+					//JOURNAL
+					$jv_type->journal_editable = true;
+				} elseif ($field->pivot->field_id == 1421) {
+					//FROM ACCOUNT TYPE
+					$jv_type->from_account_type_editable = true;
+				} else {
+					//TO ACCOUNT TYPE
+					$jv_type->to_account_type_editable = true;
 				}
 			}
-		} else {
-			$this->data['journal'] = null;
-			$this->data['journals_list'] = null;
-			$this->data['jv_types'] = null;
-			$this->data['jv_account_type_list'] = null;
 		}
+		// dd($jv_type);
+		//ISSUE
+		//NOT USED LARAVEL FEATURES
+		//SINGULAR / PLURAL NAMING CONVENTION
+		//UNWANTED VARIABLE
+		//NO DEVELOPER COMMENTS
+		//CODE NOT OPTIMIZED
+		//NOT A CLEAN CODE AND NO READABILITY
+		// $this->data['jv_types'] = $jv_types = JVType::join('jv_type_field', 'jv_type_field.jv_type_id', 'jv_types.id')
+		// 	->leftJoin('configs as c1', 'c1.id', 'jv_type_field.field_id')
+		// 	->leftJoin('configs as c2', 'c2.id', 'jv_type_field.value')
+		// 	->whereIn('jv_type_field.field_id', [1420, 1421, 1422]) //From Acc & To Acc
+		// 	->where('jv_types.id', $request->id)
+		// 	->select('jv_type_field.field_id', 'c1.name as field_name', 'jv_type_field.value', 'c2.name as value_name', 'jv_type_field.is_open', 'jv_type_field.is_editable', 'jv_types.short_name', 'jv_types.name')
+		// 	->get();
+
+		// foreach ($jv_types as $key => $jv_type) {
+		// 	if ($jv_type->is_open == 0 && $jv_type->is_editable == 0) {
+		// 		if ($jv_type->field_id == 1420 && $jv_type->value != NULL) {
+		// 			$this->data['journal'] = Journal::Join('jv_type_field', 'jv_type_field.value', 'journals.id')
+		// 				->select('journals.id', 'journals.name')
+		// 				->first();
+		// 			$this->data['journals_list'] = null;
+		// 		} elseif ($jv_type->field_id == 1421 && $jv_type->value != NULL) {
+		// 			$this->data['jv_account_type_list'] = null;
+		// 		} elseif ($jv_type->field_id == 1422 && $jv_type->value != NULL) {
+		// 			$this->data['jv_account_type_list'] = null;
+		// 		}
+		// 	} elseif ($jv_type->is_open == 1 && $jv_type->is_editable == 1) {
+		// 		if ($jv_type->field_id == 1420 && $jv_type->value == NULL) {
+		// 			$this->data['journals_list'] = collect(Journal::where('company_id', Auth::user()->company_id)->select('id', 'name')->get());
+		// 			$this->data['journal'] = null;
+		// 		} elseif ($jv_type->field_id == 1421 && $jv_type->value == NULL) {
+		// 			$this->data['jv_account_type_list'] = $jv_account_type_list = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
+		// 		} elseif ($jv_type->field_id == 1422 && $jv_type->value == NULL) {
+		// 			$this->data['jv_account_type_list'] = $jv_account_type_list = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
+		// 		}
+		// 	}
+		// }
+		// } else {
+		// 	$this->data['journal'] = null;
+		// 	$this->data['journals_list'] = null;
+		// 	$this->data['jv_types'] = null;
+		// 	$this->data['jv_account_type_list'] = null;
+		// }
 
 		return response()->json($this->data);
 	}
