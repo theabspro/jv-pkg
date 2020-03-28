@@ -349,4 +349,58 @@ class JVTypeController extends Controller {
 			return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
 		}
 	}
+
+	public function getJVType(Request $request) {
+		$error_messages = [
+			'id.required' => 'ID is required',
+		];
+
+		$validator = Validator::make($request->all(), [
+			'id' => [
+				'required:true',
+			],
+		], $error_messages);
+
+		if ($validator->fails()) {
+			return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+		}
+
+		//NEW CODE
+		$this->data['jv_type'] = $jv_type = JVType::with([
+			'fields',
+		])->find($request->id);
+
+		foreach ($jv_type->fields as $field) {
+			if (!$field->pivot->is_editable) {
+				if ($field->pivot->field_id == 1420) {
+					//JOURNAL
+					$jv_type->journal_editable = false;
+					$jv_type->journal = Journal::select([
+						'journals.id',
+						'journals.name',
+					])->find($field->pivot->value);
+				} elseif ($field->pivot->field_id == 1421) {
+					//FROM ACCOUNT TYPE
+					$jv_type->from_account_type_editable = false;
+					$jv_type->from_account_type = Config::find($field->pivot->value);
+				} else {
+					//TO ACCOUNT TYPE
+					$jv_type->to_account_type_editable = false;
+					$jv_type->to_account_type = Config::find($field->pivot->value);
+				}
+			} else {
+				if ($field->pivot->field_id == 1420) {
+					//JOURNAL
+					$jv_type->journal_editable = true;
+				} elseif ($field->pivot->field_id == 1421) {
+					//FROM ACCOUNT TYPE
+					$jv_type->from_account_type_editable = true;
+				} else {
+					//TO ACCOUNT TYPE
+					$jv_type->to_account_type_editable = true;
+				}
+			}
+		}
+		return response()->json($this->data);
+	}
 }

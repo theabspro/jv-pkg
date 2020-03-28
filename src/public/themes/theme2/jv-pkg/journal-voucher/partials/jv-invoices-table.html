@@ -1,0 +1,54 @@
+<h6 class="tab-pane-title toAcc_Title">
+    Invoices
+</h6>
+<div class="table-responsive">
+    <table class="table table-border-2" id="invoices_table" style="width: 100% !important;">
+        <thead>
+            <tr>
+                <th>
+                    <div class="table-checkbox">
+                        <input type="checkbox" id="parent_checkbox" />
+                        <label for="parent_checkbox"></label>
+                    </div>
+                </th>
+                <th>Invoice No</th>
+                <th>Invoice Date</th>
+                <th>Invoiced Amount</th>
+                <th>Settled Amount</th>
+                <th>Balance Amount</th>
+                <th>Outlet</th>
+                <th>Business Unit</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-if="$ctrl.jv.invoices.length == 0">
+                <td colspan="8" class="text-center">No Data Found</td>
+            </tr>
+            <tr ng-if="$ctrl.jv.invoices.length != 0" ng-repeat="(index, invoice) in $ctrl.jv.invoices">
+                <td class="action">
+                    <div class='table-checkbox1'>
+                        <input type='checkbox' id='child_{{invoice.id}}' name='invoices[{{index}}][id]' value='{{invoice.id}}' class='jv_Checkbox' ng-change="invoiceUpdated()" ng-model="invoice.selected" />
+                        <label for='child_{{invoice.id}}'></label>
+                    </div>
+                </td>
+                <td>
+                    {{invoice.invoice_number}}
+                </td>
+                <td>{{invoice.invoice_date}}</td>
+                <td class="text-right">
+                    {{invoice.invoice_amount}}
+                </td>
+                <td class="text-right">
+                    {{invoice.received_amount}}
+                </td>
+                <td class="text-right">
+                    {{invoice.balance_amount}}
+                </td>
+                <td>{{invoice.outlet_name}}</td>
+                <td>{{invoice.sbu_name}}</td>
+                <td>{{invoice.remarks}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div><!-- Table Responsive -->

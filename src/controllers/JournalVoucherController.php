@@ -5,7 +5,6 @@ use Abs\ApprovalPkg\ApprovalLevel;
 use Abs\ApprovalPkg\ApprovalTypeStatus;
 use Abs\BasicPkg\Attachment;
 use Abs\BasicPkg\Config;
-use Abs\BusinessPkg\Sbu;
 use Abs\CustomerPkg\Customer;
 use Abs\InvoicePkg\Invoice;
 use Abs\JVPkg\JournalVoucher;
@@ -15,7 +14,6 @@ use Abs\ReceiptPkg\Receipt;
 use App\ActivityLog;
 use App\Entity;
 use App\Http\Controllers\Controller;
-use App\Outlet;
 use App\Vendor;
 use Artisaninweb\SoapWrapper\SoapWrapper;
 use Auth;
@@ -165,10 +163,19 @@ class JournalVoucherController extends Controller {
 		$id = $r->id;
 		if (!$id) {
 			$journal_voucher = new JournalVoucher;
-			$journal_voucher->from_customer = [];
-			$journal_voucher->to_customer = [];
+			$journal_voucher->receipts = [];
+			$journal_voucher->invoices = [];
+			$journal_voucher->total_receipt_amount = 0;
+			$journal_voucher->total_invoice_amount = 0;
+
+			//For Testing only
+			$journal_voucher->from_account = $journal_voucher->to_account = Customer::where('code', '10258258')->first();
+			$journal_voucher->transfer_type = 'receipt';
+			$journal_voucher->amount = '100.40';
+			$journal_voucher->remarks = 'receipt';
+			$journal_voucher->reason = 'some reason';
+
 			$journal_voucher->date = date('d-m-Y');
-			// $attachment = new Attachment;
 			$action = 'Add';
 		} else {
 			$journal_voucher = JournalVoucher::withTrashed()->with([
@@ -207,107 +214,107 @@ class JournalVoucherController extends Controller {
 		return response()->json($this->data);
 	}
 
-	//ISSUE: NOT USED PROPER NAMING
+	//ISSUE: wrong place
+	//NOT USED PROPER NAMING
 	// public function jvTypes(Request $request) {
-	public function getJV(Request $request) {
-		$error_messages = [
-			'id.required' => 'ID is required',
-		];
+	// 	$error_messages = [
+	// 		'id.required' => 'ID is required',
+	// 	];
 
-		$validator = Validator::make($request->all(), [
-			'id' => [
-				'required:true',
-			],
-		], $error_messages);
+	// 	$validator = Validator::make($request->all(), [
+	// 		'id' => [
+	// 			'required:true',
+	// 		],
+	// 	], $error_messages);
 
-		if ($validator->fails()) {
-			return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
-		}
+	// 	if ($validator->fails()) {
+	// 		return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+	// 	}
 
-		//NEW CODE
-		$this->data['jv_type'] = $jv_type = JVType::with([
-			'fields',
-		])->find($request->id);
+	// 	//NEW CODE
+	// 	$this->data['jv_type'] = $jv_type = JVType::with([
+	// 		'fields',
+	// 	])->find($request->id);
 
-		foreach ($jv_type->fields as $field) {
-			if (!$field->pivot->is_editable) {
-				if ($field->pivot->field_id == 1420) {
-					//JOURNAL
-					$jv_type->journal_editable = false;
-					$jv_type->journal = Journal::select([
-						'journals.id',
-						'journals.name',
-					])->find($field->pivot->value);
-				} elseif ($field->pivot->field_id == 1421) {
-					//FROM ACCOUNT TYPE
-					$jv_type->from_account_type_editable = false;
-					$jv_type->from_account_type = Config::find($field->pivot->value);
-				} else {
-					//TO ACCOUNT TYPE
-					$jv_type->to_account_type_editable = false;
-					$jv_type->to_account_type = Config::find($field->pivot->value);
-				}
-			} else {
-				if ($field->pivot->field_id == 1420) {
-					//JOURNAL
-					$jv_type->journal_editable = true;
-				} elseif ($field->pivot->field_id == 1421) {
-					//FROM ACCOUNT TYPE
-					$jv_type->from_account_type_editable = true;
-				} else {
-					//TO ACCOUNT TYPE
-					$jv_type->to_account_type_editable = true;
-				}
-			}
-		}
-		// dd($jv_type);
-		//ISSUE
-		//NOT USED LARAVEL FEATURES
-		//SINGULAR / PLURAL NAMING CONVENTION
-		//UNWANTED VARIABLE
-		//NO DEVELOPER COMMENTS
-		//CODE NOT OPTIMIZED
-		//NOT A CLEAN CODE AND NO READABILITY
-		// $this->data['jv_types'] = $jv_types = JVType::join('jv_type_field', 'jv_type_field.jv_type_id', 'jv_types.id')
-		// 	->leftJoin('configs as c1', 'c1.id', 'jv_type_field.field_id')
-		// 	->leftJoin('configs as c2', 'c2.id', 'jv_type_field.value')
-		// 	->whereIn('jv_type_field.field_id', [1420, 1421, 1422]) //From Acc & To Acc
-		// 	->where('jv_types.id', $request->id)
-		// 	->select('jv_type_field.field_id', 'c1.name as field_name', 'jv_type_field.value', 'c2.name as value_name', 'jv_type_field.is_open', 'jv_type_field.is_editable', 'jv_types.short_name', 'jv_types.name')
-		// 	->get();
+	// 	foreach ($jv_type->fields as $field) {
+	// 		if (!$field->pivot->is_editable) {
+	// 			if ($field->pivot->field_id == 1420) {
+	// 				//JOURNAL
+	// 				$jv_type->journal_editable = false;
+	// 				$jv_type->journal = Journal::select([
+	// 					'journals.id',
+	// 					'journals.name',
+	// 				])->find($field->pivot->value);
+	// 			} elseif ($field->pivot->field_id == 1421) {
+	// 				//FROM ACCOUNT TYPE
+	// 				$jv_type->from_account_type_editable = false;
+	// 				$jv_type->from_account_type = Config::find($field->pivot->value);
+	// 			} else {
+	// 				//TO ACCOUNT TYPE
+	// 				$jv_type->to_account_type_editable = false;
+	// 				$jv_type->to_account_type = Config::find($field->pivot->value);
+	// 			}
+	// 		} else {
+	// 			if ($field->pivot->field_id == 1420) {
+	// 				//JOURNAL
+	// 				$jv_type->journal_editable = true;
+	// 			} elseif ($field->pivot->field_id == 1421) {
+	// 				//FROM ACCOUNT TYPE
+	// 				$jv_type->from_account_type_editable = true;
+	// 			} else {
+	// 				//TO ACCOUNT TYPE
+	// 				$jv_type->to_account_type_editable = true;
+	// 			}
+	// 		}
+	// 	}
+	// 	// dd($jv_type);
+	// 	//ISSUE
+	// 	//NOT USED LARAVEL FEATURES
+	// 	//SINGULAR / PLURAL NAMING CONVENTION
+	// 	//UNWANTED VARIABLE
+	// 	//NO DEVELOPER COMMENTS
+	// 	//CODE NOT OPTIMIZED
+	// 	//NOT A CLEAN CODE AND NO READABILITY
+	// 	// $this->data['jv_types'] = $jv_types = JVType::join('jv_type_field', 'jv_type_field.jv_type_id', 'jv_types.id')
+	// 	// 	->leftJoin('configs as c1', 'c1.id', 'jv_type_field.field_id')
+	// 	// 	->leftJoin('configs as c2', 'c2.id', 'jv_type_field.value')
+	// 	// 	->whereIn('jv_type_field.field_id', [1420, 1421, 1422]) //From Acc & To Acc
+	// 	// 	->where('jv_types.id', $request->id)
+	// 	// 	->select('jv_type_field.field_id', 'c1.name as field_name', 'jv_type_field.value', 'c2.name as value_name', 'jv_type_field.is_open', 'jv_type_field.is_editable', 'jv_types.short_name', 'jv_types.name')
+	// 	// 	->get();
 
-		// foreach ($jv_types as $key => $jv_type) {
-		// 	if ($jv_type->is_open == 0 && $jv_type->is_editable == 0) {
-		// 		if ($jv_type->field_id == 1420 && $jv_type->value != NULL) {
-		// 			$this->data['journal'] = Journal::Join('jv_type_field', 'jv_type_field.value', 'journals.id')
-		// 				->select('journals.id', 'journals.name')
-		// 				->first();
-		// 			$this->data['journals_list'] = null;
-		// 		} elseif ($jv_type->field_id == 1421 && $jv_type->value != NULL) {
-		// 			$this->data['jv_account_type_list'] = null;
-		// 		} elseif ($jv_type->field_id == 1422 && $jv_type->value != NULL) {
-		// 			$this->data['jv_account_type_list'] = null;
-		// 		}
-		// 	} elseif ($jv_type->is_open == 1 && $jv_type->is_editable == 1) {
-		// 		if ($jv_type->field_id == 1420 && $jv_type->value == NULL) {
-		// 			$this->data['journals_list'] = collect(Journal::where('company_id', Auth::user()->company_id)->select('id', 'name')->get());
-		// 			$this->data['journal'] = null;
-		// 		} elseif ($jv_type->field_id == 1421 && $jv_type->value == NULL) {
-		// 			$this->data['jv_account_type_list'] = $jv_account_type_list = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
-		// 		} elseif ($jv_type->field_id == 1422 && $jv_type->value == NULL) {
-		// 			$this->data['jv_account_type_list'] = $jv_account_type_list = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
-		// 		}
-		// 	}
-		// }
-		// } else {
-		// 	$this->data['journal'] = null;
-		// 	$this->data['journals_list'] = null;
-		// 	$this->data['jv_types'] = null;
-		// 	$this->data['jv_account_type_list'] = null;
-		// }
+	// 	// foreach ($jv_types as $key => $jv_type) {
+	// 	// 	if ($jv_type->is_open == 0 && $jv_type->is_editable == 0) {
+	// 	// 		if ($jv_type->field_id == 1420 && $jv_type->value != NULL) {
+	// 	// 			$this->data['journal'] = Journal::Join('jv_type_field', 'jv_type_field.value', 'journals.id')
+	// 	// 				->select('journals.id', 'journals.name')
+	// 	// 				->first();
+	// 	// 			$this->data['journals_list'] = null;
+	// 	// 		} elseif ($jv_type->field_id == 1421 && $jv_type->value != NULL) {
+	// 	// 			$this->data['jv_account_type_list'] = null;
+	// 	// 		} elseif ($jv_type->field_id == 1422 && $jv_type->value != NULL) {
+	// 	// 			$this->data['jv_account_type_list'] = null;
+	// 	// 		}
+	// 	// 	} elseif ($jv_type->is_open == 1 && $jv_type->is_editable == 1) {
+	// 	// 		if ($jv_type->field_id == 1420 && $jv_type->value == NULL) {
+	// 	// 			$this->data['journals_list'] = collect(Journal::where('company_id', Auth::user()->company_id)->select('id', 'name')->get());
+	// 	// 			$this->data['journal'] = null;
+	// 	// 		} elseif ($jv_type->field_id == 1421 && $jv_type->value == NULL) {
+	// 	// 			$this->data['jv_account_type_list'] = $jv_account_type_list = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
+	// 	// 		} elseif ($jv_type->field_id == 1422 && $jv_type->value == NULL) {
+	// 	// 			$this->data['jv_account_type_list'] = $jv_account_type_list = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
+	// 	// 		}
+	// 	// 	}
+	// 	// }
+	// 	// } else {
+	// 	// 	$this->data['journal'] = null;
+	// 	// 	$this->data['journals_list'] = null;
+	// 	// 	$this->data['jv_types'] = null;
+	// 	// 	$this->data['jv_account_type_list'] = null;
+	// 	// }
 
-		return response()->json($this->data);
-	}
+	// 	return response()->json($this->data);
+	// }
 
 	public function viewJournalVoucher(Request $request) {
 		// dd($request->all());
@@ -455,17 +462,18 @@ class JournalVoucherController extends Controller {
 
 		return response()->json($this->data);
 	}
+	//ISSUE : COMMONLY USABLE ITEM NOT DEVELOPED REUSABLE CODE AND USED
+	// public function searchJVCustomer(Request $r) {
+	// 	return Customer::searchCustomer($r);
+	// }
 
-	public function searchJVCustomer(Request $r) {
-		return Customer::searchCustomer($r);
-	}
-
-	public function getJVCustomerDetails(Request $request) {
-		return Customer::getDetails($request);
-	}
+	//ISSUE : COMMONLY USABLE ITEM NOT DEVELOPED REUSABLE CODE AND USED
+	// public function getJVCustomerDetails(Request $request) {
+	// 	return Customer::getDetails($request);
+	// }
 
 	public function saveJournalVoucher(Request $request) {
-		// dd($request->all());
+		dd($request->all());
 		try {
 			$error_messages = [
 				'type_id.required' => 'JV Type is required',
@@ -674,133 +682,135 @@ class JournalVoucherController extends Controller {
 		}
 	}
 
-	public function getCustomerInvoice(Request $request) {
-		// dd($request->all());
-		$this->soapWrapper->add('Invoice', function ($service) {
-			$service
-				->wsdl('http://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
-				->trace(true);
-		});
-		//$request->docType;
-		$params = ['ACCOUNTNUM' => $request->accountNumber];
-		$getResult = $this->soapWrapper->call('Invoice.GetCustomerinvoice', [$params]);
-		$customer_invoice = json_decode($getResult->GetCustomerinvoiceResult, true);
+	//ISSUE : wrong place, not created reusable
+	// public function getCustomerInvoice(Request $request) {
+	// 	// dd($request->all());
+	// 	$this->soapWrapper->add('Invoice', function ($service) {
+	// 		$service
+	// 			->wsdl('http://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
+	// 			->trace(true);
+	// 	});
+	// 	//$request->docType;
+	// 	$params = ['ACCOUNTNUM' => $request->accountNumber];
+	// 	$getResult = $this->soapWrapper->call('Invoice.GetCustomerinvoice', [$params]);
+	// 	$customer_invoice = json_decode($getResult->GetCustomerinvoiceResult, true);
 
-		if (!empty($customer_invoice)) {
-			$datas = $customer_invoice['Table'];
-			if (!empty($datas)) {
-				// dd($datas);
-				foreach ($datas as $data) {
-					// dd($data);
+	// 	if (!empty($customer_invoice)) {
+	// 		$datas = $customer_invoice['Table'];
+	// 		if (!empty($datas)) {
+	// 			// dd($datas);
+	// 			foreach ($datas as $data) {
+	// 				// dd($data);
 
-					$outlet = Outlet::select('id')->where('code', $data['OUTLET'])->first();
-					$business = Sbu::select('id')->where('name', $data['BUSINESSUNIT'])->first();
-					// dd(Auth::user()->company_id, $request->accountNumber);
-					// dd($data['INVOICE']);
-					$invoice = Invoice::firstOrNew([
-						'invoice_number' => $data['INVOICE'],
-					]);
-					$invoice->customer_id = $request->customer_id;
-					$invoice->company_id = Auth::user()->company_id;
-					$invoice->invoice_number = $data['INVOICE'];
-					$invoice->invoice_date = $data['TRANSDATE'];
-					$invoice->invoice_amount = $data['AMOUNTCUR'];
-					$invoice->received_amount = $data['SETTLEAMOUNTCUR'];
-					$invoice->remarks = $data['TXT'];
-					$invoice->outlet_id = $outlet->id;
-					$invoice->sbu_id = $business->id;
-					$invoice->created_at = Carbon::now();
-					$invoice->updated_at = NULL;
+	// 				$outlet = Outlet::select('id')->where('code', $data['OUTLET'])->first();
+	// 				$business = Sbu::select('id')->where('name', $data['BUSINESSUNIT'])->first();
+	// 				// dd(Auth::user()->company_id, $request->accountNumber);
+	// 				// dd($data['INVOICE']);
+	// 				$invoice = Invoice::firstOrNew([
+	// 					'invoice_number' => $data['INVOICE'],
+	// 				]);
+	// 				$invoice->customer_id = $request->customer_id;
+	// 				$invoice->company_id = Auth::user()->company_id;
+	// 				$invoice->invoice_number = $data['INVOICE'];
+	// 				$invoice->invoice_date = $data['TRANSDATE'];
+	// 				$invoice->invoice_amount = $data['AMOUNTCUR'];
+	// 				$invoice->received_amount = $data['SETTLEAMOUNTCUR'];
+	// 				$invoice->remarks = $data['TXT'];
+	// 				$invoice->outlet_id = $outlet->id;
+	// 				$invoice->sbu_id = $business->id;
+	// 				$invoice->created_at = Carbon::now();
+	// 				$invoice->updated_at = NULL;
 
-					$invoice->save();
-				}
-			}
-		}
+	// 				$invoice->save();
+	// 			}
+	// 		}
+	// 	}
 
-		$invoices_lists = Invoice::select(
-			'invoices.id',
-			'invoices.invoice_number',
-			DB::raw('DATE_FORMAT(invoices.invoice_date,"%d/%m/%Y") as invoice_date'),
-			'outlets.code as outlet_name',
-			'sbus.name as business_name',
-			DB::raw('format((invoices.invoice_amount),0,"en_IN") as invoice_amount'),
-			DB::raw('format((invoices.received_amount),0,"en_IN") as received_amount'),
-			DB::raw('COALESCE(invoices.remarks, "--") as remarks'),
-			DB::raw('format((invoices.invoice_amount - invoices.received_amount),0,"en_IN") as balence_amount')
-		)
-			->leftjoin('outlets', 'outlets.id', 'invoices.outlet_id')
-			->leftjoin('sbus', 'sbus.id', 'invoices.sbu_id')
-			->where('customer_id', $request->customer_id)
-		// ->get()
-		;
-		// dd($invoices_lists);
-		return Datatables::of($invoices_lists)
-			->addColumn('child_checkbox', function ($invoices_list) {
-				// dd($data['INVOICE']);
-				$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $invoices_list->id . "' name='child_boxes' value='" . $invoices_list->invoice_number . "' class='jv_Checkbox'/><label for='child_" . $invoices_list->id . "'></label></div></td>";
+	// 	$invoices_lists = Invoice::select(
+	// 		'invoices.id',
+	// 		'invoices.invoice_number',
+	// 		DB::raw('DATE_FORMAT(invoices.invoice_date,"%d/%m/%Y") as invoice_date'),
+	// 		'outlets.code as outlet_name',
+	// 		'sbus.name as business_name',
+	// 		DB::raw('format((invoices.invoice_amount),0,"en_IN") as invoice_amount'),
+	// 		DB::raw('format((invoices.received_amount),0,"en_IN") as received_amount'),
+	// 		DB::raw('COALESCE(invoices.remarks, "--") as remarks'),
+	// 		DB::raw('format((invoices.invoice_amount - invoices.received_amount),0,"en_IN") as balence_amount')
+	// 	)
+	// 		->leftjoin('outlets', 'outlets.id', 'invoices.outlet_id')
+	// 		->leftjoin('sbus', 'sbus.id', 'invoices.sbu_id')
+	// 		->where('customer_id', $request->customer_id)
+	// 	// ->get()
+	// 	;
+	// 	// dd($invoices_lists);
+	// 	return Datatables::of($invoices_lists)
+	// 		->addColumn('child_checkbox', function ($invoices_list) {
+	// 			// dd($data['INVOICE']);
+	// 			$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $invoices_list->id . "' name='child_boxes' value='" . $invoices_list->invoice_number . "' class='jv_Checkbox'/><label for='child_" . $invoices_list->id . "'></label></div></td>";
 
-				return $checkbox;
-			})
-			->rawColumns(['child_checkbox'])
-			->make(true);
-	}
+	// 			return $checkbox;
+	// 		})
+	// 		->rawColumns(['child_checkbox'])
+	// 		->make(true);
+	// }
 
-	public function getCustomerReceipt(Request $request) {
-		// dd($request->all());
-		$this->soapWrapper->add('Receipt', function ($service) {
-			$service
-				->wsdl('http://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
-				->trace(true);
-		});
-		//$request->docType;
-		$params = ['ACCOUNTNUM' => $request->accountNumber, 'VOUCHER' => $request->receiptNumber];
-		$getResult = $this->soapWrapper->call('Receipt.GetCustomerReceipt', [$params]);
-		$customer_receipt = json_decode($getResult->GetCustomerReceiptResult, true);
+	//ISSUE :
+	// public function getCustomerReceipt(Request $request) {
+	// 	// dd($request->all());
+	// 	$this->soapWrapper->add('Receipt', function ($service) {
+	// 		$service
+	// 			->wsdl('http://tvsapp.tvs.in/MobileAPi/WebService1.asmx?wsdl')
+	// 			->trace(true);
+	// 	});
+	// 	//$request->docType;
+	// 	$params = ['ACCOUNTNUM' => $request->accountNumber, 'VOUCHER' => $request->receiptNumber];
+	// 	$getResult = $this->soapWrapper->call('Receipt.GetCustomerReceipt', [$params]);
+	// 	$customer_receipt = json_decode($getResult->GetCustomerReceiptResult, true);
 
-		if (!empty($customer_receipt)) {
-			$datas = $customer_receipt['Table'];
-			if (!empty($datas)) {
-				foreach ($datas as $data) {
-					$outlet = Outlet::select('id')->where('code', $data['OUTLET'])->first();
-					$business = Sbu::select('id')->where('name', $data['BUSINESSUNIT'])->first();
-					// dd(Auth::user()->company_id, $request->accountNumber);
-					$receipt = Receipt::firstOrNew([
-						'permanent_receipt_no' => $data['VOUCHER'],
-					]);
-					$receipt->company_id = Auth::user()->company_id;
-					$receipt->date = $data['DOCUMENTDATE'];
-					$receipt->outlet_id = $outlet->id;
-					$receipt->sbu_id = $business->id;
-					$receipt->description = $data['TXT'];
-					$receipt->permanent_receipt_no = $data['VOUCHER'];
-					$receipt->temporary_receipt_no = $data['VOUCHER'];
-					$receipt->amount = $data['AMOUNTMST'];
-					$receipt->settled_amount = $data['SETTLEAMOUNTMST'];
-					$receipt->balance_amount = $data['BALANCE'];
-					$receipt->save();
-				}
-				$receipts = Receipt::select(
-					'receipts.id',
-					'receipts.permanent_receipt_no as receipt_no',
-					'receipts.description',
-					'outlets.code as outlet_name',
-					'sbus.name as business_name',
-					'receipts.amount as available_amt',
-					'receipts.balance_amount as balance_amount',
-					DB::raw('DATE_FORMAT(receipts.date,"%d/%m/%Y") as receipt_date')
-				)
-					->leftjoin('outlets', 'outlets.id', 'receipts.outlet_id')
-					->leftjoin('sbus', 'sbus.id', 'receipts.sbu_id')
-					->where('permanent_receipt_no', $request->receiptNumber)
-					->first()
-				;
+	// 	if (!empty($customer_receipt)) {
+	// 		$datas = $customer_receipt['Table'];
+	// 		if (!empty($datas)) {
+	// 			foreach ($datas as $data) {
+	// 				$outlet = Outlet::select('id')->where('code', $data['OUTLET'])->first();
+	// 				$business = Sbu::select('id')->where('name', $data['BUSINESSUNIT'])->first();
+	// 				// dd(Auth::user()->company_id, $request->accountNumber);
+	// 				$receipt = Receipt::firstOrNew([
+	// 					'permanent_receipt_no' => $data['VOUCHER'],
+	// 				]);
+	// 				$receipt->company_id = Auth::user()->company_id;
+	// 				$receipt->date = $data['DOCUMENTDATE'];
+	// 				$receipt->outlet_id = $outlet->id;
+	// 				$receipt->sbu_id = $business->id;
+	// 				$receipt->description = $data['TXT'];
+	// 				$receipt->permanent_receipt_no = $data['VOUCHER'];
+	// 				$receipt->temporary_receipt_no = $data['VOUCHER'];
+	// 				$receipt->amount = $data['AMOUNTMST'];
+	// 				$receipt->settled_amount = $data['SETTLEAMOUNTMST'];
+	// 				$receipt->balance_amount = $data['BALANCE'];
+	// 				$receipt->save();
+	// 			}
+	// 			$receipts = Receipt::select(
+	// 				'receipts.id',
+	// 				'receipts.permanent_receipt_no as receipt_no',
+	// 				'receipts.description',
+	// 				'outlets.code as outlet_name',
+	// 				'sbus.name as business_name',
+	// 				'receipts.amount as available_amt',
+	// 				'receipts.balance_amount as balance_amount',
+	// 				DB::raw('DATE_FORMAT(receipts.date,"%d/%m/%Y") as receipt_date')
+	// 			)
+	// 				->leftjoin('outlets', 'outlets.id', 'receipts.outlet_id')
+	// 				->leftjoin('sbus', 'sbus.id', 'receipts.sbu_id')
+	// 				->where('permanent_receipt_no', $request->receiptNumber)
+	// 				->first()
+	// 			;
 
-				return response()->json(['receipts' => $receipts]);
-			}
-		} else {
-			return response()->json(['success' => false, 'errors' => ['No Receipts For this Customers!.']]);
-		}
-	}
+	// 			return response()->json(['receipts' => $receipts]);
+	// 		}
+	// 	} else {
+	// 		return response()->json(['success' => false, 'errors' => ['No Receipts For this Customers!.']]);
+	// 	}
+	// }
 
 	public function deleteJournalVoucher(Request $request) {
 		// dd($request->all());

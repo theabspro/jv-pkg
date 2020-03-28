@@ -263,7 +263,7 @@ app.component('journalVoucherList', {
 //------------------------------------------------------------------------------------------------------------------------
 app.component('journalVoucherForm', {
     templateUrl: journal_voucher_form_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $q) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         if (!self.hasPermission('add-journal-voucher') || !self.hasPermission('edit-journal-voucher')) {
@@ -280,19 +280,20 @@ app.component('journalVoucherForm', {
                 'id': typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
             }
         }).then(function(response) {
-            console.log(response.data);
             self.jv = response.data.journal_voucher;
             self.jv_type_list = response.data.jv_type_list;
             self.journal_list = response.data.journal_list;
             self.account_type_list = response.data.account_type_list;
             self.action = response.data.action;
             $rootScope.loading = false;
+
             if (self.action == 'Edit') {
-                if (self.jv.deleted_at) {
-                    self.switch_value = 'Inactive';
-                } else {
-                    self.switch_value = 'Active';
-                }
+                //ISSUE : unwanted code
+                // if (self.jv.deleted_at) {
+                //     self.switch_value = 'Inactive';
+                // } else {
+                //     self.switch_value = 'Active';
+                // }
 
                 // $scope.onSelectedJVType(self.jv.type_id);
                 // setTimeout(function() {
@@ -335,49 +336,16 @@ app.component('journalVoucherForm', {
                 // }
             } else {
                 // self.edit_addFromButton = false;
-                self.jv_receipts = [];
-                self.switch_value = 'Active';
+                // self.jv_receipts = [];
+                // self.switch_value = 'Active';
                 // $("input[name=transfer_type][value=invoice]").trigger('click').prop('checked', true);
             }
-        });
-
-        //ATTACHMENT REMOVE
-        $(document).on('click', ".main-wrap .imageuploadify-container .imageuploadify-btn-remove button", function() {
-            var attachment_id = $(this).parent().parent().data('attachment_id');
-            attachment_removal_ids.push(attachment_id);
-            $('#attachment_removal_ids').val(JSON.stringify(attachment_removal_ids));
-            $(this).parent().parent().remove();
-        });
-
-        /* Tab Funtion */
-        $('.btn-nxt').on("click", function() {
-            $('.cndn-tabs li.active').next().children('a').trigger("click");
-            tabPaneFooter();
-        });
-        $('.btn-prev').on("click", function() {
-            $('.cndn-tabs li.active').prev().children('a').trigger("click");
-            tabPaneFooter();
-        });
-        $('.btn-pills').on("click", function() {
-            tabPaneFooter();
-        });
-
-        /* Image Uploadify Funtion */
-        $('.image_uploadify').imageuploadify();
-
-        /* JV DatePicker*/
-        $('.jvDatePicker').bootstrapDP({
-            format: "dd-mm-yyyy",
-            autoclose: "true",
-            todayHighlight: true,
-            // startDate: min_offset,
-            // endDate: max_offset
         });
 
         //SELECT JV TYPE GET JOURNAL && FROM ACC && TO ACC 
         $scope.jvTypeChanged = function($id) {
             $http.get(
-                laravel_routes['getJV'], {
+                laravel_routes['getJVType'], {
                     params: {
                         id: $id,
                     }
@@ -421,490 +389,698 @@ app.component('journalVoucherForm', {
             });
         }
 
-        $scope.onSelectedFromAcc = function($selected_fromValue) {
-            if ($selected_fromValue == 1440) {
-                self.jv.from_name = "Customer";
-                self.jv.from_id = 1440;
-            } else if ($selected_fromValue == 1441) {
-                self.jv.from_name = 'Vendor';
-                self.jv.from_id = 1441;
-            } else if ($selected_fromValue == 1442) {
-                self.jv.from_name = 'Ledger';
-                self.jv.from_id = 1442;
-            }
-            var fromAccount_value = $selected_fromValue;
-            // alert(fromAccount_value);
-            if (fromAccount_value != '') {
-                self.fromAcc_field = false;
-            } else if (fromAccount_value == '') {
-                self.fromAcc_field = true;
-            }
-        }
-
-        $scope.onSelectedToAcc = function($selected_toValue) {
-            if ($selected_toValue == 1440) {
-                self.jv.to_name = 'Customer';
-                self.jv.to_id = 1440;
-            } else if ($selected_toValue == 1441) {
-                self.jv.to_name = 'Vendor';
-                self.jv.to_id = 1441;
-            } else if ($selected_toValue == 1442) {
-                self.jv.to_name = 'Ledger';
-                self.jv.to_id = 1442;
-            }
-            var toAccount_value = $selected_toValue;
-            // alert(toAccount_value);
-            if (toAccount_value != '') {
-                self.toAcc_field = false;
-            } else if (toAccount_value == '') {
-                self.toAcc_field = true;
-            }
-        }
-
-        //JOURNAL 
-        $scope.onSelectedJournal = function($id) {
-            console.log($id);
-            if ($id) {
-                angular.forEach(self.journals_list, function(value, key) {
-                    if (value.id = $id) {
-                        self.jv.journal_name = value.name;
-                    }
-                });
-                // console.log(self.jv.journal_name);
-            }
-            $scope.$apply();
-        }
-
+        self.searchCustomer = $rootScope.searchCustomer;
+        //ISSUE : THIS IS REUSABLE CODE SHOULD PLACED IN COMMON
         //SEARCH CUSTOMER
-        self.searchCustomer = function(query) {
-            if (query) {
-                return new Promise(function(resolve, reject) {
-                    $http
-                        .post(
-                            // search_customer_url, {
-                            laravel_routes['searchJVCustomer'], {
-                                key: query,
-                            }
-                        )
-                        .then(function(response) {
-                            resolve(response.data);
-                        });
-                    //reject(response);
-                });
-            } else {
-                return [];
-            }
-        }
-        //GET CUSTOMER DETAILS
-        // if(self.action == 'Edit'){
-        $scope.getCustomerDetails = function(value) {
-            console.log(value);
-            if (value == 'fromAcc' && self.jv.from_customer == null) {
-                return
-            } else if (value == 'fromAcc' && self.jv.from_customer != null) {
-                $transferType = self.jv.from_customer.id;
-            }
-            if (value == 'toAcc' && self.jv.to_customer == null) {
-                return
-            } else if (value == 'toAcc' && self.jv.to_customer != null) {
-                $transferType = self.jv.to_customer.id;
-            }
-            //console.log($transferType);
-            if ($transferType) {
-                $http.post(
-                    laravel_routes['getJVCustomerDetails'], {
-                        value: value,
-                        customer_id: $transferType,
-                    }
-                ).then(function(response) {
-                    //console.log(response.data);
-                    if (response.data.success) {
-                        if (response.data.transfer_type == 'FromAccount') {
-                            self.fromAccountCustomer = response.data.customer;
-                        } else if (response.data.transfer_type == 'ToAccount') {
-                            self.toAccountCustomer = response.data.customer;
-                        }
-                    } else {
-                        custom_noty('error', response.data.error);
-                    }
-                });
-            }
-        }
+        // self.searchCustomer = function(query) {
+        //     //ISSUE : UNWANTED AJAX CALLS
+        //     // if (query) {
+        //     if (query && query.length > 2) {
+        //         promise = new Promise(function(resolve, reject) {
+        //             $http
+        //                 .post(
+        //                     laravel_routes['searchCustomer'], {
+        //                         key: query
+        //                     },
+        //                 )
+        //                 .then(function(response) {
+        //                     resolve(response.data);
+        //                 });
+        //         });
+        //         return promise;
+        //     } else {
+        //         return [];
+        //     }
         // }
 
-        self.customerChanged = function(value) { //console.log(value);
-            if (value == 'fromAcc') {
-                self.fromAccountCustomer = {};
-                self.checkedFromAcc = false;
-                // self.checked_fromList = false;
-                self.check_List = false;
+        //ISSUE : Wrong variable name : value
+        //GET CUSTOMER DETAILS
+        $scope.customerSelected = function(type) {
+            if (type == 'fromAcc') {
+                var res = $rootScope.getCustomer(self.from_account.id).then(function(res) {
+                    console.log(res.data);
+                    if (!res.data.success) {
+                        custom_noty('error', res.data.error);
+                        return;
+                    }
+                    self.jv.from_account = res.data.customer
+                });
             } else {
-                self.toAccountCustomer = {};
-                self.checkedToAcc = false;
-                // self.checked_toList = false;
+                var res = $rootScope.getCustomer(self.to_account.id).then(function(res) {
+                    if (!res.data.success) {
+                        custom_noty('error', res.data.error);
+                        return;
+                    }
+                    self.jv.to_account = res.data.customer
+                });
+            }
+        }
+
+        // $scope.getCustomerDetails = function(value) {
+        //     console.log(value);
+        //     if (value == 'fromAcc' && self.jv.from_customer == null) {
+        //         return
+        //     } else if (value == 'fromAcc' && self.jv.from_customer != null) {
+        //ISSUE : Wrong variable name : $transferType
+        //         $transferType = self.jv.from_customer.id;
+        //     }
+        //     if (value == 'toAcc' && self.jv.to_customer == null) {
+        //         return
+        //     } else if (value == 'toAcc' && self.jv.to_customer != null) {
+        //         $transferType = self.jv.to_customer.id;
+        //     }
+        //     //console.log($transferType);
+        //     if ($transferType) {
+        //         $http.post(
+        //             laravel_routes['getJVCustomerDetails'], {
+        //                 value: value,
+        //                 customer_id: $transferType,
+        //             }
+        //         ).then(function(response) {
+        //             //console.log(response.data);
+        //             if (response.data.success) {
+        //                 if (response.data.transfer_type == 'FromAccount') {
+        //                     self.fromAccountCustomer = response.data.customer;
+        //                 } else if (response.data.transfer_type == 'ToAccount') {
+        //                     self.toAccountCustomer = response.data.customer;
+        //                 }
+        //             } else {
+        //                 custom_noty('error', response.data.error);
+        //             }
+        //         });
+        //     }
+        // }
+
+        // }
+
+        //10258258
+        //AL20ST0413865
+        //AL20ST0467838
+
+        self.getReceipt = function($for) {
+            if ($for == 'from') {
+                if (!self.from_receipt_no) {
+                    custom_noty('error', 'Please enter receipt number');
+                    $('#from_receipt_no').focus();
+                    return;
+                }
+                if (!self.jv.from_account) {
+                    custom_noty('error', 'Please select from account code');
+                    return;
+                }
+                var account_code = self.jv.from_account.code;
+                var receipt_number = self.from_receipt_no;
+            } else {
+                if (!self.to_receipt_no) {
+                    custom_noty('error', 'Please enter receipt number');
+                    $('#to_receipt_no').focus();
+                    return;
+                }
+                if (!self.jv.to_account) {
+                    custom_noty('error', 'Please select to account code');
+                    return;
+                }
+                var account_code = self.jv.to_account.code;
+                var receipt_number = self.to_receipt_no;
+            }
+
+            $http.get(
+                laravel_routes['getReceipts'], {
+                    params: {
+                        account_code: account_code,
+                        receipt_number: receipt_number,
+                        limit: 1,
+                    }
+                }
+            ).then(function(response) {
+                if (!response.data.success) {
+                    custom_noty('error', response.data.error);
+                    return;
+                }
+                self.jv.receipts.push(response.data.receipt);
+                self.jv.total_receipt_amount = parseFloat(self.jv.total_receipt_amount) + parseFloat(response.data.receipt.balance_amount);
+                self.from_receipt_no = '';
+                self.to_receipt_no = '';
+            });
+        }
+
+        //REMOVE SERVICE INVOICE ITEM
+        $scope.removeReceipt = function(index) {
+            //ISSUE : Wrong logic
+            // self.jv_receipt_removal_id = [];
+            // if (buttonId == 'add_fromAcc') {
+            //     $('#from_receipt_number').val('');
+            // } else if (buttonId == 'add_toAcc') {
+            //     $('#to_receipt_number').val('');
+            // }
+            // if (receipt_id) {
+            //     self.jv_receipt_removal_id.push(receipt_id);
+            //     $('#jv_receipt_removal_ids').val(JSON.stringify(self.jv_receipt_removal_id));
+            // }
+            self.jv.total_receipt_amount -= parseFloat(self.jv.receipts[index].balence_amount);
+
+            self.jv.receipts.splice(index, 1);
+        }
+
+        //10258258
+        //AL20ST0413865
+        //AL20ST0467838
+
+        $scope.getInvoices = function($for) {
+            if ($for == 'from') {
+                if (!self.jv.from_account) {
+                    custom_noty('error', 'Please select from account code');
+                    return;
+                }
+                var account_id = self.jv.from_account.id;
+                var dataTable_id = '#from_invoices_table';
+            } else {
+                if (!self.jv.to_account) {
+                    custom_noty('error', 'Please select to account code');
+                    return;
+                }
+                var account_id = self.jv.to_account.id;
+                var dataTable_id = '#to_invoices_table';
+            }
+
+            $http.get(
+                laravel_routes['getInvoices'], {
+                    params: {
+                        account_id: account_id,
+                    }
+                }
+            ).then(function(response) {
+                if (!response.data.success) {
+                    custom_noty('error', response.data.error);
+                    return;
+                }
+                self.jv.invoices = response.data.invoices;
+            });
+
+            // var dataTable;
+            // var table_scroll;
+            // table_scroll = $('.page-main-content.list-page-content').height() - 37;
+            // $(dataTable_id).DataTable().destroy();
+            // dataTable = $(dataTable_id).DataTable({
+            //     "language": {
+            //         "paginate": {
+            //             "next": '<i class="icon ion-ios-arrow-forward"></i>',
+            //             "previous": '<i class="icon ion-ios-arrow-back"></i>'
+            //         },
+            //     },
+            //     scrollX: true,
+            //     scrollY: table_scroll + "px",
+            //     scrollCollapse: true,
+            //     stateSave: true,
+            //     deferRender: true,
+            //     stateSaveCallback: function(settings, data) {
+            //         localStorage.setItem('SIDataTables_' + settings.sInstance, JSON.stringify(data));
+            //     },
+            //     stateLoadCallback: function(settings) {
+            //         var state_save_val = JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
+            //         if (state_save_val) {
+            //             $('#search').val(state_save_val.search.search);
+            //         }
+            //         return JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
+            //     },
+            //     // processing: true,
+            //     // serverSide: true,
+            //     paging: true,
+            //     // searching: false,
+            //     // ordering: false,
+            //     retrieve: true,
+            //     ajax: {
+            //         url: laravel_routes['getInvoices'],
+            //         type: "GET",
+            //         dataType: "json",
+            //         data: function(d) {
+            //             d.account_id = account_id;
+            //         },
+            //     },
+
+            //     columns: [
+            //         { data: 'child_checkbox', searchable: false },
+            //         { data: 'invoice_number', searchable: true },
+            //         { data: 'invoice_date', name: 'TRANSDATE', searchable: false },
+            //         { data: 'invoice_amount', class: 'text-right' },
+            //         { data: 'received_amount', class: 'text-right' },
+            //         { data: 'balence_amount', class: 'text-right' },
+            //         { data: 'outlet_name', name: 'outlets.code', searchable: true },
+            //         { data: 'business_name', name: 'sbus.name', searchable: true },
+            //         { data: 'remarks', name: 'remarks', searchable: true },
+            //     ],
+            //     "initComplete": function(settings, json) {
+            //         // $('.dataTables_length select').select2();
+            //     },
+            //     rowCallback: function(row, data) {
+            //         $(row).addClass('highlight-row');
+            //     },
+            //     infoCallback: function(settings, start, end, max, total, pre) {
+            //         // $('#table_info').html(total)
+            //         $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
+            //     },
+            // });
+        }
+
+
+        //ATTACHMENT REMOVE
+        $(document).on('click', ".main-wrap .imageuploadify-container .imageuploadify-btn-remove button", function() {
+            var attachment_id = $(this).parent().parent().data('attachment_id');
+            attachment_removal_ids.push(attachment_id);
+            $('#attachment_removal_ids').val(JSON.stringify(attachment_removal_ids));
+            $(this).parent().parent().remove();
+        });
+
+        //ISSUE : Common script
+        /* Tab Funtion */
+        // $('.btn-nxt').on("click", function() {
+        //     $('.cndn-tabs li.active').next().children('a').trigger("click");
+        //     tabPaneFooter();
+        // });
+        // $('.btn-prev').on("click", function() {
+        //     $('.cndn-tabs li.active').prev().children('a').trigger("click");
+        //     tabPaneFooter();
+        // });
+        // $('.btn-pills').on("click", function() {
+        //     tabPaneFooter();
+        // });
+
+        /* Image Uploadify Funtion */
+        $('.image_uploadify').imageuploadify();
+
+        /* JV DatePicker*/
+        $('.jvDatePicker').bootstrapDP({
+            format: "dd-mm-yyyy",
+            autoclose: "true",
+            todayHighlight: true,
+            // startDate: min_offset,
+            // endDate: max_offset
+        });
+
+        //ISSUE : wrong way of dev
+        // $scope.onSelectedFromAcc = function($selected_fromValue) {
+        //     if ($selected_fromValue == 1440) {
+        //         self.jv.from_name = "Customer";
+        //         self.jv.from_id = 1440;
+        //     } else if ($selected_fromValue == 1441) {
+        //         self.jv.from_name = 'Vendor';
+        //         self.jv.from_id = 1441;
+        //     } else if ($selected_fromValue == 1442) {
+        //         self.jv.from_name = 'Ledger';
+        //         self.jv.from_id = 1442;
+        //     }
+        //     var fromAccount_value = $selected_fromValue;
+        //     // alert(fromAccount_value);
+        //     if (fromAccount_value != '') {
+        //         self.fromAcc_field = false;
+        //     } else if (fromAccount_value == '') {
+        //         self.fromAcc_field = true;
+        //     }
+        // }
+
+        // $scope.onSelectedToAcc = function($selected_toValue) {
+        //     if ($selected_toValue == 1440) {
+        //         self.jv.to_name = 'Customer';
+        //         self.jv.to_id = 1440;
+        //     } else if ($selected_toValue == 1441) {
+        //         self.jv.to_name = 'Vendor';
+        //         self.jv.to_id = 1441;
+        //     } else if ($selected_toValue == 1442) {
+        //         self.jv.to_name = 'Ledger';
+        //         self.jv.to_id = 1442;
+        //     }
+        //     var toAccount_value = $selected_toValue;
+        //     // alert(toAccount_value);
+        //     if (toAccount_value != '') {
+        //         self.toAcc_field = false;
+        //     } else if (toAccount_value == '') {
+        //         self.toAcc_field = true;
+        //     }
+        // }
+
+        //ISSUE : unwanted code
+        // //JOURNAL 
+        // $scope.onSelectedJournal = function($id) {
+        //     console.log($id);
+        //     if ($id) {
+        //         angular.forEach(self.journals_list, function(value, key) {
+        //             if (value.id = $id) {
+        //                 self.jv.journal_name = value.name;
+        //             }
+        //         });
+        //         // console.log(self.jv.journal_name);
+        //     }
+        // }
+
+        // if (self.jv_types != null) {
+        //     if (self.jv_types[1].value != null && self.jv_types[1].value == 1440) {
+        //         self.fromAcc_field = false;
+        //         // } else if(self.jv_types[1].value != null && self.jv_types[1].value == 1441) {
+
+        //         // } else if(self.jv_types[1].value != null && self.jv_types[1].value == 1442) {
+
+        //     } else if (self.jv_types[2].value != null && self.jv_types[2].value == 1440) {
+        //         self.toAcc_field = false;
+        //         // } else if(self.jv_types[2].value != null && self.jv_types[2].value == 1441) {
+
+        //         // } else if(self.jv_types[2].value != null && self.jv_types[2].value == 1442) {
+
+        //     }
+        // } else if (self.jv_types == null) {
+        //     self.fromAcc_field = true;
+        //     self.toAcc_field = true;
+        // }
+
+        // if ($("input[name='transfer_type']").is(":checked") == false) {
+        //     //console.log('no-change');
+        //     self.search_FromButton = false;
+        //     self.search_ToButton = false;
+        //     self.add_FromReceipt = false;
+        //     self.add_ToReceipt = false;
+        //     self.add_FromButton = false;
+        //     self.add_ToButton = false;
+        // }
+        // $("input[name='transfer_type']:radio").change(function() {
+        //     //alert('radio');
+        //     if ($(this).val() == 'invoice') {
+        //         self.search_FromButton = true;
+        //         self.checkedFromAcc = true;
+        //         self.search_ToButton = false;
+        //         self.add_FromReceipt = false;
+        //         self.add_FromButton = false;
+        //         self.add_ToButton = true;
+        //         self.add_ToReceipt = true;
+        //     } else if ($(this).val() == 'receipt') {
+        //         self.search_FromButton = false;
+        //         self.checkedFromAcc = false;
+        //         self.search_ToButton = true;
+        //         self.add_FromReceipt = true;
+        //         self.add_FromButton = true;
+        //         self.add_ToButton = false;
+        //         self.add_ToReceipt = false;
+        //     }
+        //     // $scope.$apply();
+        // });
+
+
+        $('#parent_checkbox').on('click', function() {
+            if (this.checked) {
+                self.check_List = true;
+                //console.log(self.checked_fromList);
+                $('.jv_Checkbox').each(function() {
+                    this.checked = true;
+                });
+                self.added_Title = 'Invoices added';
+                self.checked_Count = $('.jv_Checkbox:checked').length;
+                if ($('.jv_Checkbox:checked').length > 0) {
+                    var selected_List = []
+                    // var checked_invoices;
+                    $('input[name="child_boxes"]:checked').each(function() {
+                        selected_List.push(this.value);
+                    });
+                    self.checked_List = selected_List.join(', ');
+                    console.log(self.checked_List);
+                }
+            } else { //console.log('uncheckParent');
                 self.check_List = false;
-            }
-            // self.customer = {};
-        }
-        if (self.jv_types != null) {
-            if (self.jv_types[1].value != null && self.jv_types[1].value == 1440) {
-                self.fromAcc_field = false;
-                // } else if(self.jv_types[1].value != null && self.jv_types[1].value == 1441) {
-
-                // } else if(self.jv_types[1].value != null && self.jv_types[1].value == 1442) {
-
-            } else if (self.jv_types[2].value != null && self.jv_types[2].value == 1440) {
-                self.toAcc_field = false;
-                // } else if(self.jv_types[2].value != null && self.jv_types[2].value == 1441) {
-
-                // } else if(self.jv_types[2].value != null && self.jv_types[2].value == 1442) {
-
-            }
-        } else if (self.jv_types == null) {
-            self.fromAcc_field = true;
-            self.toAcc_field = true;
-        }
-
-        if ($("input[name='transfer_type']").is(":checked") == false) {
-            //console.log('no-change');
-            self.search_FromButton = false;
-            self.search_ToButton = false;
-            self.add_FromReceipt = false;
-            self.add_ToReceipt = false;
-            self.add_FromButton = false;
-            self.add_ToButton = false;
-        }
-        $("input[name='transfer_type']:radio").change(function() {
-            //alert('radio');
-            if ($(this).val() == 'invoice') {
-                self.search_FromButton = true;
-                self.checkedFromAcc = true;
-                self.search_ToButton = false;
-                self.add_FromReceipt = false;
-                self.add_FromButton = false;
-                self.add_ToButton = true;
-                self.add_ToReceipt = true;
-            } else if ($(this).val() == 'receipt') {
-                self.search_FromButton = false;
-                self.checkedFromAcc = false;
-                self.search_ToButton = true;
-                self.add_FromReceipt = true;
-                self.add_FromButton = true;
-                self.add_ToButton = false;
-                self.add_ToReceipt = false;
+                self.added_Title = '';
+                self.checked_Count = $('.jv_Checkbox:checked').length;
+                self.checked_List = '';
+                $('.jv_Checkbox').each(function() {
+                    this.checked = false;
+                });
             }
             // $scope.$apply();
         });
-
         // $(documen).ready(function () {
-        $(document).on("click", '.button', function(e) {
-
-            console.log(self.action);
-            // alert($(this).attr('id'));
-            var buttonId = $(this).attr('id');
-            // console.log(buttonId);
-            $(buttonId).button('loading');
-            // $('#search_fromAcc').on('click', function() {
-            // $('#search_fromAcc').button('loading');
-            if ($("input[name='transfer_type']").is(":checked") == false) {
-                $(buttonId).button('reset');
-                $noty = new Noty({
-                    type: 'error',
-                    layout: 'topRight',
-                    text: 'Choose Transfer Document Type',
-                }).show();
-            }
-            if (buttonId == 'search_fromAcc') {
-                if ($('.fromAcc').val() == '') {
-                    $(buttonId).button('reset');
-                    $noty = new Noty({
-                        type: 'error',
-                        layout: 'topRight',
-                        text: 'Please Enter From Account Code',
-                    }).show();
-                }
-            } else if (buttonId == 'search_toAcc') {
-                if ($('.toAcc').val() == '') {
-                    $(buttonId).button('reset');
-                    $noty = new Noty({
-                        type: 'error',
-                        layout: 'topRight',
-                        text: 'Please Enter To Account Code',
-                    }).show();
-                }
-            } else if (buttonId == 'add_fromAcc') {
-                if ($('.fromAcc').val() == '') {
-                    $(buttonId).button('reset');
-                    $noty = new Noty({
-                        type: 'error',
-                        layout: 'topRight',
-                        text: 'Please Enter From Account Code',
-                    }).show();
-                }
-                if ($('#from_receipt_number').val() == '') {
-                    $(buttonId).button('reset');
-                    $noty = new Noty({
-                        type: 'error',
-                        layout: 'topRight',
-                        text: 'Please Enter Receipt Number',
-                    }).show();
-                }
-            } else if (buttonId == 'add_toAcc') {
-                if ($('.toAcc').val() == '') {
-                    $(buttonId).button('reset');
-                    $noty = new Noty({
-                        type: 'error',
-                        layout: 'topRight',
-                        text: 'Please Enter To Account Code',
-                    }).show();
-                }
-                if ($('#to_receipt_number').val() == '') {
-                    $(buttonId).button('reset');
-                    $noty = new Noty({
-                        type: 'error',
-                        layout: 'topRight',
-                        text: 'Please Enter Receipt Number',
-                    }).show();
-                }
-            }
+        // ISSUE : NG not used
+        // $(document).on("click", '.button', function(e) {
 
 
-            $(buttonId).button('reset');
-            if (($("input[name='transfer_type']").is(":checked") == true) && ($('.fromAcc').val() != '' || $('.toAcc').val() != '')) {
-                if (buttonId == 'search_fromAcc' || buttonId == 'search_toAcc') {
-                    console.log('searchButton');
-                    if (buttonId == 'search_fromAcc') {
-                        self.checkedFromAcc = true;
-                        $('.fromAcc_Title').html('Invoices');
-                        var from_AccHeads = '<th><div class="table-checkbox"><input type="checkbox" id="parent_checkbox" /><label for="parent_checkbox"></label></div></th><th>Invoice No</th><th>Invoice Date</th><th>Description</th><th>Outlet</th><th>Business Unit</th><th>Invoiced Amount</th><th>Balance Amount</th>';
-                        $('#from_AccountList').html(from_AccHeads);
-                    } else if (buttonId == 'search_toAcc') {
-                        self.checkedToAcc = true;
-                        $('.toAcc_Title').html('Invoices');
-                        var to_AccHeads = '<th><div class="table-checkbox"><input type="checkbox" id="parent_checkbox" /><label for="parent_checkbox"></label></div></th><th>Invoice No</th><th>Invoice Date</th><th>Description</th><th>Outlet</th><th>Business Unit</th><th>Invoiced Amount</th><th>Balance Amount</th>';
-                        console.log(to_AccHeads);
-                        $('#to_AccountList').html(to_AccHeads);
-                    }
-                    /*Uncheck the checkbox in list page*/
-                    $('#parent_checkbox').prop('checked', false);
-                    $('.jv_Checkbox').each(function() {
-                        this.checked = false;
-                    });
 
-                    if (buttonId == 'search_fromAcc') {
-                        var dataTable_id = '#jv_FromAccList';
-                        var customer_code = $('.fromAccCode').val();
-                    } else if (buttonId == 'search_toAcc') {
-                        var dataTable_id = '#jv_ToAccList';
-                        var customer_code = $('.toAccCode').val();
-                    }
+        //     // console.log(self.action);
+        //     // // alert($(this).attr('id'));
+        //     // var buttonId = $(this).attr('id');
+        //     // // console.log(buttonId);
+        //     // $(buttonId).button('loading');
+        //     // $('#search_fromAcc').on('click', function() {
+        //     // $('#search_fromAcc').button('loading');
+        //     // if ($("input[name='transfer_type']").is(":checked") == false) {
+        //     //     $(buttonId).button('reset');
+        //     //     $noty = new Noty({
+        //     //         type: 'error',
+        //     //         layout: 'topRight',
+        //     //         text: 'Choose Transfer Document Type',
+        //     //     }).show();
+        //     // }
+        //     // if (buttonId == 'search_fromAcc') {
+        //     //     if ($('.fromAcc').val() == '') {
+        //     //         $(buttonId).button('reset');
+        //     //         $noty = new Noty({
+        //     //             type: 'error',
+        //     //             layout: 'topRight',
+        //     //             text: 'Please Enter From Account Code',
+        //     //         }).show();
+        //     //     }
+        //     // } else if (buttonId == 'search_toAcc') {
+        //     //     if ($('.toAcc').val() == '') {
+        //     //         $(buttonId).button('reset');
+        //     //         $noty = new Noty({
+        //     //             type: 'error',
+        //     //             layout: 'topRight',
+        //     //             text: 'Please Enter To Account Code',
+        //     //         }).show();
+        //     //     }
+        //     // } else if (buttonId == 'add_fromAcc') {
+        //     //     if ($('.fromAcc').val() == '') {
+        //     //         $(buttonId).button('reset');
+        //     //         $noty = new Noty({
+        //     //             type: 'error',
+        //     //             layout: 'topRight',
+        //     //             text: 'Please Enter From Account Code',
+        //     //         }).show();
+        //     //     }
+        //     //     if ($('#from_receipt_number').val() == '') {
+        //     //         $(buttonId).button('reset');
+        //     //         $noty = new Noty({
+        //     //             type: 'error',
+        //     //             layout: 'topRight',
+        //     //             text: 'Please Enter Receipt Number',
+        //     //         }).show();
+        //     //     }
+        //     // } else if (buttonId == 'add_toAcc') {
+        //     //     if ($('.toAcc').val() == '') {
+        //     //         $(buttonId).button('reset');
+        //     //         $noty = new Noty({
+        //     //             type: 'error',
+        //     //             layout: 'topRight',
+        //     //             text: 'Please Enter To Account Code',
+        //     //         }).show();
+        //     //     }
+        //     //     if ($('#to_receipt_number').val() == '') {
+        //     //         $(buttonId).button('reset');
+        //     //         $noty = new Noty({
+        //     //             type: 'error',
+        //     //             layout: 'topRight',
+        //     //             text: 'Please Enter Receipt Number',
+        //     //         }).show();
+        //     //     }
+        //     // }
 
-                    // $(dataTable_id).DataTable().ajax.reload(function(json) {});
-                    setTimeout(function() {
-                        // e.preventDefault();
-                        // alert();
-                        var dataTable;
-                        var table_scroll;
-                        table_scroll = $('.page-main-content.list-page-content').height() - 37;
-                        dataTable = $(dataTable_id).DataTable({
-                            // "dom": cndn_dom_structure,
-                            "language": {
-                                // "search": "",
-                                // "searchPlaceholder": "Search",
-                                // "lengthMenu": "Rows _MENU_",
-                                "paginate": {
-                                    "next": '<i class="icon ion-ios-arrow-forward"></i>',
-                                    "previous": '<i class="icon ion-ios-arrow-back"></i>'
-                                },
-                            },
-                            scrollX: true,
-                            scrollY: table_scroll + "px",
-                            scrollCollapse: true,
-                            stateSave: true,
-                            stateSaveCallback: function(settings, data) {
-                                localStorage.setItem('SIDataTables_' + settings.sInstance, JSON.stringify(data));
-                            },
-                            stateLoadCallback: function(settings) {
-                                var state_save_val = JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
-                                if (state_save_val) {
-                                    $('#search').val(state_save_val.search.search);
-                                }
-                                return JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
-                            },
-                            processing: true,
-                            serverSide: true,
-                            paging: true,
-                            searching: false,
-                            ordering: false,
-                            retrieve: true,
-                            ajax: {
-                                url: laravel_routes['getCustomerInvoice'],
-                                type: "GET",
-                                dataType: "json",
-                                data: function(d) {
-                                    d.accountNumber = customer_code;
-                                    d.customer_id = $('.fromAcc').val();
-                                    // d.docType = $("input[name='transfer_type']:checked").val();
-                                },
-                            },
 
-                            columns: [
-                                { data: 'child_checkbox', searchable: false },
-                                { data: 'invoice_number', searchable: true },
-                                { data: 'invoice_date', name: 'TRANSDATE', searchable: false },
-                                { data: 'remarks', name: 'remarks', searchable: false },
-                                { data: 'outlet_name', name: 'outlets.code', searchable: true },
-                                { data: 'business_name', name: 'sbus.name', searchable: true },
-                                { data: 'invoice_amount', name: 'invoices.invoice_amount', searchable: true, class: 'text-right' },
-                                { data: 'balence_amount', name: 'Balance', searchable: false, class: 'text-right' },
-                            ],
-                            "initComplete": function(settings, json) {
-                                // $('.dataTables_length select').select2();
-                            },
-                            rowCallback: function(row, data) {
-                                $(row).addClass('highlight-row');
-                            },
-                            infoCallback: function(settings, start, end, max, total, pre) {
-                                // $('#table_info').html(total)
-                                $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
-                            },
-                        });
+        //     // $(buttonId).button('reset');
+        //     if (($("input[name='transfer_type']").is(":checked") == true) && ($('.fromAcc').val() != '' || $('.toAcc').val() != '')) {
+        //         if (buttonId == 'search_fromAcc' || buttonId == 'search_toAcc') {
+        //             // console.log('searchButton');
+        //             // if (buttonId == 'search_fromAcc') {
+        //             //     self.checkedFromAcc = true;
+        //             //     $('.fromAcc_Title').html('Invoices');
+        //             //     var from_AccHeads = '<th><div class="table-checkbox"><input type="checkbox" id="parent_checkbox" /><label for="parent_checkbox"></label></div></th><th>Invoice No</th><th>Invoice Date</th><th>Description</th><th>Outlet</th><th>Business Unit</th><th>Invoiced Amount</th><th>Balance Amount</th>';
+        //             //     $('#from_AccountList').html(from_AccHeads);
+        //             // } else if (buttonId == 'search_toAcc') {
+        //             //     self.checkedToAcc = true;
+        //             //     $('.toAcc_Title').html('Invoices');
+        //             //     var to_AccHeads = '<th><div class="table-checkbox"><input type="checkbox" id="parent_checkbox" /><label for="parent_checkbox"></label></div></th><th>Invoice No</th><th>Invoice Date</th><th>Description</th><th>Outlet</th><th>Business Unit</th><th>Invoiced Amount</th><th>Balance Amount</th>';
+        //             //     console.log(to_AccHeads);
+        //             //     $('#to_AccountList').html(to_AccHeads);
+        //             // }
+        //             // /*Uncheck the checkbox in list page*/
+        //             // $('#parent_checkbox').prop('checked', false);
+        //             // $('.jv_Checkbox').each(function() {
+        //             //     this.checked = false;
+        //             // });
 
-                        // $rootScope.loading = false;
-                        $('#parent_checkbox').on('click', function() {
-                            if (this.checked) {
-                                self.check_List = true;
-                                //console.log(self.checked_fromList);
-                                $('.jv_Checkbox').each(function() {
-                                    this.checked = true;
-                                });
-                                self.added_Title = 'Invoices added';
-                                self.checked_Count = $('.jv_Checkbox:checked').length;
-                                if ($('.jv_Checkbox:checked').length > 0) {
-                                    var selected_List = []
-                                    // var checked_invoices;
-                                    $('input[name="child_boxes"]:checked').each(function() {
-                                        selected_List.push(this.value);
-                                    });
-                                    self.checked_List = selected_List.join(', ');
-                                    console.log(self.checked_List);
-                                }
-                            } else { //console.log('uncheckParent');
-                                self.check_List = false;
-                                self.added_Title = '';
-                                self.checked_Count = $('.jv_Checkbox:checked').length;
-                                self.checked_List = '';
-                                $('.jv_Checkbox').each(function() {
-                                    this.checked = false;
-                                });
-                            }
-                            $scope.$apply();
-                        });
-                        $(document.body).on('click', '.jv_Checkbox', function() {
-                            if ($('.jv_Checkbox').is(':checked') == true) {
-                                console.log('sample 1');
+        //             // if (buttonId == 'search_fromAcc') {
+        //             //     var dataTable_id = '#jv_FromAccList';
+        //             //     var customer_code = $('.fromAccCode').val();
+        //             // } else if (buttonId == 'search_toAcc') {
+        //             //     var dataTable_id = '#jv_ToAccList';
+        //             //     var customer_code = $('.toAccCode').val();
+        //             // }
 
-                                self.check_List = true; //console.log('jv_Checkbox ' + self.check_List);
-                                if ($('.jv_Checkbox:checked').length == $('.jv_Checkbox').length) {
-                                    $('#parent_checkbox').prop('checked', true);
-                                } else {
-                                    $('#parent_checkbox').prop('checked', false);
-                                }
-                                self.added_Title = 'Invoices added';
-                                self.checked_Count = $('.jv_Checkbox:checked').length;
-                                if ($('.jv_Checkbox:checked').length > 0) {
-                                    var selected_List = []
-                                    // var checked_invoices;
-                                    $('input[name="child_boxes"]:checked').each(function() {
-                                        selected_List.push(this.value);
-                                    });
-                                    self.checked_List = selected_List.join(', ');
-                                    console.log(self.checked_List);
-                                }
-                            } else {
-                                console.log('sample');
-                                self.check_List = false; //console.log('jv_Checkbox ' + self.check_List);
-                                self.added_Title = '';
-                                self.checked_Count = $('.jv_Checkbox:checked').length;
-                                self.checked_List = '';
-                            }
-                            $scope.$apply();
-                        });
-                    }, 3000);
-                } else if ((buttonId == 'add_fromAcc' || buttonId == 'add_toAcc') && ($('#from_receipt_number').val() != '' || $('#to_receipt_number').val() != '')) {
-                    console.log('addButton');
-                    if (buttonId == 'add_fromAcc') {
-                        self.checkedFromAcc = false;
-                        self.add_FromButton = true;
-                        // $('.fromAcc_Title').html('Receipts');
-                        var customer_code = $('.fromAccCode').val();
-                        var receipt_number = $('#from_receipt_number').val();
-                    } else if (buttonId == 'add_toAcc') {
-                        self.checkedToAcc = false;
-                        self.add_ToButton = true;
-                        // $('.toAcc_Title').html('Receipts');
-                        var customer_code = $('.toAccCode').val();
-                        var receipt_number = $('#to_receipt_number').val();
-                    }
+        //             // $(dataTable_id).DataTable().ajax.reload(function(json) {});
+        //             // setTimeout(function() {
+        //             // e.preventDefault();
+        //             // alert();
+        //             // var dataTable;
+        //             // var table_scroll;
+        //             // table_scroll = $('.page-main-content.list-page-content').height() - 37;
+        //             // dataTable = $(dataTable_id).DataTable({
+        //             //     // "dom": cndn_dom_structure,
+        //             //     "language": {
+        //             //         // "search": "",
+        //             //         // "searchPlaceholder": "Search",
+        //             //         // "lengthMenu": "Rows _MENU_",
+        //             //         "paginate": {
+        //             //             "next": '<i class="icon ion-ios-arrow-forward"></i>',
+        //             //             "previous": '<i class="icon ion-ios-arrow-back"></i>'
+        //             //         },
+        //             //     },
+        //             //     scrollX: true,
+        //             //     scrollY: table_scroll + "px",
+        //             //     scrollCollapse: true,
+        //             //     stateSave: true,
+        //             //     stateSaveCallback: function(settings, data) {
+        //             //         localStorage.setItem('SIDataTables_' + settings.sInstance, JSON.stringify(data));
+        //             //     },
+        //             //     stateLoadCallback: function(settings) {
+        //             //         var state_save_val = JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
+        //             //         if (state_save_val) {
+        //             //             $('#search').val(state_save_val.search.search);
+        //             //         }
+        //             //         return JSON.parse(localStorage.getItem('SIDataTables_' + settings.sInstance));
+        //             //     },
+        //             //     processing: true,
+        //             //     serverSide: true,
+        //             //     paging: true,
+        //             //     searching: false,
+        //             //     ordering: false,
+        //             //     retrieve: true,
+        //             //     ajax: {
+        //             //         url: laravel_routes['getCustomerInvoice'],
+        //             //         type: "GET",
+        //             //         dataType: "json",
+        //             //         data: function(d) {
+        //             //             d.accountNumber = customer_code;
+        //             //             d.customer_id = $('.fromAcc').val();
+        //             //             // d.docType = $("input[name='transfer_type']:checked").val();
+        //             //         },
+        //             //     },
 
-                    $http.get(
-                        laravel_routes['getCustomerReceipt'], {
-                            params: {
-                                accountNumber: customer_code,
-                                receiptNumber: receipt_number,
-                            }
-                        }
-                    ).then(function(response) {
-                        // console.log(response.data.receipts);
-                        if (!response.data.errors) {
-                            self.jv_receipts.push(response.data.receipts);
-                            // console.log(self.jv_receipts);
-                        } else {
-                            custom_noty('error', response.data.errors);
-                        }
+        //             //     columns: [
+        //             //         { data: 'child_checkbox', searchable: false },
+        //             //         { data: 'invoice_number', searchable: true },
+        //             //         { data: 'invoice_date', name: 'TRANSDATE', searchable: false },
+        //             //         { data: 'remarks', name: 'remarks', searchable: false },
+        //             //         { data: 'outlet_name', name: 'outlets.code', searchable: true },
+        //             //         { data: 'business_name', name: 'sbus.name', searchable: true },
+        //             //         { data: 'invoice_amount', name: 'invoices.invoice_amount', searchable: true, class: 'text-right' },
+        //             //         { data: 'balence_amount', name: 'Balance', searchable: false, class: 'text-right' },
+        //             //     ],
+        //             //     "initComplete": function(settings, json) {
+        //             //         // $('.dataTables_length select').select2();
+        //             //     },
+        //             //     rowCallback: function(row, data) {
+        //             //         $(row).addClass('highlight-row');
+        //             //     },
+        //             //     infoCallback: function(settings, start, end, max, total, pre) {
+        //             //         // $('#table_info').html(total)
+        //             //         $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
+        //             //     },
+        //             // });
 
-                        if (buttonId == 'add_fromAcc') {
-                            self.receipts = [];
-                            angular.forEach(self.jv_receipts, function(value, key) {
-                                self.receipts.push(value.receipt_no);
-                            });
-                            self.from_receipts = true;
-                            self.to_receipts = false;
-                            self.receipt_nos = self.receipts.join(', ');
-                            // console.log(self.jv_receipts.length);
-                        } else if (buttonId == 'add_toAcc') {
-                            self.receipts = [];
-                            angular.forEach(self.jv_receipts, function(value, key) {
-                                self.receipts.push(value.receipt_no);
-                            });
-                            self.to_receipts = true;
-                            self.from_receipts = false;
-                            self.receipt_nos = self.receipts.join(', ');
-                            // console.log(self.jv_receipts.length);
-                        }
-                    });
+        //             // $rootScope.loading = false;
+        //             // $(document.body).on('click', '.jv_Checkbox', function() {
+        //             //     if ($('.jv_Checkbox').is(':checked') == true) {
+        //             //         console.log('sample 1');
 
-                    //REMOVE SERVICE INVOICE ITEM
-                    $scope.removeJvReceipt = function(receipt_id, index) {
-                        self.jv_receipt_removal_id = [];
-                        if (buttonId == 'add_fromAcc') {
-                            $('#from_receipt_number').val('');
-                        } else if (buttonId == 'add_toAcc') {
-                            $('#to_receipt_number').val('');
-                        }
-                        if (receipt_id) {
-                            self.jv_receipt_removal_id.push(receipt_id);
-                            $('#jv_receipt_removal_ids').val(JSON.stringify(self.jv_receipt_removal_id));
-                        }
-                        self.jv_receipts.splice(index, 1);
-                    }
-                }
-            } else { //console.log('else');
-                self.checkedFromAcc = false;
-                self.checkedToAcc = false;
-            }
-            // });
-        });
+        //             //         self.check_List = true; //console.log('jv_Checkbox ' + self.check_List);
+        //             //         if ($('.jv_Checkbox:checked').length == $('.jv_Checkbox').length) {
+        //             //             $('#parent_checkbox').prop('checked', true);
+        //             //         } else {
+        //             //             $('#parent_checkbox').prop('checked', false);
+        //             //         }
+        //             //         self.added_Title = 'Invoices added';
+        //             //         self.checked_Count = $('.jv_Checkbox:checked').length;
+        //             //         if ($('.jv_Checkbox:checked').length > 0) {
+        //             //             var selected_List = []
+        //             //             // var checked_invoices;
+        //             //             $('input[name="child_boxes"]:checked').each(function() {
+        //             //                 selected_List.push(this.value);
+        //             //             });
+        //             //             self.checked_List = selected_List.join(', ');
+        //             //             console.log(self.checked_List);
+        //             //         }
+        //             //     } else {
+        //             //         console.log('sample');
+        //             //         self.check_List = false; //console.log('jv_Checkbox ' + self.check_List);
+        //             //         self.added_Title = '';
+        //             //         self.checked_Count = $('.jv_Checkbox:checked').length;
+        //             //         self.checked_List = '';
+        //             //     }
+        //             //     $scope.$apply();
+        //             // });
+        //             // }, 3000);
+        //         } else if ((buttonId == 'add_fromAcc' || buttonId == 'add_toAcc') && ($('#from_receipt_number').val() != '' || $('#to_receipt_number').val() != '')) {
+        //             console.log('addButton');
+        //             if (buttonId == 'add_fromAcc') {
+        //                 self.checkedFromAcc = false;
+        //                 self.add_FromButton = true;
+        //                 // $('.fromAcc_Title').html('Receipts');
+        //                 var customer_code = $('.fromAccCode').val();
+        //                 var receipt_number = $('#from_receipt_number').val();
+        //             } else if (buttonId == 'add_toAcc') {
+        //                 self.checkedToAcc = false;
+        //                 self.add_ToButton = true;
+        //                 // $('.toAcc_Title').html('Receipts');
+        //                 var customer_code = $('.toAccCode').val();
+        //                 var receipt_number = $('#to_receipt_number').val();
+        //             }
+
+        //             $http.get(
+        //                 laravel_routes['getCustomerReceipt'], {
+        //                     params: {
+        //                         accountNumber: customer_code,
+        //                         receiptNumber: receipt_number,
+        //                     }
+        //                 }
+        //             ).then(function(response) {
+        //                 // console.log(response.data.receipts);
+        //                 if (!response.data.errors) {
+        //                     self.jv_receipts.push(response.data.receipts);
+        //                     // console.log(self.jv_receipts);
+        //                 } else {
+        //                     custom_noty('error', response.data.errors);
+        //                 }
+
+        //                 if (buttonId == 'add_fromAcc') {
+        //                     self.receipts = [];
+        //                     angular.forEach(self.jv_receipts, function(value, key) {
+        //                         self.receipts.push(value.receipt_no);
+        //                     });
+        //                     self.from_receipts = true;
+        //                     self.to_receipts = false;
+        //                     self.receipt_nos = self.receipts.join(', ');
+        //                     // console.log(self.jv_receipts.length);
+        //                 } else if (buttonId == 'add_toAcc') {
+        //                     self.receipts = [];
+        //                     angular.forEach(self.jv_receipts, function(value, key) {
+        //                         self.receipts.push(value.receipt_no);
+        //                     });
+        //                     self.to_receipts = true;
+        //                     self.from_receipts = false;
+        //                     self.receipt_nos = self.receipts.join(', ');
+        //                     // console.log(self.jv_receipts.length);
+        //                 }
+        //             });
+
+        //         }
+        //     } else { //console.log('else');
+        //         self.checkedFromAcc = false;
+        //         self.checkedToAcc = false;
+        //     }
+        //     // });
+        // });
         // });
         var form_id = '#form';
         var v = jQuery(form_id).validate({
@@ -1174,5 +1350,36 @@ app.component('jvFormHeader', {
     },
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
         var self = this;
+    }
+});
+
+app.component('jvReceiptsTable', {
+    templateUrl: jv_receipts_table_template_url,
+    bindings: {
+        jv: '<',
+    },
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
+        var self = this;
+    }
+});
+
+app.component('jvInvoicesTable', {
+    templateUrl: jv_invoices_table_template_url,
+    bindings: {
+        jv: '=',
+    },
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
+        var self = this;
+        $scope.invoiceUpdated = function() {
+            self.jv.invoices_length = 0;
+            self.jv.total_invoice_amount = 0;
+            angular.forEach(self.jv.invoices, function(invoice, key) {
+                if (invoice.selected) {
+                    self.jv.invoices_length++;
+                    self.jv.total_invoice_amount += parseFloat(invoice.balance_amount);
+                }
+            });
+        }
+
     }
 });

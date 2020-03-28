@@ -123,6 +123,69 @@
                                                 <input type="hidden" name="journal_id" value='{{$ctrl.jv.journal.id}}' class="required">
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
+                                        <!-- ------------------- -->
+                                        <div class="col-md-3" ng-if="$ctrl.jv.type && !$ctrl.jv.type.from_account_type_editable">
+                                            <div class="input-text form-group">
+                                                <label>
+                                                    From Account Type
+                                                </label>
+                                                <b>
+                                                    {{$ctrl.jv.from_account_type.name}}
+                                                </b>
+                                            </div>
+                                        </div>
+                                        <!-- ------------------- -->
+                                        <div class="col-md-3" ng-show="$ctrl.jv.type && $ctrl.jv.type.from_account_type_editable">
+                                            <div class="input-text form-group">
+                                                <label>
+                                                    From Account Type
+                                                    <sup class="mandatory">*</sup>
+                                                </label>
+                                                <md-select ng-model="$ctrl.jv.from_account_type" ng-change="onSelectedFromAcc($ctrl.jv.from_account_type_id)" placeholder="Select From Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader">
+                                                    <md-select-header class="demo-select-header">
+                                                        <input ng-model="searchFromAccount" type="search" placeholder="Search From Account" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                                    </md-select-header>
+                                                    <md-optgroup label="from_account">
+                                                        <md-option ng-value="from_account" ng-repeat="from_account in $ctrl.account_type_list | filter:searchFromAccount">
+                                                            {{from_account.name}}
+                                                        </md-option>
+                                                    </md-optgroup>
+                                                </md-select>
+                                                <input type="hidden" name="from_account_type_id" id="from_account_type_id" value='{{$ctrl.jv.from_account_type.id}}' class="required">
+                                            </div><!-- Feild -->
+                                        </div><!-- Column -->
+                                        <!-- ------------------- -->
+                                        <div class="col-md-3" ng-if="$ctrl.jv.type && !$ctrl.jv.type.to_account_type_editable">
+                                            <div class="input-text form-group">
+                                                <label>
+                                                    To Account Type
+                                                </label>
+                                                <b>
+                                                    {{$ctrl.jv.to_account_type.name}}
+                                                </b>
+                                            </div>
+                                        </div>
+                                        <!-- ------------------- -->
+                                        <div class="col-md-3" ng-show="$ctrl.jv.type && $ctrl.jv.to_account_type_editable">
+                                            <div class="input-text form-group">
+                                                <label>
+                                                    To Account Type
+                                                    <sup class="mandatory">*</sup>
+                                                </label>
+                                                <md-select ng-model="$ctrl.jv.to_account_type_id" ng-change="onSelectedToAcc($ctrl.jv.to_account_type_id)" placeholder="Select To Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader">
+                                                    <md-select-header class="demo-select-header">
+                                                        <input ng-model="searchToAccount" type="search" placeholder="Search To Account" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                                    </md-select-header>
+                                                    <md-optgroup label="to_account">
+                                                        <md-option ng-value="to_account.id" ng-repeat="to_account in $ctrl.account_type_list | filter:searchToAccount">
+                                                            {{to_account.name}}
+                                                        </md-option>
+                                                    </md-optgroup>
+                                                </md-select>
+                                                <input type="hidden" name="to_account_type_id" id="to_account_type_id" value='{{$ctrl.jv.to_account_type_id}}' class="required">
+                                            </div><!-- Feild -->
+                                        </div><!-- Column -->
+                                        <!-- ------------------- -->
                                         <div class="tab-pane-footer">
                                             <div class="row">
                                                 <div class="col-md-12">
@@ -222,43 +285,15 @@
                                             <!-- ------------------- -->
                                             <!-- ------------------- -->
                                             <div class="row">
-                                                <!-- ------------------- -->
-                                                <div class="col-md-2" ng-if="$ctrl.jv.type && !$ctrl.jv.type.from_account_type_editable">
-                                                    <div class="input-text form-group">
-                                                        <label>
-                                                            From Account Type
-                                                        </label>
-                                                        <b>
-                                                            {{$ctrl.jv.from_account_type.name}}
-                                                        </b>
-                                                    </div>
-                                                </div>
-                                                <!-- ------------------- -->
-                                                <div class="col-md-2" ng-if="$ctrl.jv.type && $ctrl.jv.type.from_account_type_editable">
-                                                    <div class="input-text form-group">
-                                                        <label>
-                                                            From Account Type
-                                                            <sup class="mandatory">*</sup>
-                                                        </label>
-                                                        <md-select ng-model="$ctrl.jv.from_account_type" ng-change="onSelectedFromAcc($ctrl.jv.from_account_type_id)" placeholder="Select From Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader">
-                                                            <md-select-header class="demo-select-header">
-                                                                <input ng-model="searchFromAccount" type="search" placeholder="Search From Account" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
-                                                            </md-select-header>
-                                                            <md-optgroup label="from_account">
-                                                                <md-option ng-value="from_account" ng-repeat="from_account in $ctrl.account_type_list | filter:searchFromAccount">
-                                                                    {{from_account.name}}
-                                                                </md-option>
-                                                            </md-optgroup>
-                                                        </md-select>
-                                                        <input type="hidden" name="from_account_type_id" id="from_account_type_id" value='{{$ctrl.jv.from_account_type.id}}' class="required">
-                                                    </div><!-- Feild -->
-                                                </div><!-- Column -->
                                                 <!-- ------------------ -->
                                                 <div class="col-md-3" ng-if="$ctrl.jv.from_account_type">
                                                     <div class="input-text form-group">
-                                                        <label>From A/c Code <sup class="mandatory">*</sup></label>
+                                                        <label>
+                                                            From A/C Code
+                                                            <sup class="mandatory">*</sup>
+                                                        </label>
                                                         <div class="autocomplete-refresh">
-                                                            <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.fromCustomerSearchText)" md-selected-item="$ctrl.jv.from_customer" md-search-text="$ctrl.fromCustomerSearchText" md-search-text-change="$ctrl.customerChanged('fromAcc')" md-selected-item-change="getCustomerDetails('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true">
+                                                            <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.fromCustomerSearchText)" md-selected-item="$ctrl.from_account" md-search-text="$ctrl.fromCustomerSearchText" md-selected-item-change="customerSelected('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true">
                                                                 <md-item-template>
                                                                     <span>
                                                                         {{option.name}} - {{option.code}}
@@ -268,13 +303,14 @@
                                                                     No Customers matching "{{ctrl.fromCustomerSearchText}}" were found.
                                                                 </md-not-found>
                                                             </md-autocomplete>
-                                                            <input type="hidden" name="from_account_id" value="{{$ctrl.jv.from_customer.id}}" class="required fromAcc">
-                                                            <input type="hidden" name="from_account_code" value="{{$ctrl.jv.from_customer.code}}" class="required fromAccCode">
+                                                            <input type="hidden" name="from_account_id" value="{{$ctrl.jv.from_account.id}}" class="required ">
+                                                            <!-- ISSUE : NOT REQUIRED CODE -->
+                                                            <!-- <input type="hidden" name="from_account_code" value="{{$ctrl.jv.from_customer.code}}" class="required fromAccCode"> -->
                                                         </div>
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
                                                 <!-- -------------- -->
-                                                <div class="col-md-4" ng-if="$ctrl.jv.from_account_type">
+                                                <div class="col-md-3" ng-if="$ctrl.jv.from_account_type">
                                                     <div class="input-text form-group">
                                                         <label>
                                                             Document Transfer Type
@@ -294,12 +330,12 @@
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
                                                 <!-- --------------- -->
-                                                <div class="col-md-2" ng-show="$ctrl.jv.transfer_type == 'invoice'">
+                                                <div class="col-md-3" ng-show="$ctrl.jv.transfer_type == 'invoice'">
                                                     <div class="input-text form-group">
                                                         <label class="opacity-zero">
                                                             Get Invoices
                                                         </label>
-                                                        <button type="button" class="btn btn-primary btn-square button" id="search_fromAcc">
+                                                        <button type="button" class="btn btn-primary btn-square button" ng-click="getInvoices('from')">
                                                             Get Invoices
                                                         </button>
                                                     </div><!-- Form Group -->
@@ -310,87 +346,97 @@
                                                         <label>
                                                             Receipt No
                                                         </label>
-                                                        <input type="text" class="form-control" placeholder="Enter Receipt Number" autocomplete="off">
-                                                    </div><!-- Form Group -->
-                                                </div><!-- Column -->
-                                                <div class="col-md-2" ng-show="$ctrl.jv.transfer_type == 'receipt'">
-                                                    <div class="input-text form-group">
-                                                        <label class="opacity-zero">Add Receipt</label>
-                                                        <button type="button" class="btn btn-primary btn-square button" id="add_fromAcc">
+                                                        <input type="text" class="form-control" placeholder="Enter Receipt Number" autocomplete="off" ng-model="$ctrl.from_receipt_no" id="from_receipt_no" value="AL20ST0413865 ,AL20ST0467838">
+                                                        <button type="button" class="btn btn-primary btn-square button" ng-click="$ctrl.getReceipt('from')">
                                                             Add Receipt
                                                         </button>
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
                                                 <!-- -------------------- -->
-                                                <div class="col-md-12" ng-show="$ctrl.jv.transfer_type == 'invoice'">
-                                                    <h6 class="tab-pane-title fromAcc_Title"></h6>
-                                                    <div class="table-responsive">
-                                                        <table class="table table-border-2" id="jv_FromAccList" style="width: 100% !important;">
-                                                            <thead>
-                                                                <tr id="from_AccountList">
-                                                                </tr>
-                                                            </thead>
-                                                        </table>
-                                                    </div><!-- Table Responsive -->
+                                                <div class="col-md-12" ng-if="$ctrl.jv.transfer_type == 'invoice'">
+                                                    <jv-invoices-table jv="$ctrl.jv">
+                                                    </jv-invoices-table>
                                                 </div><!-- Column -->
-                                                <div class="col-md-12" ng-show="$ctrl.jv.transfer_type == 'receipt'">
-                                                    <h6 class="tab-pane-title fromAcc_Title">
+                                                <div class="col-md-12" ng-if="$ctrl.jv.transfer_type == 'receipt'">
+                                                    <jv-receipts-table jv="$ctrl.jv">
+                                                    </jv-receipts-table>
+                                                    <!-- ISSUE : reusable block not created -->
+                                                    <!-- <h6 class="tab-pane-title fromAcc_Title">
                                                         Selected Receipts
                                                     </h6>
                                                     <div class="table-responsive">
-                                                        <table class="table table-border-2" id="receipt_FromAccList" style="width: 100% !important;">
+                                                        <table class="table table-border-2" style="width: 100% !important;">
                                                             <thead>
                                                                 <tr>
                                                                     <th>Action</th>
                                                                     <th>Receipt No</th>
+                                                                    <th class="text-right">
+                                                                        Receipt Amount
+                                                                    </th>
+                                                                    <th class="text-right">
+                                                                        Settled Amount
+                                                                    </th>
+                                                                    <th class="text-right">
+                                                                        Available Amount
+                                                                    </th>
                                                                     <th>Receipt Date</th>
-                                                                    <th>Description</th>
                                                                     <th>Outlet</th>
                                                                     <th>Business Unit</th>
-                                                                    <th class="text-right">Receipt Amount</th>
-                                                                    <th class="text-right">Available Amount</th>
+                                                                    <th>Description</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
                                                                 <tr ng-if="$ctrl.jv.receipts.length == 0">
                                                                     <td>No Data Found</td>
                                                                 </tr>
-                                                                <tr ng-if="$ctrl.jv.receipts.length != 0" ng-repeat="(index, receipt) in $ctrl.jv.receipts">
-                                                                    <!-- ISSUE : WRONG WAY OF DEVELOPMENT -->
-                                                                    <!--                                                                     <input type="hidden" name="jv_receipts[{{index}}][receipt_no]" value="{{jv_receipt.receipt_no}}">
+                                                                <tr ng-if="$ctrl.jv.receipts.length != 0" ng-repeat="(index, receipt) in $ctrl.jv.receipts"> -->
+                                                    <!-- ISSUE : WRONG WAY OF DEVELOPMENT -->
+                                                    <!--                                                                     <input type="hidden" name="jv_receipts[{{index}}][receipt_no]" value="{{jv_receipt.receipt_no}}">
                                                                     <input type="hidden" name="jv_receipts[{{index}}][available_amt]" value="{{jv_receipt.available_amt}}">
                                                                     <input type="hidden" name="jv_receipts[{{index}}][balance_amount]" value="{{jv_receipt.balance_amount}}">
  -->
-                                                                    <td class="action">
+                                                    <!-- <td class="action">
                                                                         <input type="hidden" name="from_receipts[{{index}}][id]" value="{{receipt.id}}">
-                                                                        <a href="javascript:void(0)" ng-click="removeJvReceipt(receipt.id, index)">
+                                                                        <a href="javascript:void(0)" ng-click="removeReceipt(index)">
                                                                             <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
                                                                         </a>
                                                                     </td>
-                                                                    <td>{{receipt.receipt_no}}</td>
-                                                                    <td>{{receipt.receipt_date}}</td>
-                                                                    <td>{{receipt.description}}</td>
-                                                                    <td>{{receipt.outlet_name}}</td>
-                                                                    <td>{{receipt.business_name}}</td>
+                                                                    <td>
+                                                                        {{receipt.permanent_receipt_no}}
+                                                                    </td>
                                                                     <td class="text-right">
-                                                                        {{receipt.available_amt}}
+                                                                        {{receipt.amount}}
+                                                                    </td>
+                                                                    <td class="text-right">
+                                                                        {{receipt.settled_amount}}
                                                                     </td>
                                                                     <td class="text-right">
                                                                         {{receipt.balance_amount}}
                                                                     </td>
+                                                                    <td>{{receipt.date}}</td>
+                                                                    <td>{{receipt.outlet.code}}</td>
+                                                                    <td>{{receipt.sbu.name}}</td>
+                                                                    <td>{{receipt.description}}</td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
-                                                    </div><!-- Table Responsive -->
+                                                    </div> -->
+                                                    <!-- Table Responsive -->
                                                 </div><!-- Column -->
                                             </div><!-- Row -->
                                         </div><!-- Column -->
                                         <div class="tab-pane-footer">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <a class="btn btn-secondary btn-prev">Previous</a>
-                                                    <a class="btn btn-primary btn-min-wdth btn-nxt">Next</a>
-                                                    <button type="submit" class="btn btn-primary submit">Submit</button>
+                                                    <a class="btn btn-secondary btn-prev">
+                                                        Previous
+                                                    </a>
+                                                    <a class="btn btn-primary btn-min-wdth btn-nxt">
+                                                        Next
+                                                    </a>
+                                                    <button type="submit" class="btn btn-primary submit">
+                                                        Submit
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div><!-- Tab Footer -->
@@ -477,35 +523,6 @@
                                             </div> -->
                                             <!-- Grey Wrap -->
                                             <div class="row">
-                                                <div class="col-md-3" ng-if="$ctrl.jv.type && !$ctrl.jv.type.to_account_type_editable">
-                                                    <div class="input-text form-group">
-                                                        <label>
-                                                            To Account Type
-                                                        </label>
-                                                        <b>
-                                                            {{$ctrl.jv.to_account_type.name}}
-                                                        </b>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-3" ng-if="$ctrl.jv.type && $ctrl.jv.to_account_type_editable">
-                                                    <div class="input-text form-group">
-                                                        <label>
-                                                            To Account Type
-                                                            <sup class="mandatory">*</sup>
-                                                        </label>
-                                                        <md-select ng-model="$ctrl.jv.to_account_type_id" ng-change="onSelectedToAcc($ctrl.jv.to_account_type_id)" placeholder="Select To Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader">
-                                                            <md-select-header class="demo-select-header">
-                                                                <input ng-model="searchToAccount" type="search" placeholder="Search To Account" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
-                                                            </md-select-header>
-                                                            <md-optgroup label="to_account">
-                                                                <md-option ng-value="to_account.id" ng-repeat="to_account in $ctrl.account_type_list | filter:searchToAccount">
-                                                                    {{to_account.name}}
-                                                                </md-option>
-                                                            </md-optgroup>
-                                                        </md-select>
-                                                        <input type="hidden" name="to_account_type_id" id="to_account_type_id" value='{{$ctrl.jv.to_account_type_id}}' class="required">
-                                                    </div><!-- Feild -->
-                                                </div><!-- Column -->
                                                 <div class="col-md-3" ng-show="$ctrl.jv.to_account_type">
                                                     <div class="input-text form-group">
                                                         <label>
@@ -513,7 +530,7 @@
                                                             <sup class="mandatory">*</sup>
                                                         </label>
                                                         <div class="autocomplete-refresh">
-                                                            <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.toCustomerSearchText)" md-selected-item="$ctrl.jv.to_customer" md-search-text="$ctrl.toCustomerSearchText" md-search-text-change="$ctrl.customerChanged('toAcc')" md-selected-item-change="getCustomerDetails('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true">
+                                                            <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.toCustomerSearchText)" md-selected-item="$ctrl.to_account" md-search-text="$ctrl.toCustomerSearchText" md-selected-item-change="customerSelected('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="true">
                                                                 <md-item-template>
                                                                     <span>
                                                                         {{option.name}} - {{option.code}}
@@ -523,7 +540,7 @@
                                                                     No Customers matching "{{ctrl.toCustomerSearchText}}" were found.
                                                                 </md-not-found>
                                                             </md-autocomplete>
-                                                            <input type="hidden" name="to_account_id" value="{{$ctrl.jv.to_customer.id}}" class="required toAcc">
+                                                            <input type="hidden" name="to_account_id" value="{{$ctrl.jv.to_account.id}}" class="required">
                                                             <!-- ISSUE : UNWANTED CODE -->
                                                             <!-- <input type="hidden" name="to_account_code" value="{{$ctrl.journal_voucher.to_customer.code}}" class="required toAccCode"> -->
                                                         </div>
@@ -534,40 +551,57 @@
                                                         <label class="opacity-zero">
                                                             Get Invoices
                                                         </label>
-                                                        <button type="button" class="btn btn-primary btn-square button" id="search_toAcc">
+                                                        <button type="button" class="btn btn-primary btn-square button" ng-click="getInvoices('to')">
                                                             Get Invoices
                                                         </button>
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
                                                 <div class="col-md-3" ng-if="$ctrl.jv.transfer_type == 'invoice'">
                                                     <div class="input-text form-group">
-                                                        <label>Receipt No <sup class="mandatory">*</sup></label>
-                                                        <input type="text" class="form-control" name="to_receipt_number" value="" id="to_receipt_number" placeholder="Enter Receipt Number" autocomplete="off" required>
-                                                    </div><!-- Form Group -->
-                                                </div><!-- Column -->
-                                                <div class="col-md-2" ng-if="$ctrl.jv.transfer_type == 'invoice'">
-                                                    <div class="input-text form-group">
-                                                        <label class="opacity-zero">
-                                                            Add Receipt
+                                                        <label>
+                                                            Receipt No
+                                                            <sup class="mandatory">*</sup>
                                                         </label>
-                                                        <button type="button" class="btn btn-primary btn-square button" id="add_toAcc">
-                                                            Add Receipt
-                                                        </button>
+                                                        <input type="text" class="form-control" id="to_receipt_number" value="AL20ST0413865 ,AL20ST0467838" placeholder="Enter Receipt Number" autocomplete="off" ng-model="$ctrl.to_receipt_no">
                                                     </div><!-- Form Group -->
+                                                    <button type="button" class="btn btn-primary btn-square button" ng-click="$ctrl.getReceipt('to')">
+                                                        Add Receipt
+                                                    </button>
                                                 </div><!-- Column -->
                                                 <div class="col-md-12" ng-show="$ctrl.jv.transfer_type == 'receipt'">
-                                                    <h6 class="tab-pane-title toAcc_Title"></h6>
+                                                    <jv-invoices-table jv="$ctrl.jv">
+                                                    </jv-invoices-table>
+                                                    <!--                                                     <h6 class="tab-pane-title toAcc_Title">
+                                                        Invoices
+                                                    </h6>
                                                     <div class="table-responsive">
-                                                        <table class="table table-border-2" id="jv_ToAccList" style="width: 100% !important;">
+                                                        <table class="table table-border-2" id="to_invoices_table" style="width: 100% !important;">
                                                             <thead>
-                                                                <tr id="to_AccountList">
+                                                                <tr>
+                                                                    <th>
+                                                                        <div class="table-checkbox1">
+                                                                            <input type="checkbox" id="parent_checkbox" />
+                                                                            <label for="parent_checkbox"></label>
+                                                                        </div>
+                                                                    </th>
+                                                                    <th>Invoice No</th>
+                                                                    <th>Invoice Date</th>
+                                                                    <th>Invoiced Amount</th>
+                                                                    <th>Settled Amount</th>
+                                                                    <th>Balance Amount</th>
+                                                                    <th>Outlet</th>
+                                                                    <th>Business Unit</th>
+                                                                    <th>Description</th>
                                                                 </tr>
                                                             </thead>
                                                         </table>
-                                                    </div><!-- Table Responsive -->
+                                                    </div> -->
+                                                    <!-- Table Responsive -->
                                                 </div><!-- Column -->
                                                 <div class="col-md-12" ng-show="$ctrl.jv.transfer_type == 'invoice'">
-                                                    <h6 class="tab-pane-title toAcc_Title">
+                                                    <jv-receipts-table jv="$ctrl.jv">
+                                                    </jv-receipts-table>
+                                                    <!-- <h6 class="tab-pane-title toAcc_Title">
                                                         Selected Receipts
                                                     </h6>
                                                     <div class="table-responsive">
@@ -588,12 +622,12 @@
                                                                 <tr ng-if="$ctrl.jv.receipts.length == 0">
                                                                     <td>No Data Found</td>
                                                                 </tr>
-                                                                <tr ng-if="$ctrl.jv.length != 0" ng-repeat="(index, jv_receipt) in $ctrl.jv.receipts">
-                                                                    <!-- ISSUE : WRONG WAY OF DEV -->
-                                                                    <!--                                                                     <input type="hidden" name="jv_receipts[{{index}}][receipt_no]" value="{{jv_receipt.receipt_no}}">
+                                                                <tr ng-if="$ctrl.jv.length != 0" ng-repeat="(index, jv_receipt) in $ctrl.jv.receipts"> -->
+                                                    <!-- ISSUE : WRONG WAY OF DEV -->
+                                                    <!--                                                                     <input type="hidden" name="jv_receipts[{{index}}][receipt_no]" value="{{jv_receipt.receipt_no}}">
                                                                     <input type="hidden" name="jv_receipts[{{index}}][available_amt]" value="{{jv_receipt.available_amt}}">
                                                                     <input type="hidden" name="jv_receipts[{{index}}][balance_amount]" value="{{jv_receipt.balance_amount}}"> -->
-                                                                    <td class="action">
+                                                    <!-- <td class="action">
                                                                         <input type="hidden" name="jv_receipts[{{index}}][id]" value="{{jv_receipt.id}}">
                                                                         <a href="javascript:void(0)" ng-click="removeJvReceipt(jv_receipt.id, index)">
                                                                             <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
@@ -609,7 +643,8 @@
                                                                 </tr>
                                                             </tbody>
                                                         </table>
-                                                    </div><!-- Table Responsive -->
+                                                    </div> -->
+                                                    <!-- Table Responsive -->
                                                 </div><!-- Column -->
                                             </div><!-- Row -->
                                         </div><!-- Column -->
