@@ -1,0 +1,13 @@
+<div class="timeline-wrap">
+    <div class="timeline-log" ng-repeat="(index, activity_log) in $ctrl.jv.activity_logs">
+        <div class="timeline-left">
+            <p class="timeline-date">{{ activity_log.activity_date }} <span class="timeline-time">{{ activity_log.activity_time }}</span></p>
+        </div>
+        <div class="timeline-content">
+            <h6 class="timeline-content-title">{{ activity_log.status.name }}</h6>
+            <p class="timeline-content-info">
+                by {{ activity_log.created_user }} / {{ activity_log.user_role }}
+            </p>
+        </div>
+    </div>
+</div><!-- Timeline Wrap -->

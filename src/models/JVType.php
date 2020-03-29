@@ -25,6 +25,11 @@ class JVType extends Model {
 	public function approvalType() {
 		return $this->belongsTo('Abs\ApprovalPkg\ApprovalType', 'approval_type_id');
 	}
+
+	public function verificationFlow() {
+		return $this->belongsTo('Abs\ApprovalPkg\ApprovalType', 'approval_type_id');
+	}
+
 	public function approvalTypeInitialStatus() {
 		return $this->belongsTo('Abs\ApprovalPkg\ApprovalTypeStatus', 'initial_status_id');
 	}

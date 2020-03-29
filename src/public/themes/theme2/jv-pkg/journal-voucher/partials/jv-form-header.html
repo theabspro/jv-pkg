@@ -4,6 +4,14 @@
         <li ng-show="$ctrl.jv.type">
             <div class="grey-box">
                 <div class="grey-box-header">
+                    Date :
+                    <b>{{$ctrl.jv.date}}</b>
+                </div>
+            </div>
+        </li>
+        <li ng-show="$ctrl.jv.type">
+            <div class="grey-box">
+                <div class="grey-box-header">
                     JV Type :
                     <b>{{$ctrl.jv.type.name}}</b>
                 </div>
@@ -21,6 +29,14 @@
                 Transfer Type :
                 <b>
                     {{$ctrl.jv.from_account_type.name}} to {{$ctrl.jv.to_account_type.name}}
+                </b>
+            </div>
+        </li>
+        <li ng-show="$ctrl.jv.status">
+            <div class="grey-box-header">
+                Status :
+                <b>
+                    {{$ctrl.jv.status.name}}
                 </b>
             </div>
         </li>

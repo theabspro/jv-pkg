@@ -1,0 +1,36 @@
+<!-- Modal -->
+<div class="modal filter fade" id="reject-popup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-sm mcollect-modal" role="document">
+        <div class="modal-content">
+            <form id="reject">
+                <div class="modal-body text-center">
+                    <img class="img-responsive img-center" src="./public/theme/img/content/reject.svg" />
+                    <h4 class="title">$crtl.modal_message</h4>
+                    <div class="input-text form-group text-left">
+                        <md-select ng-model="$ctrl.reject_reason.id" placeholder="Select Rejection Reason" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader">
+                            <md-select-header class="demo-select-header">
+                                <input ng-model="search" type="search" placeholder="Search JV Type" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                            </md-select-header>
+                            <md-optgroup label="reject">
+                                <md-option ng-value="reject.id" ng-repeat="reject in $ctrl.rejection_reasons | filter:searchTerm">
+                                    {{reject.name}}
+                                </md-option>
+                            </md-optgroup>
+                        </md-select>
+                        <input type="hidden" name="reject_reason_id" value='{{$ctrl.reject_reason.id}}' class="required" id="reject_reason_id">
+                    </div><!-- Feild -->
+                    <div class="input-text form-group">
+                        <textarea class="form-control" name="rejection_reason" rows="4" placeholder="Enter Remarks for Rejection"></textarea>
+                    </div>
+                </div><!-- Modal Body -->
+                <div class="modal-footer text-right">
+                    <a href="#!" class="btn btn-cancel my-tooltip" data-dismiss="modal" ng-shortcut="'meta+shift+c'" ng-shortcut-click data-title="ctrl+shift+c">Cancel</a>
+                    <button type="submit" class="btn btn-primary reject my-tooltip" id="rejection-confirmed" ng-shortcut="'meta+shift+p'" ng-shortcut-click data-title="ctrl+shift+p">
+                        Proceed
+                    </button>
+                </div><!-- Modal Footer -->
+            </form>
+        </div><!-- Modal Content -->
+    </div><!-- Modal Dialog -->
+</div><!-- Modal Content -->
+<!-- Modal -->

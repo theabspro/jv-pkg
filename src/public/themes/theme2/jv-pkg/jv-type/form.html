@@ -74,7 +74,7 @@
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
                                                 <label>Verification Flow <sup class="mandatory">*</sup></label>
-                                                <md-select ng-model="$ctrl.jv_type.approval_type_id" md-on-close="clearSearchTerm()" ng-change="onSelectedApprovalType($ctrl.jv_type.approval_type_id);$ctrl.jv_type.initial_status_id='';$ctrl.jv_type.final_approved_status_id=''" data-md-container-class="selectdemoSelectHeader" placeholder="Select Verification Flow">
+                                                <md-select ng-model="$ctrl.jv_type.approval_type_id" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader" placeholder="Select Verification Flow">
                                                     <md-select-header class="demo-select-header">
                                                         <input ng-model="searchTerm" type="search" placeholder="Search for a Verification Flow" class="demo-header-searchbox md-text">
                                                     </md-select-header>
@@ -93,7 +93,7 @@
                                                         <input ng-model="searchTerm1" type="search" placeholder="Search for a Initial Status" class="demo-header-searchbox md-text">
                                                     </md-select-header>
                                                     <md-optgroup>
-                                                        <md-option ng-value="approval_type_status.id" ng-repeat="approval_type_status in $ctrl.approval_type_status_list | filter:searchTerm1">{{approval_type_status.status}}</md-option>
+                                                        <md-option ng-value="approval_type_status.id" ng-repeat="approval_type_status in $ctrl.extras.status_list | filter:searchTerm1">{{approval_type_status.name}}</md-option>
                                                     </md-optgroup>
                                                 </md-select>
                                                 <input type="hidden" class="form-control required" name="initial_status_id" id="initial_status_id" value="{{$ctrl.jv_type.initial_status_id}}">
@@ -107,7 +107,7 @@
                                                         <input ng-model="searchTerm2" type="search" placeholder="Search for a Final Approved Status" class="demo-header-searchbox md-text">
                                                     </md-select-header>
                                                     <md-optgroup>
-                                                        <md-option ng-value="approval_type_status.id" ng-repeat="approval_type_status in $ctrl.approval_type_status_list | filter:searchTerm2">{{approval_type_status.status}}</md-option>
+                                                        <md-option ng-value="approval_type_status.id" ng-repeat="approval_type_status in $ctrl.extras.status_list | filter:searchTerm2">{{approval_type_status.name}}</md-option>
                                                     </md-optgroup>
                                                 </md-select>
                                                 <input type="hidden" class="form-control required" name="final_approved_status_id" id="final_approved_status_id" value="{{$ctrl.jv_type.final_approved_status_id}}">

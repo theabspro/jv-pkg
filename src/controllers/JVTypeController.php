@@ -2,6 +2,7 @@
 
 namespace Abs\JVPkg;
 use Abs\ApprovalPkg\ApprovalType;
+use Abs\ApprovalPkg\EntityStatus;
 use Abs\JVPkg\Journal;
 use Abs\JVPkg\JVType;
 use App\ActivityLog;
@@ -130,11 +131,6 @@ class JVTypeController extends Controller {
 		$id = $request->id;
 		if (!$id) {
 			$jv_type = new JVType;
-			// $jv_field = [
-			// 	['is_open' => 'Yes', 'is_editable' => 'Yes'],
-			// 	['is_open' => 'Yes', 'is_editable' => 'Yes'],
-			// 	['is_open' => 'Yes', 'is_editable' => 'Yes'],
-			// ];
 			$jv_field = [
 				['is_editable' => 'Yes'],
 				['is_editable' => 'Yes'],
@@ -152,7 +148,7 @@ class JVTypeController extends Controller {
 		$this->data['action'] = $action;
 		$this->data['theme'];
 		$this->data['extras'] = [
-			// 'approval_type_status_list' => ApprovalTypeStatus::select('id', 'status')->get(),
+			'status_list' => EntityStatus::select('id', 'name')->company()->where('entity_id', 7221)->get(),
 			'approval_type_list' => ApprovalType::where('entity_id', 7221)->select('id', 'name')->get(),
 			'journal_list' => Journal::select('id', 'name')->get(),
 			'jv_account_type_list' => Config::select('id', 'name')->where('config_type_id', 27)->get(),
