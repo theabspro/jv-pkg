@@ -160,7 +160,7 @@ class JournalVoucherController extends Controller {
 
 			$this->data['invoices'] = [];
 			$journal_voucher->date = date('d-m-Y');
-			$action = 'Add';
+			$journal_voucher->action = 'Add';
 		} else {
 			$journal_voucher = JournalVoucher::withTrashed()->with([
 				'attachments',
@@ -192,7 +192,7 @@ class JournalVoucherController extends Controller {
 			} else {
 				$journal_voucher->transfer_type = 'invoice';
 			}
-			$action = 'Edit';
+			$journal_voucher->action = 'Edit';
 			$journal_voucher->date = date('d-m-Y', strtotime($journal_voucher->date));
 		}
 		$this->data['journal_voucher'] = $journal_voucher;
@@ -200,7 +200,7 @@ class JournalVoucherController extends Controller {
 		$this->data['journal_list'] = collect(Journal::where('company_id', Auth::user()->company_id)->select('id', 'name')->get());
 		$this->data['account_type_list'] = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
 
-		$this->data['action'] = $action;
+		// $this->data['action'] = $action;
 		$this->data['theme'];
 		$this->data['jv_types'] = NULL;
 		$this->data['fromAcc_field'] = true;
@@ -210,6 +210,7 @@ class JournalVoucherController extends Controller {
 	}
 
 	public function saveJournalVoucher(Request $request) {
+		// dd($request->all());
 		try {
 			$error_messages = [
 				'type_id.required' => 'JV Type is required',

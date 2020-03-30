@@ -5,7 +5,7 @@
     <table class="table table-border-2" style="width: 100% !important;">
         <thead>
             <tr>
-                <th>Action</th>
+                <th ng-if="$ctrl.jv.action != 'View'">Action</th>
                 <th>Receipt No</th>
                 <th class="text-right">
                     Receipt Amount
@@ -27,7 +27,7 @@
                 <td colspan="8" class="text-center">No Data Found</td>
             </tr>
             <tr ng-if="$ctrl.jv.receipts.length != 0" ng-repeat="(index, receipt) in $ctrl.jv.receipts">
-                <td class="action">
+                <td class="action" ng-if="$ctrl.jv.action != 'View'">
                     <input type="hidden" name="receipts[{{index}}][id]" value="{{receipt.id}}">
                     <a href="javascript:void(0)" ng-click="removeReceipt(index)">
                         <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
@@ -53,3 +53,4 @@
         </tbody>
     </table>
 </div><!-- Table Responsive -->
+<span ng-if="$ctrl.jv.action == 'View'"><hr></span>
