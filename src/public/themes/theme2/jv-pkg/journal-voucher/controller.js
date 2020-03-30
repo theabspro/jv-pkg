@@ -1,4 +1,4 @@
-app.component('journalVoucherList', {
+ app.component('journalVoucherList', {
     templateUrl: journal_voucher_list_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect) {
         $scope.loading = true;
@@ -285,8 +285,22 @@ app.component('journalVoucherForm', {
             self.jv_type_list = response.data.jv_type_list;
             self.journal_list = response.data.journal_list;
             self.account_type_list = response.data.account_type_list;
-            self.action = response.data.action;
+            // self.action = response.data.action;
             $rootScope.loading = false;
+            if(self.jv.action == 'Edit'){
+            //ATTACHMENTS
+                if (self.jv.attachments.length) {
+                    $(self.jv.attachments).each(function(key, attachment) {
+                        var design = '<div class="imageuploadify-container" data-attachment_id="' + attachment.id + '" style="margin-left: 0px; margin-right: 0px;">' +
+                            '<div class="imageuploadify-btn-remove"><button type="button" class="btn btn-danger glyphicon glyphicon-remove"></button> ' +
+                            ' <div class="imageuploadify-details"><div class="imageuploadify-file-icon"></div><span class="imageuploadify-file-name"><a href="' + jv_attachements_url + '/' + attachment.name + '">' + attachment.name + '' +
+                            '</span><span class="imageuploadify-file-type">image/jpeg</span>' +
+                            '</a><span class="imageuploadify-file-size">369960</span></div>' +
+                            '</div></div>';
+                        $('.imageuploadify-images-list').append(design);
+                    });
+                }
+            }
         });
 
         //SELECT JV TYPE GET JOURNAL && FROM ACC && TO ACC 
@@ -415,6 +429,7 @@ app.component('journalVoucherForm', {
                     }
                 }
             ).then(function(response) {
+                console.log(response.data);
                 if (!response.data.success) {
                     custom_noty('error', response.data.error);
                     return;
@@ -598,15 +613,17 @@ app.component('journalVoucherView', {
                 }
             }).then(function(response) {
                 $('#approve-popup').modal('hide');
-                $rootScope.loading = false;
+                // $rootScope.loading = false;
                 if (!response.data.success) {
                     custom_noty('error', response.data.error);
                     return;
                 }
-                custom_noty('success', response.data.message);
-                $location.path('/jv-pkg/journal-voucher/list');
+                $timeout(function(){
+                    custom_noty('success', response.data.message);
+                    $location.path('/jv-pkg/journal-voucher/list');
+                    $scope.$apply();
+                },1000);
             });
-
         }
     }
 });

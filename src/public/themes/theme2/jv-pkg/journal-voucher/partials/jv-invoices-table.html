@@ -5,7 +5,7 @@
     <table class="table table-border-2" id="invoices_table" style="width: 100% !important;">
         <thead>
             <tr>
-                <th>
+                <th ng-if="$ctrl.jv.action != 'View'">
                     <div class="table-checkbox">
                         <input type="checkbox" id="parent_checkbox" />
                         <label for="parent_checkbox"></label>
@@ -26,7 +26,7 @@
                 <td colspan="8" class="text-center">No Data Found</td>
             </tr>
             <tr ng-if="$ctrl.jv.invoices.length != 0" ng-repeat="(index, invoice) in $ctrl.jv.invoices">
-                <td class="action">
+                <td class="action" ng-if="$ctrl.jv.action != 'View'">
                     <div class='table-checkbox1'>
                         <input type='checkbox' id='child_{{invoice.id}}' name='invoices[{{index}}][id]' value='{{invoice.id}}' class='jv_Checkbox' ng-change="invoiceUpdated()" ng-model="invoice.selected" />
                         <label for='child_{{invoice.id}}'></label>
@@ -43,12 +43,13 @@
                     {{invoice.received_amount}}
                 </td>
                 <td class="text-right">
-                    {{invoice.balance_amount}}
+                    {{invoice.invoice_amount - invoice.received_amount}}
                 </td>
-                <td>{{invoice.outlet_name}}</td>
-                <td>{{invoice.sbu_name}}</td>
+                <td>{{invoice.outlet.code}}</td>
+                <td>{{invoice.sbu.name}}</td>
                 <td>{{invoice.remarks}}</td>
             </tr>
         </tbody>
     </table>
 </div><!-- Table Responsive -->
+<span ng-if="$ctrl.jv.action == 'View'"><hr></span>

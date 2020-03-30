@@ -168,6 +168,7 @@ class JournalVoucher extends Model {
 
 		$journal_voucher->fromAccount;
 		$journal_voucher->toAccount;
+		$journal_voucher->action = 'View';
 
 		$data['activity_logs'] = $activity_logs = ActivityLog::select([
 			'activity_logs.user_id',
