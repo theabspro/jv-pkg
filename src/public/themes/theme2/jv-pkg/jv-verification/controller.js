@@ -12,7 +12,8 @@ app.component('jvVerificationList', {
         // }
         $http.get(
             laravel_routes['getVerificationFilter'],
-        ).then(function(response) { console.log(response.data);
+        ).then(function(response) {
+            console.log(response.data);
             self.extras = response.data.extras;
             $rootScope.loading = false;
             //console.log(self.extras);
@@ -197,8 +198,8 @@ app.component('jvVerificationList', {
                 ).then(function(response) {
                     if (response.data.success == true) {
                         custom_noty('success', response.data.message);
-                            $('#jv_verification_list').DataTable().ajax.reload();
-                            $scope.$apply();
+                        $('#jv_verification_list').DataTable().ajax.reload();
+                        $scope.$apply();
                         // $timeout(function() {
                         //     RefreshTable();
                         // }, 1000);
@@ -258,32 +259,11 @@ app.component('jvVerificationView', {
             }
         }).then(function(response) {
             console.log(response.data.activity_logs);
-            self.journal_vouchers = response.data.journal_vouchers;
-            self.reject_reason = response.data.reject_reason;
-            self.from_account_type = response.data.from_account_type;
-            self.to_account_type = response.data.to_account_type;
-            self.from_customer_details = response.data.from_customer_details;
-            self.to_customer_details = response.data.to_customer_details;
-            self.receipt_count = response.data.receipt_count;
-            self.invoice_count = response.data.invoice_count;
-            self.invoice_details = response.data.invoice_details;
-            self.receipt_details = response.data.receipt_details;
-            self.attachment = response.data.attachment;
-            self.activity_logs = response.data.activity_logs;
+            self.jv = response.data.journal_voucher;
+            self.rejection_reasons = response.data.rejection_reasons;
+            self.jv.activity_logs = response.data.activity_logs;
+            self.approval_level = response.data.approval_level;
             self.ref_attachements_url_link = jv_attachements_url;
-            self.action = response.data.action;
-            self.jv_date = self.journal_vouchers.date;
-            self.invoice_numbers = [];
-            angular.forEach(response.data.invoice_details, function(value,key){
-                self.invoice_numbers.push(value.invoice_number);                
-            });
-            self.invoices = self.invoice_numbers.join(', ');
-
-            self.receipt_numbers = [];
-            angular.forEach(response.data.receipt_details, function(value,key){
-                self.receipt_numbers.push(value.temporary_receipt_no);                
-            });
-            self.receipts = self.receipt_numbers.join(', ');
             $rootScope.loading = false;
         });
 
@@ -298,19 +278,6 @@ app.component('jvVerificationView', {
             if ($('.md-select-menu-container').hasClass('md-active')) {
                 $mdSelect.hide();
             }
-        });
-
-        /* Tab Funtion */
-        $('.btn-nxt').on("click", function() {
-            $('.cndn-tabs li.active').next().children('a').trigger("click");
-            tabPaneFooter();
-        });
-        $('.btn-prev').on("click", function() {
-            $('.cndn-tabs li.active').prev().children('a').trigger("click");
-            tabPaneFooter();
-        });
-        $('.btn-pills').on("click", function() {
-            tabPaneFooter();
         });
 
         var from_approve = '#approve';
@@ -328,9 +295,9 @@ app.component('jvVerificationView', {
                     .done(function(res) {
                         if (res.success == true) {
                             $('#approve-popup').modal('hide');
-                            custom_noty('success',res.message);
+                            custom_noty('success', res.message);
                             $timeout(function() {
-                                $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
+                                $location.path('/verification/7221/level/' + $routeParams.level_id + '/list');
                                 $scope.$apply();
                             }, 1000);
                         } else {
@@ -343,7 +310,7 @@ app.component('jvVerificationView', {
                                 custom_noty('error', errors);
                             } else {
                                 $('.submit').button('reset');
-                                $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
+                                $location.path('/verification/7221/level/' + $routeParams.level_id + '/list');
                                 $scope.$apply();
                             }
                         }
@@ -363,7 +330,6 @@ app.component('jvVerificationView', {
                     required: true,
                 },
                 'rejection_reason': {
-                    required: true,
                     minlength: 3,
                     maxlength: 191,
                 },
@@ -381,9 +347,9 @@ app.component('jvVerificationView', {
                     .done(function(res) {
                         if (res.success == true) {
                             $('#reject-popup').modal('hide');
-                            custom_noty('success',res.message);
+                            custom_noty('success', res.message);
                             $timeout(function() {
-                                $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
+                                $location.path('/verification/7221/level/' + $routeParams.level_id + '/list');
                                 $scope.$apply();
                             }, 1000);
                         } else {
@@ -396,7 +362,7 @@ app.component('jvVerificationView', {
                                 custom_noty('error', errors);
                             } else {
                                 $('.submit').button('reset');
-                                $location.path('/verification/7221/level/'+ $routeParams.level_id +'/list');
+                                $location.path('/verification/7221/level/' + $routeParams.level_id + '/list');
                                 $scope.$apply();
                             }
                         }

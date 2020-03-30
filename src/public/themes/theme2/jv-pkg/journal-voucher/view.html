@@ -8,26 +8,25 @@
                     <a href="#!/jv-pkg/journal-voucher/list" type="button" class="btn-back btn-img my-tooltip" ng-shortcut="'meta+shift+left'" ng-shortcut-click data-title="ctrl+shift+left"><img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" /></a>
                 </div><!-- Page Header Content -->
                 <div class="page-header-content title-block">
-                    <h1 class="title"><b>{{$ctrl.action}} Journal Voucher</b></h1>
+                    <h1 class="title"><b>View Journal Voucher</b></h1>
                     <p class="subtitle"><a href="#!/jv-pkg/journal-voucher/list">Journal Vouchers</a> / View </p>
                 </div><!-- Page Header Content -->
             </div><!-- Page Header Content Left -->
         </div><!-- Page Header Inner -->
     </div><!-- Page Header -->
-
     <!-- Page Main Content -->
     <div class="page-main-content form-content type2">
         <div class="page-tab-form pb-70">
             <div class="tab-form-wrap">
                 <div class="tab-form-header">
                     <div class="tab-header">
-                            <!-- Filters -->
+                        <!-- Filters -->
                         <div class="isotope-filters animated" data-animation="fadeInLeft" data-animation-delay="300">
                             <ul class="nav nav-pills cndn-tabs">
                                 <li class="active"><a class="filter active" data-target="#general-info" data-toggle="tab" aria-expanded="true">General Info</a></li>
                                 <li><a class="filter" data-target="#activity-log" data-toggle="tab" aria-expanded="true">Activity Log</a></li>
                             </ul>
-                        </div><!-- Filters -->  
+                        </div><!-- Filters -->
                     </div><!-- Tab Header -->
                 </div><!-- Tab Form Header -->
                 <div class="tab-form-body">
@@ -37,165 +36,42 @@
                             <div class="tab-pane-wrap">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <ul class="grid-row">
-                                            <li class="grid-col-3">
-                                                <span class="grid-col-label">Date</span>
-                                                <span class="grid-col-value" >{{$ctrl.journal_vouchers.jv_date}}</span>
-                                            </li>
-                                            <li class="grid-col-3">
-                                                <span class="grid-col-label">Type</span>
-                                                <span class="grid-col-value">{{$ctrl.journal_vouchers.jv_type.name}}</span>
-                                            </li>
-                                            <li class="grid-col-3">
-                                                <span class="grid-col-label">Journal Name</span>
-                                                <span class="grid-col-value">{{$ctrl.journal_vouchers.journal.name}}</span>
-                                            </li>
-                                            <li class="grid-col-3">
-                                                <span class="grid-col-label">Account Type</span>
-                                                <span class="grid-col-value color-green">{{$ctrl.from_account_type.name}} to {{$ctrl.to_account_type.name}}</span>
-                                            </li>
-                                        </ul>
-                                        <div class="mb-30"></div><!-- Space -->
-                                        <h6 class="tab-pane-title color-light mb-10">Account Details</h6>
-                                        <ul class="flex-row">
-                                            <li class="flex-col-3">
-                                                <div class="grey-box">
-                                                    <div class="grey-box-header">From Account : <b>{{$ctrl.from_customer_details.code}}</b></div>
-                                                    <div class="grey-box-body">
-                                                        <p class="grey-box-info sm">{{$ctrl.from_customer_details.name}}</p>
-                                                        <p class="grey-box-info sm">{{$ctrl.from_customer_details.address}}</p>
-                                                        <p class="grey-box-info sm">{{$ctrl.from_customer_details.mobile_no}}</p>
-                                                        <p class="grey-box-info sm">{{$ctrl.from_customer_details.email}}</p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li class="flex-col-3">
-                                                <div class="grey-box">
-                                                    <div class="grey-box-header">Receipt Count : <b>{{$ctrl.receipt_count}}</b></div>
-                                                    <div class="grey-box-body">
-                                                        <p class="grey-box-info sm" ng-if="$ctrl.receipts.length != ''">Receipt Numbers : {{$ctrl.receipts}}</p>
-                                                        <p class="grey-box-info sm" ng-if="$ctrl.receipts.length == ''">No Receipt available</p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li class="flex-col-3">
-                                                <div class="grey-box">
-                                                    <div class="grey-box-header">To Account : <b>{{$ctrl.to_customer_details.code}}</b></div>
-                                                    <div class="grey-box-body">
-                                                        <p class="grey-box-info sm">{{$ctrl.to_customer_details.name}}</p>
-                                                        <p class="grey-box-info sm">{{$ctrl.to_customer_details.address}}</p>
-                                                        <p class="grey-box-info sm">{{$ctrl.to_customer_details.mobile_no}}</p>
-                                                        <p class="grey-box-info sm">{{$ctrl.to_customer_details.email}}</p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <li class="flex-col-3">
-                                                <div class="grey-box">
-                                                    <div class="grey-box-header">Invoice Count : <b>{{$ctrl.invoice_count}}</b></div>
-                                                    <div class="grey-box-body">
-                                                         <p class="grey-box-info sm" ng-if="$ctrl.invoices.length != ''">Invoice Numbers : {{$ctrl.invoices}}</p>
-                                                        <p class="grey-box-info sm" ng-if="$ctrl.invoices.length == ''">No Receipt available</p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                        <div class="mb-30"></div><!-- Space -->
-                                        <h6 class="tab-pane-title color-light mb-10">Amount</h6>
-                                        <ul class="grid-row">
-                                            <li class="grid-col-3">
-                                                <span class="grid-col-label">Transfer Amount</span>
-                                                <span class="grid-col-value">{{$ctrl.journal_vouchers.amount}}</span>
-                                            </li>
-                                            <li class="grid-col-3">
-                                                <span class="grid-col-label">Reason</span>
-                                                <span class="grid-col-value">{{$ctrl.journal_vouchers.reason}}</span>
-                                            </li>
-                                            <li class="grid-col-6 brdr-top">
-                                                <span class="grid-col-label">Remaks</span>
-                                                <span class="grid-col-value">{{$ctrl.journal_vouchers.remarks ? $ctrl.journal_vouchers.remarks : 'N/A'}}</span>
-                                            </li>                                            
-                                        </ul>
-                                        <div class="mb-30"></div><!-- Space -->
-                                        <h6 class="tab-pane-title color-light mb-10" ng-if="$ctrl.attachment">Attachments</h6>
-                                         <div class="jva-attachments" ng-if="$ctrl.attachment != true">
-                                            --
-                                         </div>
-                                        <div class="jva-attachments" ng-if="$ctrl.attachment">
-                                            <div class="imageuploadify well">
-                                                <div class="imageuploadify-images-list">
-                                                    <div ng-repeat="(key,attachment) in $ctrl.attachment">
-                                                        <!-- <div class="imageuploadify-view-icon">
-                                                            <img class="img-responsive" src="./public/theme/img/content/attachment.svg" alt="Icon" />
-                                                        </div> -->
-                                                        <div class="imageuploadify-container" data-attachment_id="{{attachment.id}}" style="margin-left: 0px; margin-right: 0px; ">
-                                                            <div class="imageuploadify-details">
-                                                                <span class="imageuploadify-file-name"><a href="{{$ctrl.ref_attachements_url_link}}/{{attachment.name}}" download>{{attachment.name}}</a></span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <jv-form-header jv="$ctrl.jv"></jv-form-header>
+                                        <jv-amount-details-view jv="$ctrl.jv"></jv-amount-details-view>
                                     </div><!-- Column -->
                                     <div class="tab-pane-footer">
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <a ng-if="$ctrl.final_approval_status.final_approved_status_id != $ctrl.journal_vouchers.status_id" class="btn btn-cancel btn-min-wdth my-tooltip" data-toggle="modal" data-target="#reject-popup" ng-shortcut="'meta+shift+r'" ng-shortcut-click data-title="ctrl+shift+r"> Reject</a>
-                                                <button ng-if="$ctrl.final_approval_status.final_approved_status_id != $ctrl.journal_vouchers.status_id" type="button" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">Approve</button>
                                                 <a class="btn btn-secondary btn-min-wdth btn-nxt my-tooltip" ng-shortcut="'meta+shift+down'" ng-shortcut-click data-title="ctrl+shift+down">Next</a>
+                                                <button type="button" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">
+                                                    Send for Approval
+                                                </button>
                                             </div>
                                         </div>
                                     </div><!-- Tab Footer -->
                                 </div><!-- Row -->
                             </div><!-- Tab Pane Wrap -->
-                        </div><!-- Tabe Pane -->  
+                        </div><!-- Tabe Pane -->
                         <div class="tab-pane fade" id="activity-log" data-animation="fadeInUp" data-animation-delay="300">
                             <div class="tab-pane-wrap">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="timeline-wrap">
-                                            <div class="timeline-log" ng-repeat="(index, activity_log) in $ctrl.activity_logs">
-                                                <div class="timeline-left">
-                                                    <p class="timeline-date">{{ activity_log.activity_date }} <span class="timeline-time">{{ activity_log.activity_time }}</span></p>
-                                                </div>
-                                                <div class="timeline-content">
-                                                    <h6 class="timeline-content-title">{{ activity_log.status_name }}</h6>
-                                                    <p class="timeline-content-info">by {{ activity_log.created_user }} / {{ activity_log.user_role }} </p>
-                                                </div>
-                                            </div>
-                                            <!-- <div class="timeline-log">
-                                                <div class="timeline-left">
-                                                    <p class="timeline-date"> <span class="timeline-time">11 : 30 am</span></p>
-                                                </div>
-                                                <div class="timeline-content">
-                                                    <h6 class="timeline-content-title">Sent to Approval</h6>
-                                                    <p class="timeline-content-info">by Selvakumar / E2134677 / Administrator </p>
-                                                </div>
-                                            </div> -->
-                                            <!-- <div class="timeline-log">
-                                                <div class="timeline-left">
-                                                    <p class="timeline-date">13 Jan 2020 <span class="timeline-time">11 : 30 am</span></p>
-                                                </div>
-                                                <div class="timeline-content">
-                                                    <h6 class="timeline-content-title">Approved</h6>
-                                                    <p class="timeline-content-info">by Rajesh Kumar / E2134677 / Manager </p>
-                                                </div>
-                                            </div> -->
-                                        </div><!-- Timeline Wrap -->
+                                        <jv-activity-logs jv="$ctrl.jv"></jv-activity-logs>
                                     </div><!-- Column -->
                                     <div class="tab-pane-footer">
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <a class="btn btn-secondary btn-prev my-tooltip" ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">Previous</a>
-                                                <a ng-if="$ctrl.final_approval_status.final_approved_status_id != $ctrl.journal_vouchers.status_id" class="btn btn-cancel btn-min-wdth my-tooltip" data-toggle="modal" data-target="#reject-popup" ng-shortcut="'meta+shift+r'" ng-shortcut-click data-title="ctrl+shift+r"> Reject</a>
-                                                <button ng-if="$ctrl.final_approval_status.final_approved_status_id != $ctrl.journal_vouchers.status_id" type="button" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">Approve</button>
+                                                <button type="button" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">
+                                                    Send For Approval
+                                                </button>
                                             </div><!-- Column -->
                                         </div><!-- Row -->
                                     </div><!-- Tab Footer -->
                                 </div><!-- Row -->
                             </div><!-- Tab Pane Wrap -->
-                        </div><!-- Tabe Pane -->               
-                    </div><!-- Tab Content -->   
+                        </div><!-- Tabe Pane -->
+                    </div><!-- Tab Content -->
                 </div><!-- Tab Form Body -->
             </div><!-- Tab Form Wrap -->
         </div><!-- Page Form -->
@@ -204,57 +80,21 @@
 <!-- Modal -->
 <div class="modal filter fade" id="approve-popup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog modal-sm mcollect-modal" role="document">
-        <form id="approve">
         <div class="modal-content">
             <div class="modal-body text-center">
                 <img class="img-responsive img-center" src="./public/theme/img/content/success.svg" />
-                <h4 class="title">Approve</h4>
+                <h4 class="title">
+                    Are you sure, You want to send for approval?
+                </h4>
             </div><!-- Modal Body -->
             <div class="modal-footer text-right">
-                <input type="hidden" name="journal_voucher_id" value="{{$ctrl.journal_vouchers.id}}" id=journal_voucher_id>
-                <input type="hidden" name="approval_level_id" value="{{$ctrl.level_id}}" id=approval_level_id>
-                <input type="hidden" name="verification_type" value="approve" id=verification_type>
-                <a href="#!" class="btn btn-cancel my-tooltip" data-dismiss="modal" ng-shortcut="'meta+shift+c'" ng-shortcut-click data-title="ctrl+shift+c">Cancel</a>
-                <button type="submit" class="btn btn-primary approve my-tooltip" ng-shortcut="'meta+shift+p'" ng-shortcut-click data-title="ctrl+shift+p">Proceed</button>
+                <a href="#!" class="btn btn-cancel my-tooltip" data-dismiss="modal" ng-shortcut="'meta+shift+c'" ng-shortcut-click data-title="ctrl+shift+c">
+                    Cancel
+                </a>
+                <button type="button" class="btn btn-primary approve my-tooltip" ng-shortcut="'meta+shift+p'" ng-shortcut-click data-title="ctrl+shift+p" ng-click="sendForApproval()">
+                    Proceed
+                </button>
             </div><!-- Modal Footer -->
-        </div><!-- Modal Content -->
-    </form>
-    </div><!-- Modal Dialog -->
-</div><!-- Modal Content -->
-<!-- Modal -->
-<!-- Modal -->
-<div class="modal filter fade" id="reject-popup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog modal-sm mcollect-modal" role="document">
-        <div class="modal-content">
-            <form id="reject">
-            <div class="modal-body text-center">
-                <img class="img-responsive img-center" src="./public/theme/img/content/reject.svg" />
-                <h4 class="title">Reject</h4>
-                <div class="input-text form-group text-left">
-                <input type="hidden" name="journal_voucher_id" value="{{$ctrl.journal_vouchers.id}}" id=journal_voucher_id>
-                <input type="hidden" name="verification_type" value="Reject" id=verification_type>
-                <input type="hidden" name="approval_level_id" value="{{$ctrl.level_id}}" id=approval_level_id>
-                    <md-select ng-model="$ctrl.reject_reason.id" placeholder="Select JV Rejection Reason" md-on-close="clearSearchTerm()" data-md-container-class="selectdemoSelectHeader">
-                        <md-select-header class="demo-select-header">
-                            <input ng-model="search" type="search" placeholder="Search JV Type" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
-                        </md-select-header>
-                        <md-optgroup label="reject">
-                            <md-option ng-value="reject.id" ng-repeat="reject in $ctrl.reject_reason | filter:searchTerm">
-                                {{reject.name}}
-                            </md-option>
-                        </md-optgroup>
-                    </md-select>
-                    <input type="hidden" name="reject_reason_id" value='{{$ctrl.reject_reason.id}}' class="required" id="reject_reason_id">
-                </div><!-- Feild -->
-                <div class="input-text form-group">
-                    <textarea class="form-control" name="rejection_reason" rows="4" placeholder="Enter Remarks for Rejection"></textarea>
-                </div>
-            </div><!-- Modal Body -->
-            <div class="modal-footer text-right">
-                <a href="#!" class="btn btn-cancel my-tooltip" data-dismiss="modal" ng-shortcut="'meta+shift+c'" ng-shortcut-click data-title="ctrl+shift+c">Cancel</a>
-                <button type="submit" class="btn btn-primary reject my-tooltip" ng-shortcut="'meta+shift+p'" ng-shortcut-click data-title="ctrl+shift+p">Proceed</button>
-            </div><!-- Modal Footer -->
-        </form>
         </div><!-- Modal Content -->
     </div><!-- Modal Dialog -->
 </div><!-- Modal Content -->

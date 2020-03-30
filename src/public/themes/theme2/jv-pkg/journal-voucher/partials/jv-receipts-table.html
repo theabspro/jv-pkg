@@ -1,0 +1,55 @@
+<h6 class="tab-pane-title fromAcc_Title">
+    Selected Receipts
+</h6>
+<div class="table-responsive">
+    <table class="table table-border-2" style="width: 100% !important;">
+        <thead>
+            <tr>
+                <th>Action</th>
+                <th>Receipt No</th>
+                <th class="text-right">
+                    Receipt Amount
+                </th>
+                <th class="text-right">
+                    Settled Amount
+                </th>
+                <th class="text-right">
+                    Available Amount
+                </th>
+                <th>Receipt Date</th>
+                <th>Outlet</th>
+                <th>SBU</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-if="$ctrl.jv.receipts.length == 0">
+                <td colspan="8" class="text-center">No Data Found</td>
+            </tr>
+            <tr ng-if="$ctrl.jv.receipts.length != 0" ng-repeat="(index, receipt) in $ctrl.jv.receipts">
+                <td class="action">
+                    <input type="hidden" name="receipts[{{index}}][id]" value="{{receipt.id}}">
+                    <a href="javascript:void(0)" ng-click="removeReceipt(index)">
+                        <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
+                    </a>
+                </td>
+                <td>
+                    {{receipt.permanent_receipt_no}}
+                </td>
+                <td class="text-right">
+                    {{receipt.amount}}
+                </td>
+                <td class="text-right">
+                    {{receipt.settled_amount}}
+                </td>
+                <td class="text-right">
+                    {{receipt.balance_amount}}
+                </td>
+                <td>{{receipt.date}}</td>
+                <td>{{receipt.outlet.code}}</td>
+                <td>{{receipt.sbu.name}}</td>
+                <td>{{receipt.description}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div><!-- Table Responsive -->

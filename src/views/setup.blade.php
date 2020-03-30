@@ -96,6 +96,12 @@
     var journal_voucher_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/list.html')}}";
     var journal_voucher_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/form.html')}}";
     var journal_voucher_view_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/view.html')}}";
+	var jv_form_header_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/partials/jv-form-header.html')}}";
+	var jv_receipts_table_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/partials/jv-receipts-table.html')}}";
+	var jv_invoices_table_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/partials/jv-invoices-table.html')}}";
+	var jv_amount_details_view_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/partials/jv-amount-details-view.html')}}";
+	var jv_activity_logs_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/partials/jv-activity-logs.html')}}";
+
 
     //JOURNAL VOUCHER VERIFICATION
     var jv_verification_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-verification/list.html')}}";

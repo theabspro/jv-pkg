@@ -2,6 +2,7 @@
 
 namespace Abs\JVPkg;
 use Abs\ApprovalPkg\ApprovalType;
+use Abs\ApprovalPkg\EntityStatus;
 use Abs\JVPkg\Journal;
 use Abs\JVPkg\JVType;
 use App\ActivityLog;
@@ -130,11 +131,6 @@ class JVTypeController extends Controller {
 		$id = $request->id;
 		if (!$id) {
 			$jv_type = new JVType;
-			// $jv_field = [
-			// 	['is_open' => 'Yes', 'is_editable' => 'Yes'],
-			// 	['is_open' => 'Yes', 'is_editable' => 'Yes'],
-			// 	['is_open' => 'Yes', 'is_editable' => 'Yes'],
-			// ];
 			$jv_field = [
 				['is_editable' => 'Yes'],
 				['is_editable' => 'Yes'],
@@ -152,8 +148,8 @@ class JVTypeController extends Controller {
 		$this->data['action'] = $action;
 		$this->data['theme'];
 		$this->data['extras'] = [
-			// 'approval_type_status_list' => ApprovalTypeStatus::select('id', 'status')->get(),
-			'approval_type_list' => ApprovalType::select('id', 'name')->get(),
+			'status_list' => EntityStatus::select('id', 'name')->company()->where('entity_id', 7221)->get(),
+			'approval_type_list' => ApprovalType::where('entity_id', 7221)->select('id', 'name')->get(),
 			'journal_list' => Journal::select('id', 'name')->get(),
 			'jv_account_type_list' => Config::select('id', 'name')->where('config_type_id', 27)->get(),
 		];
@@ -348,5 +344,59 @@ class JVTypeController extends Controller {
 			DB::rollBack();
 			return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
 		}
+	}
+
+	public function getJVType(Request $request) {
+		$error_messages = [
+			'id.required' => 'ID is required',
+		];
+
+		$validator = Validator::make($request->all(), [
+			'id' => [
+				'required:true',
+			],
+		], $error_messages);
+
+		if ($validator->fails()) {
+			return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+		}
+
+		//NEW CODE
+		$this->data['jv_type'] = $jv_type = JVType::with([
+			'fields',
+		])->find($request->id);
+
+		foreach ($jv_type->fields as $field) {
+			if (!$field->pivot->is_editable) {
+				if ($field->pivot->field_id == 1420) {
+					//JOURNAL
+					$jv_type->journal_editable = false;
+					$jv_type->journal = Journal::select([
+						'journals.id',
+						'journals.name',
+					])->find($field->pivot->value);
+				} elseif ($field->pivot->field_id == 1421) {
+					//FROM ACCOUNT TYPE
+					$jv_type->from_account_type_editable = false;
+					$jv_type->from_account_type = Config::find($field->pivot->value);
+				} else {
+					//TO ACCOUNT TYPE
+					$jv_type->to_account_type_editable = false;
+					$jv_type->to_account_type = Config::find($field->pivot->value);
+				}
+			} else {
+				if ($field->pivot->field_id == 1420) {
+					//JOURNAL
+					$jv_type->journal_editable = true;
+				} elseif ($field->pivot->field_id == 1421) {
+					//FROM ACCOUNT TYPE
+					$jv_type->from_account_type_editable = true;
+				} else {
+					//TO ACCOUNT TYPE
+					$jv_type->to_account_type_editable = true;
+				}
+			}
+		}
+		return response()->json($this->data);
 	}
 }

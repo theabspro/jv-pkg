@@ -25,15 +25,24 @@ class JVType extends Model {
 	public function approvalType() {
 		return $this->belongsTo('Abs\ApprovalPkg\ApprovalType', 'approval_type_id');
 	}
+
+	public function verificationFlow() {
+		return $this->belongsTo('Abs\ApprovalPkg\ApprovalType', 'approval_type_id');
+	}
+
 	public function approvalTypeInitialStatus() {
 		return $this->belongsTo('Abs\ApprovalPkg\ApprovalTypeStatus', 'initial_status_id');
 	}
 	public function approvalTypeFinalStatus() {
 		return $this->belongsTo('Abs\ApprovalPkg\ApprovalTypeStatus', 'final_approved_status_id');
 	}
-
+	//ISUUE : NAMING
 	public function jvTypeField() {
 		return $this->belongsToMany('App\Config', 'jv_type_id', 'field_id')->withPivot(['is_open', 'is_editable', 'value']);
+	}
+
+	public function fields() {
+		return $this->belongsToMany('App\Config', 'jv_type_field', 'jv_type_id', 'field_id')->withPivot(['is_open', 'is_editable', 'value']);
 	}
 
 	public static function createFromObject($record_data) {

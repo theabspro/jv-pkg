@@ -1,0 +1,121 @@
+<div class="grey-wrap">
+    <!-- ISSUE : REPEATED CODE NOT MODULARIZED AND REUSED-->
+    <ul class="grey-list mb-20">
+        <li ng-show="$ctrl.jv.type">
+            <div class="grey-box">
+                <div class="grey-box-header">
+                    Date :
+                    <b>{{$ctrl.jv.date}}</b>
+                </div>
+            </div>
+        </li>
+        <li ng-show="$ctrl.jv.type">
+            <div class="grey-box">
+                <div class="grey-box-header">
+                    JV Type :
+                    <b>{{$ctrl.jv.type.name}}</b>
+                </div>
+            </div>
+        </li>
+        <li ng-show="$ctrl.jv.journal">
+            <div class="grey-box">
+                <div class="grey-box-header">
+                    Journal : <b>{{$ctrl.jv.journal.name}}</b>
+                </div>
+            </div>
+        </li>
+        <li ng-show="$ctrl.jv.type">
+            <div class="grey-box-header">
+                Transfer Type :
+                <b>
+                    {{$ctrl.jv.from_account_type.name}} to {{$ctrl.jv.to_account_type.name}}
+                </b>
+            </div>
+        </li>
+        <li ng-show="$ctrl.jv.status">
+            <div class="grey-box-header">
+                Status :
+                <b>
+                    {{$ctrl.jv.status.name}}
+                </b>
+            </div>
+        </li>
+        <li>
+            10258258 AL20ST0413865 AL20ST0467838
+        </li>
+    </ul>
+    <ul class="flex-row">
+        <li class="flex-col-3" ng-show="$ctrl.jv.from_account">
+            <div class="grey-box">
+                <!-- ISSUE : Repeated condition check -->
+                <!--                 <div class="grey-box-header">From Account : <b ng-show="!isObjectEmpty($ctrl.fromAccountCustomer)">{{$ctrl.fromAccountCustomer.code}}</b></div>
+                <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.fromAccountCustomer)">
+ -->
+                <div class="grey-box-header">From Account : <b>{{$ctrl.jv.from_account.code}}</b></div>
+                <div class="grey-box-body">
+                    <p class="grey-box-info sm">{{$ctrl.jv.from_account.name}}</p>
+                    <p class="grey-box-info sm">{{$ctrl.jv.from_account.address}}</p>
+                    <p class="grey-box-info sm">{{$ctrl.jv.from_account.mobile_no ? '+91 '+ $ctrl.jv.from_account.mobile_no : ''}}</p>
+                    <p class="grey-box-info sm">{{$ctrl.jv.from_account.email ? $ctrl.jv.from_account.email : ''}}</p>
+                </div>
+            </div>
+        </li>
+        <li class="flex-col-3" ng-show="$ctrl.jv.to_account">
+            <div class="grey-box">
+                <!-- ISSUE : Repeated condition check -->
+                <!--                 <div class="grey-box-header">To Account : <b ng-show="!isObjectEmpty($ctrl.toAccountCustomer)">{{$ctrl.toAccountCustomer.code}}</b></div>
+                <div class="grey-box-body" ng-show="!isObjectEmpty($ctrl.toAccountCustomer)">
+ -->
+                <div class="grey-box-header">To Account : <b>{{$ctrl.jv.to_account.code}}</b></div>
+                <div class="grey-box-body">
+                    <p class="grey-box-info sm">
+                        {{$ctrl.jv.to_account.name}}
+                    </p>
+                    <p class="grey-box-info sm">
+                        {{$ctrl.jv.to_account.address}}
+                    </p>
+                    <p class="grey-box-info sm">
+                        {{$ctrl.jv.to_account.mobile_no ? '+91 '+ $ctrl.jv.to_account.mobile_no : ''}}
+                    </p>
+                    <p class="grey-box-info sm">
+                        {{$ctrl.jv.to_account.email ? $ctrl.jv.to_account.email : ''}}
+                    </p>
+                </div>
+            </div>
+        </li>
+        <li class="flex-col-3" ng-show="$ctrl.jv.receipts.length > 0">
+            <div class="grey-box">
+                <div class="grey-box-header">
+                    <b>
+                        {{$ctrl.jv.receipts.length}}
+                        Receipts (Rs {{$ctrl.jv.total_receipt_amount}})
+                    </b>
+                </div>
+                <div class="grey-box-body">
+                    <p class="grey-box-info sm">
+                        <span ng-repeat="(key, receipt) in $ctrl.jv.receipts">
+                            {{receipt.permanent_receipt_no}},
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </li>
+        <li class="flex-col-3" ng-show="$ctrl.jv.invoices.length > 0">
+            <div class="grey-box">
+                <div class="grey-box-header">
+                    <b>
+                        {{$ctrl.jv.invoices_length}}
+                        Invoices (Rs:{{$ctrl.jv.total_invoice_amount}})
+                    </b>
+                </div>
+                <div class="grey-box-body">
+                    <p class="grey-box-info sm">
+                        <span ng-repeat="(key, invoice) in $ctrl.jv.invoices">
+                            {{invoice.selected ? invoice.invoice_number+',' : ''}}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div><!-- Grey Wrap -->
