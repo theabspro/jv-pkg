@@ -12,7 +12,7 @@ class JvU1 extends Migration {
 	 */
 	public function up() {
 		Schema::table('journal_vouchers', function (Blueprint $table) {
-			$table->dropForeign('journal_vouchers_status_id_foreign');
+			// $table->dropForeign('journal_vouchers_status_id_foreign');
 			$table->foreign('status_id')->references('id')->on('entity_statuses')->onDelete('CASCADE')->onUpdate('cascade');
 		});
 	}
