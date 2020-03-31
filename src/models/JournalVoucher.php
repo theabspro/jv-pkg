@@ -170,6 +170,26 @@ class JournalVoucher extends Model {
 		$journal_voucher->toAccount;
 		$journal_voucher->action = 'View';
 
+		$selected_invoice_ids = $journal_voucher->invoices()->pluck('id')->toArray();
+		// dd($selected_invoice_ids);
+		$data['invoices'] = $journal_voucher->toAccount->invoices;
+		foreach ($journal_voucher->toAccount->invoices as $invoice) {
+			// dd($invoice);
+			if (in_array($invoice->id, $selected_invoice_ids)) {
+				$invoice->selected = true;
+				$total_invoice_amount[] = $invoice->invoice_amount;
+			} else {
+				$invoice->selected = false;
+				$total_invoice_amount[] = '';
+			}
+		}
+		foreach ($journal_voucher->receipts as $receipt) {
+			$balance_amount[] = $receipt->balance_amount;
+		}
+		$journal_voucher->invoices_length = count($selected_invoice_ids);
+		$journal_voucher->total_invoice_amount = array_sum($total_invoice_amount);
+		$journal_voucher->total_receipt_amount = array_sum($balance_amount);
+
 		$data['activity_logs'] = $activity_logs = ActivityLog::select([
 			'activity_logs.user_id',
 			DB::raw('DATE_FORMAT(activity_logs.date_time,"%d %b %Y") as activity_date'),

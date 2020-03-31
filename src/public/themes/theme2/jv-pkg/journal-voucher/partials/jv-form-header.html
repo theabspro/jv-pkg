@@ -32,6 +32,8 @@
                 </b>
             </div>
         </li>
+    </ul>
+    <ul class="grey-list mb-20">
         <li ng-show="$ctrl.jv.status">
             <div class="grey-box-header">
                 Status :
@@ -41,11 +43,11 @@
             </div>
         </li>
         <li>
-            10258258 AL20ST0413865 AL20ST0467838
+            1000162 AL19ST0254452 AL19ST0253878
         </li>
     </ul>
     <ul class="flex-row">
-        <li class="flex-col-3" ng-show="$ctrl.jv.from_account">
+        <li class="flex-col-3" ng-if="$ctrl.jv.from_account">
             <div class="grey-box">
                 <!-- ISSUE : Repeated condition check -->
                 <!--                 <div class="grey-box-header">From Account : <b ng-show="!isObjectEmpty($ctrl.fromAccountCustomer)">{{$ctrl.fromAccountCustomer.code}}</b></div>
@@ -60,7 +62,7 @@
                 </div>
             </div>
         </li>
-        <li class="flex-col-3" ng-show="$ctrl.jv.to_account">
+        <li class="flex-col-3" ng-if="$ctrl.jv.to_account">
             <div class="grey-box">
                 <!-- ISSUE : Repeated condition check -->
                 <!--                 <div class="grey-box-header">To Account : <b ng-show="!isObjectEmpty($ctrl.toAccountCustomer)">{{$ctrl.toAccountCustomer.code}}</b></div>
@@ -88,7 +90,7 @@
                 <div class="grey-box-header">
                     <b>
                         {{$ctrl.jv.receipts.length}}
-                        Receipts (Rs {{$ctrl.jv.total_receipt_amount}})
+                        Receipts (Rs: {{$ctrl.jv.total_receipt_amount}})
                     </b>
                 </div>
                 <div class="grey-box-body">
@@ -105,13 +107,18 @@
                 <div class="grey-box-header">
                     <b>
                         {{$ctrl.jv.invoices_length}}
-                        Invoices (Rs:{{$ctrl.jv.total_invoice_amount}})
+                        Invoices (Rs: {{$ctrl.jv.total_invoice_amount}})
                     </b>
                 </div>
                 <div class="grey-box-body">
-                    <p class="grey-box-info sm">
+                    <p class="grey-box-info sm" ng-if="$ctrl.jv.action !='View'">
                         <span ng-repeat="(key, invoice) in $ctrl.jv.invoices">
                             {{invoice.selected ? invoice.invoice_number+',' : ''}}
+                        </span>
+                    </p>
+                    <p class="grey-box-info sm" ng-if="$ctrl.jv.action =='View'">
+                        <span ng-repeat="(key, invoice) in $ctrl.jv.invoices">
+                            {{invoice.invoice_number+','}}
                         </span>
                     </p>
                 </div>

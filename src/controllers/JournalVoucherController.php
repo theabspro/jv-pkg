@@ -142,6 +142,7 @@ class JournalVoucherController extends Controller {
 	}
 
 	public function getJournalVoucherFormData(Request $r) {
+		// dd($r->all());
 		if (!$r->id) {
 			$journal_voucher = new JournalVoucher;
 			$journal_voucher->receipts = [];
@@ -150,13 +151,15 @@ class JournalVoucherController extends Controller {
 			$journal_voucher->total_invoice_amount = 0;
 			$journal_voucher->from_account = null;
 			$journal_voucher->to_account = null;
+			$permanent_number = [];
+			$invoices_length = '';
 
 			//For Testing only
-			$journal_voucher->from_account = $journal_voucher->to_account = Customer::where('code', '10258258')->first();
+			$journal_voucher->from_account = $journal_voucher->to_account = Customer::where('code', '1000162')->first();
 			$journal_voucher->transfer_type = 'receipt';
-			$journal_voucher->amount = '100.40';
-			$journal_voucher->remarks = 'some remarks';
-			$journal_voucher->reason = 'some reason';
+			// $journal_voucher->amount = '100.40';
+			// $journal_voucher->remarks = 'some remarks';
+			// $journal_voucher->reason = 'some reason';
 
 			$this->data['invoices'] = [];
 			$journal_voucher->date = date('d-m-Y');
@@ -165,6 +168,7 @@ class JournalVoucherController extends Controller {
 			$journal_voucher = JournalVoucher::withTrashed()->with([
 				'attachments',
 				'type',
+				'journal',
 				'fromAccountType',
 				'toAccountType',
 				'invoices',
@@ -174,18 +178,27 @@ class JournalVoucherController extends Controller {
 				'receipts.outlet',
 				'receipts.sbu',
 			])->find($r->id);
-
+			$permanent_number = $journal_voucher->receipts->pluck('permanent_receipt_no')->toArray();
 			$journal_voucher->fromAccount;
 			$journal_voucher->toAccount;
 			$selected_invoice_ids = $journal_voucher->invoices()->pluck('id')->toArray();
+			// dd($selected_invoice_ids);
 			$this->data['invoices'] = $journal_voucher->toAccount->invoices;
 			foreach ($journal_voucher->toAccount->invoices as $invoice) {
 				if (in_array($invoice->id, $selected_invoice_ids)) {
 					$invoice->selected = true;
+					$total_invoice_amount[] = $invoice->invoice_amount;
 				} else {
 					$invoice->selected = false;
+					$total_invoice_amount[] = '';
 				}
 			}
+			foreach ($journal_voucher->receipts as $receipt) {
+				$balance_amount[] = $receipt->balance_amount;
+			}
+			$journal_voucher->invoices_length = count($selected_invoice_ids);
+			$journal_voucher->total_invoice_amount = array_sum($total_invoice_amount);
+			$journal_voucher->total_receipt_amount = array_sum($balance_amount);
 
 			if ($journal_voucher->transfer_type == 1) {
 				$journal_voucher->transfer_type = 'receipt';
@@ -196,9 +209,10 @@ class JournalVoucherController extends Controller {
 			$journal_voucher->date = date('d-m-Y', strtotime($journal_voucher->date));
 		}
 		$this->data['journal_voucher'] = $journal_voucher;
+		$this->data['permanent_number'] = $permanent_number;
 		$this->data['jv_type_list'] = collect(JVType::where('company_id', Auth::user()->company_id)->select('id', 'short_name', 'name')->get())->prepend(['id' => '', 'name' => 'Select JV Type']);
-		$this->data['journal_list'] = collect(Journal::where('company_id', Auth::user()->company_id)->select('id', 'name')->get());
-		$this->data['account_type_list'] = collect(Config::select('id', 'name')->where('config_type_id', 27)->get());
+		$this->data['journal_list'] = collect(Journal::where('company_id', Auth::user()->company_id)->select('id', 'name')->get())->prepend(['id' => '', 'name' => 'Select Journal']);
+		$this->data['account_type_list'] = collect(Config::select('id', 'name')->where('config_type_id', 27)->get())->prepend(['id' => '', 'name' => 'Select Account Type']);
 
 		// $this->data['action'] = $action;
 		$this->data['theme'];

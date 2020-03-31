@@ -124,6 +124,7 @@
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
                                         <!-- ------------------- -->
+                                        <input type="hidden" name="from_account_type_id" id="from_account_type_id" value='{{$ctrl.jv.from_account_type.id}}' class="required">
                                         <div class="col-md-3" ng-if="$ctrl.jv.type && !$ctrl.jv.type.from_account_type_editable">
                                             <div class="input-text form-group">
                                                 <label>
@@ -135,13 +136,13 @@
                                             </div>
                                         </div>
                                         <!-- ------------------- -->
-                                        <div class="col-md-3" ng-show="$ctrl.jv.type && $ctrl.jv.type.from_account_type_editable">
+                                        <div class="col-md-3" ng-if="$ctrl.jv.type && $ctrl.jv.type.from_account_type_editable">
                                             <div class="input-text form-group">
                                                 <label>
                                                     From Account Type
                                                     <sup class="mandatory">*</sup>
                                                 </label>
-                                                <md-select ng-model="$ctrl.jv.from_account_type" ng-change="onSelectedFromAcc($ctrl.jv.from_account_type_id)" placeholder="Select From Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader" ng-model-options="{trackBy: '$value.id' }">
+                                                <md-select ng-model="$ctrl.jv.from_account_type" ng-change="onSelectedFromAcc($ctrl.jv.from_account_type.id)" placeholder="Select From Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader" ng-model-options="{trackBy: '$value.id' }">
                                                     <md-select-header class="demo-select-header">
                                                         <input ng-model="searchFromAccount" type="search" placeholder="Search From Account" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                                                     </md-select-header>
@@ -155,6 +156,7 @@
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
                                         <!-- ------------------- -->
+                                        <input type="hidden" name="to_account_type_id" id="to_account_type_id" value='{{$ctrl.jv.to_account_type.id}}' class="required">
                                         <div class="col-md-3" ng-if="$ctrl.jv.type && !$ctrl.jv.type.to_account_type_editable">
                                             <div class="input-text form-group">
                                                 <label>
@@ -166,18 +168,18 @@
                                             </div>
                                         </div>
                                         <!-- ------------------- -->
-                                        <div class="col-md-3" ng-show="$ctrl.jv.type && $ctrl.jv.to_account_type_editable">
+                                        <div class="col-md-3" ng-if="$ctrl.jv.type && $ctrl.jv.type.to_account_type_editable">
                                             <div class="input-text form-group">
                                                 <label>
                                                     To Account Type
                                                     <sup class="mandatory">*</sup>
                                                 </label>
-                                                <md-select ng-model="$ctrl.jv.to_account_type_id" ng-change="onSelectedToAcc($ctrl.jv.to_account_type_id)" placeholder="Select To Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader" ng-model-options="{trackBy: '$value.id' }">
+                                                <md-select ng-model="$ctrl.jv.to_account_type" ng-change="onSelectedToAcc($ctrl.jv.to_account_type.id)" placeholder="Select To Account" md-on-close="clearSearchJournal()" data-md-container-class="selectdemoSelectHeader" ng-model-options="{trackBy: '$value.id' }">
                                                     <md-select-header class="demo-select-header">
-                                                        <input ng-model="searchToAccount" type="search" placeholder="Search To Account" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                                        <input ng-model="searchToAccount" type="search" placeholder="Search From Account" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                                                     </md-select-header>
                                                     <md-optgroup label="to_account">
-                                                        <md-option ng-value="to_account.id" ng-repeat="to_account in $ctrl.account_type_list | filter:searchToAccount">
+                                                        <md-option ng-value="to_account" ng-repeat="to_account in $ctrl.account_type_list | filter:searchToAccount">
                                                             {{to_account.name}}
                                                         </md-option>
                                                     </md-optgroup>

@@ -16,19 +16,19 @@
 </ul>
 <div class="mb-30"></div><!-- Space -->
 <h6 class="tab-pane-title color-light mb-10" ng-if="$ctrl.jv.attachments">Attachments</h6>
-<div class="jva-attachments" ng-if="$ctrl.jv.attachments != true">
+<div class="jva-attachments" ng-if="$ctrl.jv.attachments.length == 0">
     --
 </div>
-<div class="jva-attachments" ng-if="$ctrl.jv.attachments">
+<div class="jva-attachments" ng-if="$ctrl.jv.attachments.length != 0">
     <div class="imageuploadify well">
         <div class="imageuploadify-images-list">
-            <div ng-repeat="(key,attachment) in $ctrl.jv.attachments">
+            <!-- <div ng-repeat="(key,attachment) in $ctrl.jv.attachments">
                 <div class="imageuploadify-container" data-attachment_id="{{attachment.id}}" style="margin-left: 0px; margin-right: 0px; ">
                     <div class="imageuploadify-details">
-                        <span class="imageuploadify-file-name"><a href="{{$ctrl.ref_attachements_url_link}}/{{attachment.name}}" download>{{attachment.name}}</a></span>
+                        <span class="imageuploadify-file-name"><a href="{{$ctrl.ref_attachements_url_link}}/{{attachment.name}}" download>gvyfftf {{attachment.name}}</a></span>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>

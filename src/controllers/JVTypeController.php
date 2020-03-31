@@ -367,7 +367,9 @@ class JVTypeController extends Controller {
 		])->find($request->id);
 
 		foreach ($jv_type->fields as $field) {
+			// dump($field->pivot->is_editable);
 			if (!$field->pivot->is_editable) {
+				// dump("false");
 				if ($field->pivot->field_id == 1420) {
 					//JOURNAL
 					$jv_type->journal_editable = false;
@@ -379,24 +381,26 @@ class JVTypeController extends Controller {
 					//FROM ACCOUNT TYPE
 					$jv_type->from_account_type_editable = false;
 					$jv_type->from_account_type = Config::find($field->pivot->value);
-				} else {
+				} elseif ($field->pivot->field_id == 1422) {
 					//TO ACCOUNT TYPE
 					$jv_type->to_account_type_editable = false;
 					$jv_type->to_account_type = Config::find($field->pivot->value);
 				}
 			} else {
+				// dump("true");
 				if ($field->pivot->field_id == 1420) {
 					//JOURNAL
 					$jv_type->journal_editable = true;
 				} elseif ($field->pivot->field_id == 1421) {
 					//FROM ACCOUNT TYPE
 					$jv_type->from_account_type_editable = true;
-				} else {
+				} elseif ($field->pivot->field_id == 1422) {
 					//TO ACCOUNT TYPE
 					$jv_type->to_account_type_editable = true;
 				}
 			}
 		}
+		// dd($jv_type);
 		return response()->json($this->data);
 	}
 }
