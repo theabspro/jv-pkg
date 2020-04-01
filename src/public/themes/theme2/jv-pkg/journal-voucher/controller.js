@@ -1,6 +1,6 @@
  app.component('journalVoucherList', {
      templateUrl: journal_voucher_list_template_url,
-     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect) {
+     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect, $timeout) {
          $scope.loading = true;
          $('#search_journal_voucher').focus();
          var self = this;
@@ -47,8 +47,9 @@
                  serverSide: true,
                  paging: true,
                  stateSave: true,
-                 ordering: false,
+                 ordering: true,
                  scrollY: table_scroll + "px",
+                 scrollX: true,
                  scrollCollapse: true,
                  ajax: {
                      url: laravel_routes['getJournalVoucherList'],
@@ -68,14 +69,18 @@
                      { data: 'child_checkbox', searchable: false },
                      { data: 'action', class: 'action', name: 'action', searchable: false },
                      { data: 'voucher_number', name: 'journal_vouchers.voucher_number', searchable: true },
-                     { data: 'jv_status', name: 'approval_type_statuses.status', searchable: false },
+                     { data: 'jv_status', name: 'es.name', searchable: true },
                      { data: 'jv_date', searchable: false },
                      { data: 'jv_type', name: 'journal_vouchers.type_id', searchable: false },
-                     { data: 'from_account_type', name: 'from_account_types.name', searchable: false },
-                     { data: 'from_ac_code', searchable: false },
-                     { data: 'to_account_type', name: 'to_account_types.name', searchable: false },
-                     { data: 'to_ac_code', searchable: false },
-                     { data: 'amount', name: 'journal_vouchers.amount', searchable: false },
+                     // { data: 'from_account_type', name: 'from_account_types.name', searchable: false },
+                     // { data: 'from_ac_code', searchable: false },
+                     // { data: 'to_account_type', name: 'to_account_types.name', searchable: false },
+                     // { data: 'to_ac_code', searchable: false },
+                     { data: 'created_by', name: 'created_by', searchable: false },
+                     { data: 'outlet_code', name: 'outlets.code', searchable: true },
+                     { data: 'region_code', name: 'regions.code', searchable: true },
+                     { data: 'state_code', name: 'states.code', searchable: true },
+                     { data: 'amount', name: 'journal_vouchers.amount', searchable: true },
                  ],
                  "initComplete": function(settings, json) {
                      $('.dataTables_length select').select2();
@@ -204,6 +209,34 @@
              });
          }
 
+         //CLICK TO APPROVE
+         $scope.deleteJournalVoucherApprove = function($id, $status_id) {
+             console.log($id, $status_id);
+             $('#journal_vouchers_id').val($id);
+             $('#journal_voucher_status_id').val($status_id);
+         }
+
+         $scope.sendForApproval = function() {
+             $rootScope.loading = true;
+             $http({
+                 url: laravel_routes['updateJVStatus'],
+                 method: "POST",
+                 params: {
+                     id: $('#journal_vouchers_id').val(),
+                     status_id: $('#journal_voucher_status_id').val(),
+                 }
+             }).then(function(response) {
+                 $('#approve-popup').modal('hide');
+                 // $rootScope.loading = false;
+                 if (!response.data.success) {
+                     custom_noty('error', response.data.error);
+                     return;
+                 }
+                $('#journal_vouchers_list').DataTable().ajax.reload(function(json) {});
+                $location.path('/jv-pkg/journal-voucher/list');
+             });
+         }
+
          $('#send_for_approval').on('click', function() { //alert('dsf');
              if ($('.journal_voucher_checkbox:checked').length > 0) {
                  var send_for_approval = []
@@ -269,9 +302,9 @@
              window.location = "#!/page-permission-denied";
              return false;
          }
-        self.angular_routes = angular_routes;
-        var attachment_removal_ids = [];
-        // var permanent_number = [];
+         self.angular_routes = angular_routes;
+         var attachment_removal_ids = [];
+         // var permanent_number = [];
          $("input:text:visible:first").focus();
          $http({
              url: laravel_routes['getJournalVoucherFormData'],
@@ -280,7 +313,7 @@
                  'id': typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
              }
          }).then(function(response) {
-            // console.log(response.data);
+             // console.log(response.data);
              self.jv = response.data.journal_voucher;
              self.jv.invoices = response.data.invoices;
              self.from_account = self.jv.from_account;
@@ -309,7 +342,7 @@
 
          //SELECT JV TYPE GET JOURNAL && FROM ACC && TO ACC 
          $scope.jvTypeChanged = function($id) {
-            // alert($id);
+             // alert($id);
              $http.get(
                  laravel_routes['getJVType'], {
                      params: {
@@ -319,26 +352,26 @@
              ).then(function(response) {
                  self.jv.type = response.data.jv_type;
                  if (!self.jv.type.journal_editable) {
-                    // console.log('journal');
+                     // console.log('journal');
                      self.jv.journal = self.jv.type.journal;
-                 }else{
-                    // console.log('journal list');
+                 } else {
+                     // console.log('journal list');
                      self.jv.type.journal_editable = self.jv.type.journal_editable;
                      self.jv.journal = '';
                  }
                  if (!self.jv.type.from_account_type_editable) {
-                    // console.log('from');
+                     // console.log('from');
                      self.jv.from_account_type = self.jv.type.from_account_type;
-                 }else{
-                    // console.log('from List');
+                 } else {
+                     // console.log('from List');
                      self.jv.type.from_account_type_editable = self.jv.type.from_account_type_editable;
                      self.jv.from_account_type = '';
                  }
                  if (!self.jv.type.to_account_type_editable) {
-                    // console.log('to');
+                     // console.log('to');
                      self.jv.to_account_type = self.jv.type.to_account_type;
-                 }else{
-                    // console.log('to list');
+                 } else {
+                     // console.log('to list');
                      self.jv.type.to_account_type_editable = self.jv.type.to_account_type_editable;
                      self.jv.to_account_type = '';
                  }
@@ -350,8 +383,8 @@
          //GET CUSTOMER DETAILS
          $scope.customerSelected = function(type) {
              if (type == 'fromAcc') {
-                // console.log(self.from_account);
-                 if(self.from_account || self.from_account != null){
+                 // console.log(self.from_account);
+                 if (self.from_account || self.from_account != null) {
                      var res = $rootScope.getCustomer(self.from_account.id).then(function(res) {
                          console.log(res.data);
                          if (!res.data.success) {
@@ -360,12 +393,11 @@
                          }
                          self.jv.from_account = res.data.customer
                      });
-                 }
-                 else{
-                    self.jv.from_account = '';
+                 } else {
+                     self.jv.from_account = '';
                  }
              } else {
-                if(self.to_account || self.to_account != null){
+                 if (self.to_account || self.to_account != null) {
                      var res = $rootScope.getCustomer(self.to_account.id).then(function(res) {
                          if (!res.data.success) {
                              custom_noty('error', res.data.error);
@@ -373,16 +405,15 @@
                          }
                          self.jv.to_account = res.data.customer
                      });
-                }
-                else{
-                    self.jv.to_account = '';
+                 } else {
+                     self.jv.to_account = '';
                  }
-            }
-        }
+             }
+         }
 
-        //GET MAX AMOUTN FROM INVOICES AND RECEIPTS
-         $scope.onChangeTransferType = function(type){
-            self.jv.transfer_type = type;
+         //GET MAX AMOUTN FROM INVOICES AND RECEIPTS
+         $scope.onChangeTransferType = function(type) {
+             self.jv.transfer_type = type;
          }
 
          self.getReceipt = function($for) {
@@ -413,8 +444,8 @@
              }
 
              if (permanent_number.includes(receipt_number)) {
-                custom_noty('error', 'Recepit Number Already taken!');
-                return;
+                 custom_noty('error', 'Recepit Number Already taken!');
+                 return;
              } else {
                  $http.get(
                      laravel_routes['getReceipts'], {
@@ -435,7 +466,7 @@
 
                      self.jv.total_receipt_amount = parseFloat(self.jv.total_receipt_amount) + parseFloat(response.data.receipt.balance_amount);
                      // console.log(self.jv.total_receipt_amount);
-                     if(self.jv.transfer_type == 'receipt'){
+                     if (self.jv.transfer_type == 'receipt') {
                          self.jv.amount = self.jv.total_receipt_amount.toFixed(2);
                          // $('#transfer_amount').prop('readonly', true);
                      }
@@ -529,19 +560,33 @@
              }
          });
 
-         $("#transfer_amount").on('change', function(){
-            if(self.jv.transfer_type == 'invoice'){
-                if($(this).val() > self.jv.total_invoice_amount){
-                    custom_noty('error', 'Amount Not More then Invoice Total Amount!');
-                    return;
-                }
-            }
-            if(self.jv.transfer_type == 'receipt'){
-                if($(this).val() > self.jv.total_receipt_amount){
-                    custom_noty('error', 'Amount Not More then Recepit Total Amount!');
-                    return;
-                }
-            }
+         $("#transfer_amount").on('change', function() {
+             if (self.jv.transfer_type == 'invoice') {
+                 if ($(this).val() > self.jv.total_invoice_amount) {
+                     $noty = new Noty({
+                         type: 'error',
+                         layout: 'topRight',
+                         text: 'Transfer Amount Not More then Invoice Total Amount!',
+                     }).show();
+                     $('.submit').button('loading');
+                     return;
+                 } else {
+                     $('.submit').button('reset');
+                 }
+             }
+             if (self.jv.transfer_type == 'receipt') {
+                 if ($(this).val() > self.jv.total_receipt_amount) {
+                     $noty = new Noty({
+                         type: 'error',
+                         layout: 'topRight',
+                         text: 'Transfer Amount Not More then Recepit Total Amount!',
+                     }).show();
+                     $('.submit').button('loading');
+                     return;
+                 } else {
+                     $('.submit').button('reset');
+                 }
+             }
          });
 
          var form_id = '#form';
@@ -714,7 +759,7 @@
      controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
          var self = this;
          $scope.removeReceipt = function(index, balence_amount, total_receipt_amount) {
-            self.jv.total_receipt_amount = total_receipt_amount;
+             self.jv.total_receipt_amount = total_receipt_amount;
              self.jv.total_receipt_amount -= parseFloat(balence_amount);
              self.jv.receipts.splice(index, 1);
              permanent_number.splice(index, 1);
@@ -741,7 +786,7 @@
                      self.jv.invoices_length++;
                      self.jv.total_invoice_amount += parseFloat(invoice.balance_amount);
                  }
-                 if(self.jv.transfer_type == 'invoice'){
+                 if (self.jv.transfer_type == 'invoice') {
                      self.jv.amount = self.jv.total_invoice_amount.toFixed(2);
                      // $('#transfer_amount').prop('readonly', true);
                  }

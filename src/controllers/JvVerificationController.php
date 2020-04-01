@@ -3,7 +3,6 @@
 namespace Abs\JVPkg;
 use Abs\ApprovalPkg\ApprovalLevel;
 use Abs\ApprovalPkg\ApprovalTypeStatus;
-use Abs\CustomerPkg\Customer;
 use Abs\JVPkg\JournalVoucher;
 use App\ActivityLog;
 use App\Config;
@@ -12,6 +11,7 @@ use App\Http\Controllers\Controller;
 use Auth;
 use Carbon\Carbon;
 use DB;
+use Entrust;
 use Illuminate\Http\Request;
 use Yajra\Datatables\Datatables;
 
@@ -52,18 +52,28 @@ class JvVerificationController extends Controller {
 			->select([
 				'journal_vouchers.*',
 				'jv_types.short_name as jv_type',
-				'from_account_types.name as from_account_type',
-				'to_account_types.name as to_account_type',
+				// 'from_account_types.name as from_account_type',
+				// 'to_account_types.name as to_account_type',
 				'es.name as jv_status',
-				DB::raw('DATE_FORMAT(journal_vouchers.date,"%d/%m/%Y") as jv_date'),
+				'outlets.code as outlet_code',
+				'states.code as state_code',
+				DB::raw('DATE_FORMAT(journal_vouchers.date,"%d-%m-%Y") as jv_date'),
+				DB::raw('IF(regions.code IS NULL,"--",regions.code) as region_code'),
+				DB::raw('CONCAT(employees.code," / ",users.name) as created_by'),
 				DB::raw('IF(journal_vouchers.deleted_at IS NULL, "Active","Inactive") as status'),
 			])
 
 			->leftJoin('jv_types', 'jv_types.id', 'journal_vouchers.type_id')
 			->leftJoin('entity_statuses as es', 'es.id', 'journal_vouchers.status_id')
-			->leftJoin('configs as from_account_types', 'from_account_types.id', 'journal_vouchers.from_account_type_id')
-			->leftJoin('configs as to_account_types', 'to_account_types.id', 'journal_vouchers.to_account_type_id')
-			->where('journal_vouchers.company_id', Auth::user()->company_id)
+		// ->leftJoin('configs as from_account_types', 'from_account_types.id', 'journal_vouchers.from_account_type_id')
+		// ->leftJoin('configs as to_account_types', 'to_account_types.id', 'journal_vouchers.to_account_type_id')
+			->join('users', 'users.id', 'journal_vouchers.created_by_id')
+			->join('employees', 'employees.id', 'users.entity_id')
+			->join('outlets', 'outlets.id', 'employees.outlet_id')
+			->leftJoin('regions', 'regions.id', 'outlets.region_id')
+			->join('states', 'states.id', 'outlets.state_id')
+			->where('users.user_type_id', 1) //FOR EMPLOYEE
+		// ->where('journal_vouchers.company_id', Auth::user()->company_id)
 			->where('journal_vouchers.status_id', $approval_level->current_status_id)
 			->where(function ($query) use ($first_date_this_month, $last_date_this_month) {
 				if (!empty($first_date_this_month) && !empty($last_date_this_month)) {
@@ -99,6 +109,14 @@ class JvVerificationController extends Controller {
 		// ->get()
 		;
 
+		if (Entrust::can('view-all-jv')) {
+			$jv_verification = $jv_verification->where('journal_vouchers.company_id', Auth::user()->company_id);
+		} elseif (Entrust::can('view-own-jv')) {
+			$jv_verification = $jv_verification->where('journal_vouchers.created_by_id', Auth::user()->id);
+		} else {
+			$jv_verification = [];
+		}
+
 		// dd($jv_verification);
 		return Datatables::of($jv_verification)
 			->addColumn('child_checkbox', function ($jv_verification) {
@@ -108,28 +126,29 @@ class JvVerificationController extends Controller {
 			})
 			->addColumn('number', function ($jv_verification) {
 				$status = $jv_verification->status == 'Active' ? 'green' : 'red';
-				return '<span class="status-indicator ' . $status . '"></span>' . $jv_verification->voucher_number;
+				// return '<span class="status-indicator ' . $status . '"></span>' . $jv_verification->voucher_number;
+				return $jv_verification->voucher_number;
 			})
-			->addColumn('from_ac_code', function ($jv_verification) {
-				if ($jv_verification->from_account_type_id == 1440) {
-					$from_ac_code = Customer::where('id', $jv_verification->from_account_id)->pluck('code')->first();
-				} elseif ($jv_verification->from_account_type_id == 1441) {
-					$from_ac_code = Vendor::where('id', $jv_verification->from_account_id)->pluck('code')->first();
-				} elseif ($jv_verification->from_account_type_id == 1442) {
-					$from_ac_code = Ledger::where('id', $jv_verification->from_account_id)->pluck('code')->first();
-				}
-				return $from_ac_code;
-			})
-			->addColumn('to_ac_code', function ($jv_verification) {
-				if ($jv_verification->to_account_type_id == 1440) {
-					$to_ac_code = Customer::where('id', $jv_verification->to_account_id)->pluck('code')->first();
-				} elseif ($jv_verification->to_account_type_id == 1441) {
-					$to_ac_code = Vendor::where('id', $jv_verification->to_account_id)->pluck('code')->first();
-				} elseif ($jv_verification->to_account_type_id == 1442) {
-					$to_ac_code = Ledger::where('id', $jv_verification->from_account_id)->pluck('code')->first();
-				}
-				return $to_ac_code;
-			})
+		// ->addColumn('from_ac_code', function ($jv_verification) {
+		// 	if ($jv_verification->from_account_type_id == 1440) {
+		// 		$from_ac_code = Customer::where('id', $jv_verification->from_account_id)->pluck('code')->first();
+		// 	} elseif ($jv_verification->from_account_type_id == 1441) {
+		// 		$from_ac_code = Vendor::where('id', $jv_verification->from_account_id)->pluck('code')->first();
+		// 	} elseif ($jv_verification->from_account_type_id == 1442) {
+		// 		$from_ac_code = Ledger::where('id', $jv_verification->from_account_id)->pluck('code')->first();
+		// 	}
+		// 	return $from_ac_code;
+		// })
+		// ->addColumn('to_ac_code', function ($jv_verification) {
+		// 	if ($jv_verification->to_account_type_id == 1440) {
+		// 		$to_ac_code = Customer::where('id', $jv_verification->to_account_id)->pluck('code')->first();
+		// 	} elseif ($jv_verification->to_account_type_id == 1441) {
+		// 		$to_ac_code = Vendor::where('id', $jv_verification->to_account_id)->pluck('code')->first();
+		// 	} elseif ($jv_verification->to_account_type_id == 1442) {
+		// 		$to_ac_code = Ledger::where('id', $jv_verification->from_account_id)->pluck('code')->first();
+		// 	}
+		// 	return $to_ac_code;
+		// })
 			->addColumn('action', function ($jv_verification) use ($request) {
 				$img_view = asset('public/themes/' . $this->data['theme'] . '/img/content/table/eye.svg');
 				$img_view_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/eye-active.svg');

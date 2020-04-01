@@ -107,6 +107,18 @@ class JVPkgPermissionSeeder extends Seeder {
 				'name' => 'approve-journal-voucher',
 				'display_name' => 'Approve',
 			],
+			[
+				'display_order' => 6,
+				'parent' => 'journal-vouchers',
+				'name' => 'view-all-jv',
+				'display_name' => 'View All',
+			],
+			[
+				'display_order' => 7,
+				'parent' => 'journal-vouchers',
+				'name' => 'view-own-jv',
+				'display_name' => 'View Own Only',
+			],
 
 			//Ledgers
 			[

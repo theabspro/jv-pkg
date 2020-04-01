@@ -8,11 +8,9 @@ use Abs\CustomerPkg\Customer;
 use Abs\InvoicePkg\Invoice;
 use Abs\JVPkg\JournalVoucher;
 use Abs\JVPkg\JVType;
-use Abs\JVPkg\Ledger;
 use Abs\ReceiptPkg\Receipt;
 use App\ActivityLog;
 use App\Http\Controllers\Controller;
-use App\Vendor;
 use Artisaninweb\SoapWrapper\SoapWrapper;
 use Auth;
 use Carbon\Carbon;
@@ -47,18 +45,29 @@ class JournalVoucherController extends Controller {
 		$journal_vouchers = JournalVoucher::withTrashed()
 			->leftJoin('jv_types', 'jv_types.id', 'journal_vouchers.type_id')
 			->leftJoin('entity_statuses as es', 'es.id', 'journal_vouchers.status_id')
-			->leftJoin('configs as from_account_types', 'from_account_types.id', 'journal_vouchers.from_account_type_id')
-			->leftJoin('configs as to_account_types', 'to_account_types.id', 'journal_vouchers.to_account_type_id')
+		// ->leftJoin('configs as from_account_types', 'from_account_types.id', 'journal_vouchers.from_account_type_id')
+		// ->leftJoin('configs as to_account_types', 'to_account_types.id', 'journal_vouchers.to_account_type_id')
+			->join('users', 'users.id', 'journal_vouchers.created_by_id')
+			->join('employees', 'employees.id', 'users.entity_id')
+			->join('outlets', 'outlets.id', 'employees.outlet_id')
+			->leftJoin('regions', 'regions.id', 'outlets.region_id')
+			->join('states', 'states.id', 'outlets.state_id')
 			->select([
 				'journal_vouchers.*',
 				'jv_types.short_name as jv_type',
-				'from_account_types.name as from_account_type',
-				'to_account_types.name as to_account_type',
+				'jv_types.initial_status_id',
+				// 'from_account_types.name as from_account_type',
+				// 'to_account_types.name as to_account_type',
 				'es.name as jv_status',
+				'outlets.code as outlet_code',
+				'states.code as state_code',
 				DB::raw('DATE_FORMAT(journal_vouchers.date,"%d-%m-%Y") as jv_date'),
+				DB::raw('IF(regions.code IS NULL,"--",regions.code) as region_code'),
+				DB::raw('CONCAT(employees.code," / ",users.name) as created_by'),
 				DB::raw('IF(journal_vouchers.deleted_at IS NULL, "Active","Inactive") as status'),
 			])
-			->where('journal_vouchers.company_id', Auth::user()->company_id)
+		// ->where('journal_vouchers.company_id', Auth::user()->company_id)
+			->where('users.user_type_id', 1) //FOR EMPLOYEE
 			->where(function ($query) use ($first_date_this_month, $last_date_this_month) {
 				if (!empty($first_date_this_month) && !empty($last_date_this_month)) {
 					$query->whereRaw("DATE(journal_vouchers.date) BETWEEN '" . $first_date_this_month . "' AND '" . $last_date_this_month . "'");
@@ -74,54 +83,71 @@ class JournalVoucherController extends Controller {
 					$query->where('journal_vouchers.type_id', $request->type_id);
 				}
 			})
-			->where(function ($query) use ($request) {
-				if (!empty($request->from_account_type_id)) {
-					$query->where('journal_vouchers.from_account_type_id', $request->from_account_type_id);
-				}
-			})
-			->where(function ($query) use ($request) {
-				if (!empty($request->to_account_type_id)) {
-					$query->where('journal_vouchers.to_account_type_id', $request->to_account_type_id);
-				}
-			})
+		// ->where(function ($query) use ($request) {
+		// 	if (!empty($request->from_account_type_id)) {
+		// 		$query->where('journal_vouchers.from_account_type_id', $request->from_account_type_id);
+		// 	}
+		// })
+		// ->where(function ($query) use ($request) {
+		// 	if (!empty($request->to_account_type_id)) {
+		// 		$query->where('journal_vouchers.to_account_type_id', $request->to_account_type_id);
+		// 	}
+		// })
 			->where(function ($query) use ($request) {
 				if (!empty($request->status_id)) {
 					$query->where('journal_vouchers.status_id', $request->status_id);
 				}
 			})
-			->orderby('journal_vouchers.id', 'desc');
+
+		// ->get()
+		// ->orderby('journal_vouchers.id', 'desc')
+		;
+
+		if (Entrust::can('view-all-jv')) {
+			$journal_vouchers = $journal_vouchers->where('journal_vouchers.company_id', Auth::user()->company_id);
+		} elseif (Entrust::can('view-own-jv')) {
+			$journal_vouchers = $journal_vouchers->where('journal_vouchers.created_by_id', Auth::user()->id);
+		} else {
+			$journal_vouchers = [];
+		}
 		// dd($journal_vouchers);
 		return Datatables::of($journal_vouchers)
 			->addColumn('child_checkbox', function ($journal_vouchers) {
+				// dd($journal_vouchers->status_id, $journal_vouchers->initial_status_id);
 				$checkbox = "<td><div class='table-checkbox'><input type='checkbox' id='child_" . $journal_vouchers->id . "' name='child_boxes' value='" . $journal_vouchers->id . "' class='journal_voucher_checkbox'/><label for='child_" . $journal_vouchers->id . "'></label></div></td>";
 
 				return $checkbox;
 			})
 			->addColumn('voucher_number', function ($journal_vouchers) {
 				$status = $journal_vouchers->status == 'Active' ? 'green' : 'red';
-				return '<span class="status-indicator ' . $status . '"></span>' . $journal_vouchers->voucher_number;
+				// return '<span class="status-indicator ' . $status . '"></span>' . $journal_vouchers->voucher_number;
+				return $journal_vouchers->voucher_number;
 			})
-			->addColumn('from_ac_code', function ($journal_vouchers) {
-				if ($journal_vouchers->from_account_type_id == 1440) {
-					$from_ac_code = Customer::where('id', $journal_vouchers->from_account_id)->pluck('code')->first();
-				} elseif ($journal_vouchers->from_account_type_id == 1441) {
-					$from_ac_code = Vendor::where('id', $journal_vouchers->from_account_id)->pluck('code')->first();
-				} elseif ($journal_vouchers->from_account_type_id == 1442) {
-					$from_ac_code = Ledger::where('id', $journal_vouchers->from_account_id)->pluck('code')->first();
-				}
-				return $from_ac_code;
-			})
-			->addColumn('to_ac_code', function ($journal_vouchers) {
-				if ($journal_vouchers->to_account_type_id == 1440) {
-					$to_ac_code = Customer::where('id', $journal_vouchers->to_account_id)->pluck('code')->first();
-				} elseif ($journal_vouchers->to_account_type_id == 1441) {
-					$to_ac_code = Vendor::where('id', $journal_vouchers->to_account_id)->pluck('code')->first();
-				} elseif ($journal_vouchers->to_account_type_id == 1442) {
-					$to_ac_code = Ledger::where('id', $journal_vouchers->from_account_id)->pluck('code')->first();
-				}
-				return $to_ac_code;
-			})
+		// ->addColumn('from_ac_code', function ($journal_vouchers) {
+		// 	if ($journal_vouchers->from_account_type_id == 1440) {
+		// 		$from_ac_code = Customer::where('id', $journal_vouchers->from_account_id)->pluck('code')->first();
+		// 	} elseif ($journal_vouchers->from_account_type_id == 1441) {
+		// 		$from_ac_code = Vendor::where('id', $journal_vouchers->from_account_id)->pluck('code')->first();
+		// 	} elseif ($journal_vouchers->from_account_type_id == 1442) {
+		// 		$from_ac_code = Ledger::where('id', $journal_vouchers->from_account_id)->pluck('code')->first();
+		// 	}
+		// 	return $from_ac_code;
+		// })
+		// ->addColumn('to_ac_code', function ($journal_vouchers) {
+		// 	if ($journal_vouchers->to_account_type_id == 1440) {
+		// 		$to_ac_code = Customer::where('id', $journal_vouchers->to_account_id)->pluck('code')->first();
+		// 	} elseif ($journal_vouchers->to_account_type_id == 1441) {
+		// 		$to_ac_code = Vendor::where('id', $journal_vouchers->to_account_id)->pluck('code')->first();
+		// 	} elseif ($journal_vouchers->to_account_type_id == 1442) {
+		// 		$to_ac_code = Ledger::where('id', $journal_vouchers->from_account_id)->pluck('code')->first();
+		// 	}
+		// 	return $to_ac_code;
+		// })
 			->addColumn('action', function ($journal_vouchers) {
+				//GET NEXT LEVEL OF STATUS FOR APPROVAL
+				$journal_voucher_status = JournalVoucher::with(['type'])->find($journal_vouchers->id);
+				$next_status = $journal_voucher_status->type->verificationFlow->approvalLevels()->orderBy('approval_order')->first()->current_status_id;
+
 				$img1 = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow.svg');
 				$img1_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow-active.svg');
 				$img_view = asset('public/themes/' . $this->data['theme'] . '/img/content/table/eye.svg');
@@ -133,18 +159,18 @@ class JournalVoucherController extends Controller {
 				$img_tick_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/tick.svg');
 
 				$output = '';
-				if (Entrust::can('edit-journal-voucher')) {
+				if (Entrust::can('edit-journal-voucher') && $journal_vouchers->status_id == $journal_vouchers->initial_status_id) {
 					$output .= '<a href="#!/jv-pkg/journal-voucher/edit/' . $journal_vouchers->id . '" id = "" title="Edit"><img src="' . $img1 . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img1_active . '" onmouseout=this.src="' . $img1 . '"></a>';
 				}
 				if (Entrust::can('view-journal-voucher')) {
 					$output .= '<a href="#!/jv-pkg/journal-voucher/view/' . $journal_vouchers->id . '" id = "" title="View"><img src="' . $img_view . '" alt="View" class="img-responsive" onmouseover=this.src="' . $img_view_active . '" onmouseout=this.src="' . $img_view . '"></a>';
 				}
-				if (Entrust::can('delete-journal-voucher')) {
+				if (Entrust::can('delete-journal-voucher') && $journal_vouchers->status_id == $journal_vouchers->initial_status_id) {
 					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#journal-voucher-delete-modal" onclick="angular.element(this).scope().deleteJournalVoucher(' . $journal_vouchers->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>
 					';
 				}
-				if (Entrust::can('approve-journal-voucher')) {
-					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#journal-voucher-delete-modal" title="Approve"><img src="' . $img_tick . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_tick_active . '" onmouseout=this.src="' . $img_tick . '"></a>
+				if (Entrust::can('approve-journal-voucher') && $journal_vouchers->status_id == $journal_vouchers->initial_status_id) {
+					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#approve-popup" onclick="angular.element(this).scope().deleteJournalVoucherApprove(' . $journal_vouchers->id . ',' . $next_status . ')" title="Approve"><img src="' . $img_tick . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_tick_active . '" onmouseout=this.src="' . $img_tick . '"></a>
 					';
 				}
 

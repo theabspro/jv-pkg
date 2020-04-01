@@ -5,11 +5,11 @@
         <div class="page-header-inner">
             <div class="page-header-content-left">
                 <div class="page-header-content button-block">
-                    <a href="#!/verification/7221/level/{{$ctrl.level_id}}/list" type="button" class="btn-back btn-img my-tooltip" ng-shortcut="'meta+shift+left'" ng-shortcut-click data-title="ctrl+shift+left"><img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" /></a>
+                    <a href="#!/jv-pkg/journal-voucher/list" type="button" class="btn-back btn-img my-tooltip" ng-shortcut="'meta+shift+left'" ng-shortcut-click data-title="ctrl+shift+left"><img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" /></a>
                 </div><!-- Page Header Content -->
                 <div class="page-header-content title-block">
-                    <h1 class="title"><b>JV Verification</b></h1>
-                    <p class="subtitle"><a href="#!/verification/7221/level/{{$ctrl.level_id}}/list">JV Verifications</a> / View </p>
+                    <h1 class="title"><b>{{$ctrl.jv.action}} Journal Voucher</b></h1>
+                    <p class="subtitle"><a href="#!/jv-pkg/journal-voucher/list">Journal Vouchers</a> / {{$ctrl.jv.action}} </p>
                 </div><!-- Page Header Content -->
             </div><!-- Page Header Content Left -->
         </div><!-- Page Header Inner -->
@@ -35,16 +35,36 @@
                         <div class="tab-pane fade in active" id="general-info" data-animation="fadeInUp" data-animation-delay="300">
                             <div class="tab-pane-wrap">
                                 <div class="row">
+                                    <!-- <div class="col-md-12" ng-if="$ctrl.jv.transfer_type">
+                                         <label>
+                                            Document Transfer Type
+                                        </label>
+                                        <div class="col-md-6" ng-if="$ctrl.jv.transfer_type == 'receipt'">
+                                            <label>
+                                                Receipt to Invoice
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6" ng-if="$ctrl.jv.transfer_type == 'invoice'">
+                                            <label>
+                                                Invoice to Receipt
+                                            </label>
+                                        </div>
+                                    </div> -->
                                     <div class="col-md-12">
                                         <jv-form-header jv="$ctrl.jv"></jv-form-header>
+                                        <div class="col-md-12" ng-if="$ctrl.jv.transfer_type">
+                                            <jv-receipts-table jv="$ctrl.jv"></jv-receipts-table>
+                                        </div>
+                                        <jv-invoices-table jv="$ctrl.jv"></jv-invoices-table>
                                         <jv-amount-details-view jv="$ctrl.jv"></jv-amount-details-view>
                                     </div><!-- Column -->
                                     <div class="tab-pane-footer">
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <a class="btn btn-secondary btn-min-wdth btn-nxt my-tooltip" ng-shortcut="'meta+shift+down'" ng-shortcut-click data-title="ctrl+shift+down">Next</a>
-                                                <a class="btn btn-cancel btn-min-wdth my-tooltip" data-toggle="modal" data-target="#reject-popup" ng-shortcut="'meta+shift+r'" ng-shortcut-click data-title="ctrl+shift+r"> Reject</a>
-                                                <button type="button" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">Approve</button>
+                                                <button type="button" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">
+                                                    Approve
+                                                </button>
                                             </div>
                                         </div>
                                     </div><!-- Tab Footer -->
@@ -61,8 +81,9 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <a class="btn btn-secondary btn-prev my-tooltip" ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">Previous</a>
-                                                <a class="btn btn-cancel btn-min-wdth my-tooltip" data-toggle="modal" data-target="#reject-popup" ng-shortcut="'meta+shift+r'" ng-shortcut-click data-title="ctrl+shift+r"> Reject</a>
-                                                <button type="button" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">Approve</button>
+                                                <button type="button" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">
+                                                    Approve
+                                                </button>
                                             </div><!-- Column -->
                                         </div><!-- Row -->
                                     </div><!-- Tab Footer -->
@@ -79,20 +100,53 @@
 <div class="modal filter fade" id="approve-popup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog modal-sm mcollect-modal" role="document">
         <form id="approve">
-            <div class="modal-content">
-                <div class="modal-body text-center">
-                    <img class="img-responsive img-center" src="./public/theme/img/content/success.svg" />
-                    <h4 class="title">Approve</h4>
-                </div><!-- Modal Body -->
-                <div class="modal-footer text-right">
-                    <input type="hidden" name="journal_voucher_id" value="{{$ctrl.jv.id}}" id=journal_voucher_id>
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <img class="img-responsive img-center" src="./public/theme/img/content/success.svg" />
+                <h4 class="title">
+                    Confirm send for approval?
+                </h4>
+            </div><!-- Modal Body -->
+            <div class="modal-footer text-right">
+                <input type="hidden" name="journal_voucher_id" value="{{$ctrl.jv.id}}" id=journal_voucher_id>
                     <input type="hidden" name="approval_level_id" value="{{$ctrl.level_id}}" id=approval_level_id>
                     <input type="hidden" name="verification_type" value="approve" id=verification_type>
-                    <a href="#!" class="btn btn-cancel my-tooltip" data-dismiss="modal" ng-shortcut="'meta+shift+c'" ng-shortcut-click data-title="ctrl+shift+c">Cancel</a>
-                    <button type="submit" class="btn btn-primary approve my-tooltip" ng-shortcut="'meta+shift+p'" ng-shortcut-click data-title="ctrl+shift+p">Proceed</button>
-                </div><!-- Modal Footer -->
-            </div><!-- Modal Content -->
-        </form>
+                <a href="#!" class="btn btn-cancel my-tooltip" data-dismiss="modal" ng-shortcut="'meta+shift+c'" ng-shortcut-click data-title="ctrl+shift+c">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary approve my-tooltip" ng-shortcut="'meta+shift+p'" ng-shortcut-click data-title="ctrl+shift+p" ng-click="sendForApproval()">
+                    Proceed
+                </button>
+            </div><!-- Modal Footer -->
+        </div><!-- Modal Content -->
+    </form>
+    </div><!-- Modal Dialog -->
+</div><!-- Modal Content -->
+<!-- Modal -->
+<!-- Modal -->
+<div class="modal filter fade" id="approve-popup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-sm mcollect-modal" role="document">
+        <form id="reject">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <img class="img-responsive img-center" src="./public/theme/img/content/success.svg" />
+                <h4 class="title">
+                    Confirm send for approval?
+                </h4>
+            </div><!-- Modal Body -->
+            <div class="modal-footer text-right">
+                <input type="hidden" name="journal_voucher_id" value="{{$ctrl.jv.id}}" id=journal_voucher_id>
+                    <input type="hidden" name="approval_level_id" value="{{$ctrl.level_id}}" id=approval_level_id>
+                    <input type="hidden" name="verification_type" value="approve" id=verification_type>
+                <a href="#!" class="btn btn-cancel my-tooltip" data-dismiss="modal" ng-shortcut="'meta+shift+c'" ng-shortcut-click data-title="ctrl+shift+c">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary approve my-tooltip" ng-shortcut="'meta+shift+p'" ng-shortcut-click data-title="ctrl+shift+p" ng-click="sendForApproval()">
+                    Proceed
+                </button>
+            </div><!-- Modal Footer -->
+        </div><!-- Modal Content -->
+    </form>
     </div><!-- Modal Dialog -->
 </div><!-- Modal Content -->
 <!-- Modal -->

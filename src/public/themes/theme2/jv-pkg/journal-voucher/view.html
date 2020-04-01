@@ -64,7 +64,7 @@
                                                 <a class="btn btn-secondary btn-min-wdth btn-nxt my-tooltip" ng-shortcut="'meta+shift+down'" ng-shortcut-click data-title="ctrl+shift+down">Next</a>
                                                 <a href="#!/jv-pkg/journal-voucher/edit/{{$ctrl.jv.id}}" class="btn btn-primary my-tooltip" id="edit_button" ng-if="$ctrl.jv.type.initial_status_id == $ctrl.jv.status_id" ng-shortcut="'meta+shift+e'" ng-shortcut-click data-title="ctrl+shift+e">Edit</a>
                                                 <button type="button" ng-if="$ctrl.jv.type.initial_status_id == $ctrl.jv.status_id" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">
-                                                    Send for Approval
+                                                    Submit for Approval
                                                 </button>
                                             </div>
                                         </div>
@@ -84,7 +84,7 @@
                                                 <a class="btn btn-secondary btn-prev my-tooltip" ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">Previous</a>
                                                 <a href="#!/jv-pkg/journal-voucher/edit/{{$ctrl.jv.id}}" class="btn btn-primary my-tooltip" id="edit_button" ng-if="$ctrl.jv.type.initial_status_id == $ctrl.jv.status_id" ng-shortcut="'meta+shift+e'" ng-shortcut-click data-title="ctrl+shift+e">Edit</a>
                                                 <button type="button" ng-if="$ctrl.jv.type.initial_status_id == $ctrl.jv.status_id" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">
-                                                    Send For Approval
+                                                    Submit For Approval
                                                 </button>
                                             </div><!-- Column -->
                                         </div><!-- Row -->
@@ -105,7 +105,7 @@
             <div class="modal-body text-center">
                 <img class="img-responsive img-center" src="./public/theme/img/content/success.svg" />
                 <h4 class="title">
-                    Are you sure, You want to send for approval?
+                    Confirm send for approval?
                 </h4>
             </div><!-- Modal Body -->
             <div class="modal-footer text-right">

@@ -3,7 +3,7 @@
         <div class="page-header-inner">
             <div class="page-header-content-left">
                 <div class="page-header-content title-block">
-                    <h1 class="title type-2">Journal Vouchers</h1>
+                    <h1 class="title type-2">Journal Vouchers (<span id="table_info"></span>)</h1>
                 </div><!-- Page Header Content -->
                 <div class="page-header-content button-block">
                     <button class="btn btn-bordered my-tooltip" data-toggle="modal" data-target="#journal-voucher-filter-modal" ng-shortcut="'meta+shift+f'" ng-shortcut-click data-title="ctrl+shift+f"><i class="icon ion-md-funnel"></i>Filter</button>
@@ -69,10 +69,14 @@
                                 <th>Status</th>
                                 <th>Date</th>
                                 <th>Type</th>
-                                <th>From A/c Type</th>
-                                <th>From A/c Code</th>
-                                <th>To A/c Type</th>
-                                <th>To A/c Code</th>
+                                <!-- <th>From A/c Type</th> -->
+                                <!-- <th>From A/c Code</th> -->
+                                <!-- <th>To A/c Type</th> -->
+                                <!-- <th>To A/c Code</th> -->
+                                <th>Created By</th>
+                                <th>Outlet</th>
+                                <th>Region</th>
+                                <th>State</th>
                                 <th>Amount</th>
                             </tr>
                         </thead>
@@ -194,4 +198,29 @@
         </div>
     </div>
 </div>
+<!-- Modal -->
+<!-- Modal -->
+<div class="modal filter fade" id="approve-popup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-sm mcollect-modal" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <img class="img-responsive img-center" src="./public/theme/img/content/success.svg" />
+                <h4 class="title">
+                    Confirm send for approval?
+                </h4>
+            </div><!-- Modal Body -->
+            <div class="modal-footer text-right">
+                <input type="hidden" name="journal_vouchers_id" id="journal_vouchers_id" value="">
+                <input type="hidden" name="journal_voucher_status_id" id="journal_voucher_status_id" value="">
+
+                <a href="#!" class="btn btn-cancel my-tooltip" data-dismiss="modal" ng-shortcut="'meta+shift+c'" ng-shortcut-click data-title="ctrl+shift+c">
+                    Cancel
+                </a>
+                <button type="button" class="btn btn-primary approve my-tooltip" ng-shortcut="'meta+shift+p'" ng-shortcut-click data-title="ctrl+shift+p" ng-click="sendForApproval()">
+                    Proceed
+                </button>
+            </div><!-- Modal Footer -->
+        </div><!-- Modal Content -->
+    </div><!-- Modal Dialog -->
+</div><!-- Modal Content -->
 <!-- Modal -->
