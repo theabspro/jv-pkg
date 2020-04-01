@@ -29,7 +29,7 @@
             <tr ng-if="$ctrl.jv.receipts.length != 0" ng-repeat="(index, receipt) in $ctrl.jv.receipts">
                 <td class="action" ng-if="$ctrl.jv.action != 'View'">
                     <input type="hidden" name="receipts[{{index}}][id]" value="{{receipt.id}}">
-                    <a href="javascript:void(0)" ng-click="removeReceipt(index)">
+                    <a href="javascript:;" class="close-icon" ng-click="removeReceipt(index,receipt.balance_amount,$ctrl.jv.total_receipt_amount)" style="cursor: pointer;">
                         <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
                     </a>
                 </td>

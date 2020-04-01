@@ -35,6 +35,21 @@
                         <div class="tab-pane fade in active" id="general-info" data-animation="fadeInUp" data-animation-delay="300">
                             <div class="tab-pane-wrap">
                                 <div class="row">
+                                    <!-- <div class="col-md-12" ng-if="$ctrl.jv.transfer_type">
+                                         <label>
+                                            Document Transfer Type
+                                        </label>
+                                        <div class="col-md-6" ng-if="$ctrl.jv.transfer_type == 'receipt'">
+                                            <label>
+                                                Receipt to Invoice
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6" ng-if="$ctrl.jv.transfer_type == 'invoice'">
+                                            <label>
+                                                Invoice to Receipt
+                                            </label>
+                                        </div>
+                                    </div> -->
                                     <div class="col-md-12">
                                         <jv-form-header jv="$ctrl.jv"></jv-form-header>
                                         <div class="col-md-12" ng-if="$ctrl.jv.transfer_type">
@@ -47,8 +62,8 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <a class="btn btn-secondary btn-min-wdth btn-nxt my-tooltip" ng-shortcut="'meta+shift+down'" ng-shortcut-click data-title="ctrl+shift+down">Next</a>
-                                                <a href="#!/jv-pkg/journal-voucher/edit/{{$ctrl.jv.id}}" class="btn btn-primary my-tooltip" id="edit_button" ng-if="$ctrl.type.initial_status_id == $ctrl.jv.status_id" ng-shortcut="'meta+shift+e'" ng-shortcut-click data-title="ctrl+shift+e">Edit</a>
-                                                <button type="button" ng-if="$ctrl.type.initial_status_id == $ctrl.jv.status_id" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">
+                                                <a href="#!/jv-pkg/journal-voucher/edit/{{$ctrl.jv.id}}" class="btn btn-primary my-tooltip" id="edit_button" ng-if="$ctrl.jv.type.initial_status_id == $ctrl.jv.status_id" ng-shortcut="'meta+shift+e'" ng-shortcut-click data-title="ctrl+shift+e">Edit</a>
+                                                <button type="button" ng-if="$ctrl.jv.type.initial_status_id == $ctrl.jv.status_id" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">
                                                     Send for Approval
                                                 </button>
                                             </div>
@@ -67,8 +82,8 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <a class="btn btn-secondary btn-prev my-tooltip" ng-shortcut="'meta+shift+up'" ng-shortcut-click data-title="ctrl+shift+up">Previous</a>
-                                                <a href="#!/jv-pkg/journal-voucher/edit/{{$ctrl.jv.id}}" class="btn btn-primary my-tooltip" id="edit_button" ng-if="$ctrl.type.initial_status_id == $ctrl.jv.status_id" ng-shortcut="'meta+shift+e'" ng-shortcut-click data-title="ctrl+shift+e">Edit</a>
-                                                <button type="button" ng-if="$ctrl.type.initial_status_id == $ctrl.jv.status_id" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">
+                                                <a href="#!/jv-pkg/journal-voucher/edit/{{$ctrl.jv.id}}" class="btn btn-primary my-tooltip" id="edit_button" ng-if="$ctrl.jv.type.initial_status_id == $ctrl.jv.status_id" ng-shortcut="'meta+shift+e'" ng-shortcut-click data-title="ctrl+shift+e">Edit</a>
+                                                <button type="button" ng-if="$ctrl.jv.type.initial_status_id == $ctrl.jv.status_id" class="btn btn-primary my-tooltip" data-toggle="modal" data-target="#approve-popup" ng-shortcut="'meta+shift+a'" ng-shortcut-click data-title="ctrl+shift+a">
                                                     Send For Approval
                                                 </button>
                                             </div><!-- Column -->

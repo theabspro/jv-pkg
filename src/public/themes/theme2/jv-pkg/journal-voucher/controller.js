@@ -280,7 +280,7 @@
                  'id': typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
              }
          }).then(function(response) {
-            console.log(response.data);
+            // console.log(response.data);
              self.jv = response.data.journal_voucher;
              self.jv.invoices = response.data.invoices;
              self.from_account = self.jv.from_account;
@@ -324,6 +324,7 @@
                  }else{
                     // console.log('journal list');
                      self.jv.type.journal_editable = self.jv.type.journal_editable;
+                     self.jv.journal = '';
                  }
                  if (!self.jv.type.from_account_type_editable) {
                     // console.log('from');
@@ -331,6 +332,7 @@
                  }else{
                     // console.log('from List');
                      self.jv.type.from_account_type_editable = self.jv.type.from_account_type_editable;
+                     self.jv.from_account_type = '';
                  }
                  if (!self.jv.type.to_account_type_editable) {
                     // console.log('to');
@@ -338,6 +340,7 @@
                  }else{
                     // console.log('to list');
                      self.jv.type.to_account_type_editable = self.jv.type.to_account_type_editable;
+                     self.jv.to_account_type = '';
                  }
              });
          }
@@ -443,13 +446,6 @@
 
              }
 
-         }
-
-         //REMOVE SERVICE INVOICE ITEM
-         $scope.removeReceipt = function(index) {
-             alert(index);
-             self.jv.total_receipt_amount -= parseFloat(self.jv.receipts[index].balence_amount);
-             self.jv.receipts.splice(index, 1);
          }
 
          $scope.getInvoices = function($for) {
@@ -702,6 +698,13 @@
      },
      controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
          var self = this;
+         $scope.removeReceipt = function(index, balence_amount, total_receipt_amount) {
+            self.jv.total_receipt_amount = total_receipt_amount;
+             self.jv.total_receipt_amount -= parseFloat(balence_amount);
+             self.jv.receipts.splice(index, 1);
+             permanent_number.splice(index, 1);
+         }
+         // console.log(self.jv.total_receipt_amount);
      }
  });
 
