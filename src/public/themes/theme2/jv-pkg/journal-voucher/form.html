@@ -240,11 +240,11 @@
                                                             <sup class="mandatory">*</sup>
                                                         </label>
                                                         <div class="common-radio-button type-3">
-                                                            <input type="radio" id="receipt" class="transfer_type" name="transfer_type" value="receipt" ng-model="$ctrl.jv.transfer_type" />
+                                                            <input type="radio" id="receipt" class="transfer_type" name="transfer_type" value="receipt" ng-model="$ctrl.jv.transfer_type" ng-click="onChangeTransferType('receipt')" />
                                                             <label for="receipt">
                                                                 Receipt to Invoice
                                                             </label>
-                                                            <input type="radio" class="transfer_type" id="invoice" name="transfer_type" value="invoice" ng-model="$ctrl.jv.transfer_type" />
+                                                            <input type="radio" class="transfer_type" id="invoice" name="transfer_type" value="invoice" ng-model="$ctrl.jv.transfer_type" ng-click="onChangeTransferType('invoice')" />
                                                             <label for="invoice">
                                                                 Invoice to Receipt
                                                             </label>
@@ -394,7 +394,7 @@
                                                             Transfer Amount
                                                             <sup class="mandatory">*</sup>
                                                         </label>
-                                                        <input type="text" class="form-control" ng-model="$ctrl.jv.amount" name="amount" placeholder="Enter Amount" autocomplete="off" />
+                                                        <input type="text" class="form-control" ng-model="$ctrl.jv.amount" name="amount" id="transfer_amount" placeholder="Enter Amount" readonly autocomplete="off" />
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
                                                 <div class="col-md-3">

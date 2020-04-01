@@ -17,6 +17,7 @@ use Artisaninweb\SoapWrapper\SoapWrapper;
 use Auth;
 use Carbon\Carbon;
 use DB;
+use Entrust;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Validator;
@@ -127,13 +128,25 @@ class JournalVoucherController extends Controller {
 				$img_view_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/eye-active.svg');
 				$img_delete = asset('public/themes/' . $this->data['theme'] . '/img/content/table/delete-default.svg');
 				$img_delete_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/delete-active.svg');
+
+				$img_tick = asset('public/themes/' . $this->data['theme'] . '/img/content/table/tick.svg');
+				$img_tick_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/tick.svg');
+
 				$output = '';
-				$output .= '<a href="#!/jv-pkg/journal-voucher/edit/' . $journal_vouchers->id . '" id = "" title="Edit"><img src="' . $img1 . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img1_active . '" onmouseout=this.src="' . $img1 . '"></a>';
-
-				$output .= '<a href="#!/jv-pkg/journal-voucher/view/' . $journal_vouchers->id . '" id = "" title="View"><img src="' . $img_view . '" alt="View" class="img-responsive" onmouseover=this.src="' . $img_view_active . '" onmouseout=this.src="' . $img_view . '"></a>';
-
-				$output .= '<a href="javascript:;" data-toggle="modal" data-target="#journal-voucher-delete-modal" onclick="angular.element(this).scope().deleteJournalVoucher(' . $journal_vouchers->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>
+				if (Entrust::can('edit-journal-voucher')) {
+					$output .= '<a href="#!/jv-pkg/journal-voucher/edit/' . $journal_vouchers->id . '" id = "" title="Edit"><img src="' . $img1 . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img1_active . '" onmouseout=this.src="' . $img1 . '"></a>';
+				}
+				if (Entrust::can('view-journal-voucher')) {
+					$output .= '<a href="#!/jv-pkg/journal-voucher/view/' . $journal_vouchers->id . '" id = "" title="View"><img src="' . $img_view . '" alt="View" class="img-responsive" onmouseover=this.src="' . $img_view_active . '" onmouseout=this.src="' . $img_view . '"></a>';
+				}
+				if (Entrust::can('delete-journal-voucher')) {
+					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#journal-voucher-delete-modal" onclick="angular.element(this).scope().deleteJournalVoucher(' . $journal_vouchers->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>
 					';
+				}
+				if (Entrust::can('approve-journal-voucher')) {
+					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#journal-voucher-delete-modal" title="Approve"><img src="' . $img_tick . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_tick_active . '" onmouseout=this.src="' . $img_tick . '"></a>
+					';
+				}
 
 				return $output;
 			})
@@ -156,7 +169,7 @@ class JournalVoucherController extends Controller {
 
 			//For Testing only
 			$journal_voucher->from_account = $journal_voucher->to_account = Customer::where('code', '1000162')->first();
-			$journal_voucher->transfer_type = 'receipt';
+			// $journal_voucher->transfer_type = 'receipt';
 			// $journal_voucher->amount = '100.40';
 			// $journal_voucher->remarks = 'some remarks';
 			// $journal_voucher->reason = 'some reason';

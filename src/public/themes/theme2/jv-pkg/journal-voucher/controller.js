@@ -5,11 +5,12 @@
          $('#search_journal_voucher').focus();
          var self = this;
          self.hasPermission = HelperService.hasPermission;
-         self.add_permission = self.hasPermission('add-journal-voucher');
          if (!self.hasPermission('journal-vouchers')) {
              window.location = "#!/page-permission-denied";
              return false;
          }
+         self.add_permission = self.hasPermission('add-journal-voucher');
+         self.approve_permission = self.hasPermission('approve-journal-voucher');
          $http.get(
              laravel_routes['getVerificationFilter'],
          ).then(function(response) {
@@ -317,14 +318,12 @@
                  }
              ).then(function(response) {
                  self.jv.type = response.data.jv_type;
-                 // console.log(self.jv.type);
                  if (!self.jv.type.journal_editable) {
                     // console.log('journal');
                      self.jv.journal = self.jv.type.journal;
                  }else{
                     // console.log('journal list');
                      self.jv.type.journal_editable = self.jv.type.journal_editable;
-                     // self.jv.journal = '';
                  }
                  if (!self.jv.type.from_account_type_editable) {
                     // console.log('from');
@@ -332,7 +331,6 @@
                  }else{
                     // console.log('from List');
                      self.jv.type.from_account_type_editable = self.jv.type.from_account_type_editable;
-                     // self.jv.from_account_type = '';
                  }
                  if (!self.jv.type.to_account_type_editable) {
                     // console.log('to');
@@ -340,7 +338,6 @@
                  }else{
                     // console.log('to list');
                      self.jv.type.to_account_type_editable = self.jv.type.to_account_type_editable;
-                     // self.jv.to_account_type = '';
                  }
              });
          }
@@ -350,23 +347,39 @@
          //GET CUSTOMER DETAILS
          $scope.customerSelected = function(type) {
              if (type == 'fromAcc') {
-                 var res = $rootScope.getCustomer(self.from_account.id).then(function(res) {
-                     console.log(res.data);
-                     if (!res.data.success) {
-                         custom_noty('error', res.data.error);
-                         return;
-                     }
-                     self.jv.from_account = res.data.customer
-                 });
+                // console.log(self.from_account);
+                 if(self.from_account || self.from_account != null){
+                     var res = $rootScope.getCustomer(self.from_account.id).then(function(res) {
+                         console.log(res.data);
+                         if (!res.data.success) {
+                             custom_noty('error', res.data.error);
+                             return;
+                         }
+                         self.jv.from_account = res.data.customer
+                     });
+                 }
+                 else{
+                    self.jv.from_account = '';
+                 }
              } else {
-                 var res = $rootScope.getCustomer(self.to_account.id).then(function(res) {
-                     if (!res.data.success) {
-                         custom_noty('error', res.data.error);
-                         return;
-                     }
-                     self.jv.to_account = res.data.customer
-                 });
-             }
+                if(self.to_account || self.to_account != null){
+                     var res = $rootScope.getCustomer(self.to_account.id).then(function(res) {
+                         if (!res.data.success) {
+                             custom_noty('error', res.data.error);
+                             return;
+                         }
+                         self.jv.to_account = res.data.customer
+                     });
+                }
+                else{
+                    self.jv.to_account = '';
+                 }
+            }
+        }
+
+        //GET MAX AMOUTN FROM INVOICES AND RECEIPTS
+         $scope.onChangeTransferType = function(type){
+            self.jv.transfer_type = type;
          }
 
          self.getReceipt = function($for) {
@@ -419,6 +432,11 @@
 
                      self.jv.total_receipt_amount = parseFloat(self.jv.total_receipt_amount) + parseFloat(response.data.receipt.balance_amount);
                      // console.log(self.jv.total_receipt_amount);
+                     if(self.jv.transfer_type == 'receipt'){
+                         self.jv.amount = self.jv.total_receipt_amount.toFixed(2);
+                         // $('#transfer_amount').prop('readonly', true);
+                     }
+
                      self.from_receipt_no = '';
                      self.to_receipt_no = '';
                  });
@@ -466,7 +484,6 @@
                  self.jv.invoices = response.data.invoices;
              });
          }
-
 
          //ATTACHMENT REMOVE
          $(document).on('click', ".main-wrap .imageuploadify-container .imageuploadify-btn-remove button", function() {
@@ -609,7 +626,7 @@
      controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element, $mdSelect, $timeout) {
          var self = this;
          self.hasPermission = HelperService.hasPermission;
-         if (self.hasPermission('view-journal-voucher')) {
+         if (!self.hasPermission('view-journal-voucher')) {
              window.location = "#!/page-permission-denied";
              return false;
          }
@@ -705,6 +722,10 @@
                  if (invoice.selected) {
                      self.jv.invoices_length++;
                      self.jv.total_invoice_amount += parseFloat(invoice.balance_amount);
+                 }
+                 if(self.jv.transfer_type == 'invoice'){
+                     self.jv.amount = self.jv.total_invoice_amount.toFixed(2);
+                     // $('#transfer_amount').prop('readonly', true);
                  }
              });
              // console.log(self.jv.total_invoice_amount);
