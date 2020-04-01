@@ -529,6 +529,21 @@
              }
          });
 
+         $("#transfer_amount").on('change', function(){
+            if(self.jv.transfer_type == 'invoice'){
+                if($(this).val() > self.jv.total_invoice_amount){
+                    custom_noty('error', 'Amount Not More then Invoice Total Amount!');
+                    return;
+                }
+            }
+            if(self.jv.transfer_type == 'receipt'){
+                if($(this).val() > self.jv.total_receipt_amount){
+                    custom_noty('error', 'Amount Not More then Recepit Total Amount!');
+                    return;
+                }
+            }
+         });
+
          var form_id = '#form';
          var v = jQuery(form_id).validate({
              ignore: '',

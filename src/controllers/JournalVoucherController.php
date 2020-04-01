@@ -176,7 +176,7 @@ class JournalVoucherController extends Controller {
 
 			$this->data['invoices'] = [];
 			$journal_voucher->date = date('d-m-Y');
-			$journal_voucher->action = 'Add';
+			$journal_voucher->action = 'Create';
 		} else {
 			$journal_voucher = JournalVoucher::withTrashed()->with([
 				'attachments',
@@ -413,7 +413,7 @@ class JournalVoucherController extends Controller {
 			if (!($request->id)) {
 				return response()->json([
 					'success' => true,
-					'message' => 'Journal Voucher Added Successfully',
+					'message' => 'Journal Voucher Created Successfully',
 				]);
 			} else {
 				return response()->json([

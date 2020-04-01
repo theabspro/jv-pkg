@@ -74,7 +74,7 @@
                             <div class="tab-pane fade in active" id="general-information" data-animation="fadeInUp" data-animation-delay="300">
                                 <div class="tab-pane-wrap">
                                     <div class="row">
-                                        <div class="col-md-3">
+                                        <div class="col-md-4">
                                             <div class="input-text form-group">
                                                 <label>
                                                     Type
@@ -95,7 +95,7 @@
                                         </div>
                                         <!-- ------- -->
                                         <input type="hidden" value="{{$ctrl.jv.journal.id}}" name="journal_id" />
-                                        <div class="col-md-3" ng-if="$ctrl.jv.type && !$ctrl.jv.type.journal_editable">
+                                        <div class="col-md-4" ng-if="$ctrl.jv.type && !$ctrl.jv.type.journal_editable">
                                             <div class="input-text form-group">
                                                 <label>
                                                     Journal
@@ -104,7 +104,7 @@
                                             </div>
                                         </div>
                                         <!-- ------- -->
-                                        <div class="col-md-3" ng-if="$ctrl.jv.type.journal_editable">
+                                        <div class="col-md-4" ng-if="$ctrl.jv.type.journal_editable">
                                             <div class="input-text form-group">
                                                 <label>
                                                     Journal
@@ -125,7 +125,7 @@
                                         </div><!-- Column -->
                                         <!-- ------------------- -->
                                         <input type="hidden" name="from_account_type_id" id="from_account_type_id" value='{{$ctrl.jv.from_account_type.id}}' class="required">
-                                        <div class="col-md-3" ng-if="$ctrl.jv.type && !$ctrl.jv.type.from_account_type_editable">
+                                        <div class="col-md-4" ng-if="$ctrl.jv.type && !$ctrl.jv.type.from_account_type_editable">
                                             <div class="input-text form-group">
                                                 <label>
                                                     From Account Type
@@ -136,7 +136,7 @@
                                             </div>
                                         </div>
                                         <!-- ------------------- -->
-                                        <div class="col-md-3" ng-if="$ctrl.jv.type && $ctrl.jv.type.from_account_type_editable">
+                                        <div class="col-md-4" ng-if="$ctrl.jv.type && $ctrl.jv.type.from_account_type_editable">
                                             <div class="input-text form-group">
                                                 <label>
                                                     From Account Type
@@ -157,7 +157,7 @@
                                         </div><!-- Column -->
                                         <!-- ------------------- -->
                                         <input type="hidden" name="to_account_type_id" id="to_account_type_id" value='{{$ctrl.jv.to_account_type.id}}' class="required">
-                                        <div class="col-md-3" ng-if="$ctrl.jv.type && !$ctrl.jv.type.to_account_type_editable">
+                                        <div class="col-md-4" ng-if="$ctrl.jv.type && !$ctrl.jv.type.to_account_type_editable">
                                             <div class="input-text form-group">
                                                 <label>
                                                     To Account Type
@@ -168,7 +168,7 @@
                                             </div>
                                         </div>
                                         <!-- ------------------- -->
-                                        <div class="col-md-3" ng-if="$ctrl.jv.type && $ctrl.jv.type.to_account_type_editable">
+                                        <div class="col-md-4" ng-if="$ctrl.jv.type && $ctrl.jv.type.to_account_type_editable">
                                             <div class="input-text form-group">
                                                 <label>
                                                     To Account Type
@@ -211,7 +211,7 @@
                                             <jv-form-header jv="$ctrl.jv"></jv-form-header>
                                             <div class="row">
                                                 <!-- ------------------ -->
-                                                <div class="col-md-3" ng-if="$ctrl.jv.from_account_type">
+                                                <div class="col-md-4" ng-if="$ctrl.jv.from_account_type">
                                                     <div class="input-text form-group">
                                                         <label>
                                                             From A/C Code
@@ -233,10 +233,10 @@
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
                                                 <!-- -------------- -->
-                                                <div class="col-md-3" ng-if="$ctrl.jv.from_account_type">
+                                                <div class="col-md-6" ng-if="$ctrl.jv.from_account_type">
                                                     <div class="input-text form-group">
                                                         <label>
-                                                            Document Transfer Type
+                                                            Type of Transfer 
                                                             <sup class="mandatory">*</sup>
                                                         </label>
                                                         <div class="common-radio-button type-3">
@@ -252,7 +252,7 @@
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
                                                 <!-- --------------- -->
-                                                <div class="col-md-3" ng-show="$ctrl.jv.transfer_type == 'invoice'">
+                                                <div class="col-md-2" ng-show="$ctrl.jv.transfer_type == 'invoice'">
                                                     <div class="input-text form-group">
                                                         <label class="opacity-zero">
                                                             Get Invoices
@@ -269,11 +269,18 @@
                                                             Receipt No
                                                         </label>
                                                         <input type="text" class="form-control" placeholder="Enter Receipt Number" autocomplete="off" ng-model="$ctrl.from_receipt_no" id="from_receipt_no" value="AL20ST0413865 ,AL20ST0467838">
-                                                        <button type="button" class="btn btn-primary btn-square button" ng-click="$ctrl.getReceipt('from')">
-                                                            Add Receipt
-                                                        </button>
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
+                                                <div class="col-md-3" ng-show="$ctrl.jv.transfer_type == 'receipt'">
+                                                    <div class="input-text form-group">
+                                                    <label style="visibility: hidden;">
+                                                            Receipt No
+                                                    </label>
+                                                    <button type="button" class="btn btn-primary btn-square button" ng-click="$ctrl.getReceipt('from')">
+                                                            Search / Add
+                                                    </button>
+                                                </div>
+                                                </div>
                                                 <!-- -------------------- -->
                                                 <div class="col-md-12" ng-if="$ctrl.jv.transfer_type == 'invoice'">
                                                     <jv-invoices-table jv="$ctrl.jv">
@@ -350,9 +357,16 @@
                                                         </label>
                                                         <input type="text" class="form-control" id="to_receipt_number" value="AL20ST0413865 ,AL20ST0467838" placeholder="Enter Receipt Number" autocomplete="off" ng-model="$ctrl.to_receipt_no">
                                                     </div><!-- Form Group -->
+                                                </div>
+                                                <div class="col-md-3" ng-if="$ctrl.jv.transfer_type == 'invoice'">
+                                                    <div class="input-text form-group">
+                                                        <label style="visibility: hidden;">
+                                                            Receipt No
+                                                        </label>
                                                     <button type="button" class="btn btn-primary btn-square button" ng-click="$ctrl.getReceipt('to')">
-                                                        Add Receipt
+                                                        Search / Add
                                                     </button>
+                                                </div>
                                                 </div><!-- Column -->
                                                 <div class="col-md-12" ng-show="$ctrl.jv.transfer_type == 'receipt'">
                                                     <jv-invoices-table jv="$ctrl.jv">
@@ -394,13 +408,13 @@
                                                             Transfer Amount
                                                             <sup class="mandatory">*</sup>
                                                         </label>
-                                                        <input type="text" class="form-control" ng-model="$ctrl.jv.amount" name="amount" id="transfer_amount" placeholder="Enter Amount" readonly autocomplete="off" />
+                                                        <input type="text" class="form-control" ng-model="$ctrl.jv.amount" name="amount" id="transfer_amount" placeholder="Enter Amount" autocomplete="off" />
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
                                                 <div class="col-md-3">
                                                     <div class="input-text form-group">
                                                         <label>Reason <sup class="mandatory">*</sup></label>
-                                                        <input type="text" class="form-control" ng-model="$ctrl.jv.reason" name="reason" placeholder="Enter Reason" autocomplete="off" required="" />
+                                                        <textarea class="form-control" rows="3" ng-model="$ctrl.jv.reason" name="reason" placeholder="Enter Reason" autocomplete="off" required=""></textarea>
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
                                                 <div class="col-md-6">
@@ -409,7 +423,8 @@
                                                             Remarks
                                                             <sup class="mandatory">*</sup>
                                                         </label>
-                                                        <input type="text" class="form-control" ng-model="$ctrl.jv.remarks" name="remarks" placeholder="Enter Remarks" autocomplete="off" required="" />
+                                                        <textarea class="form-control" rows="3" ng-model="$ctrl.jv.remarks" name="remarks" placeholder="Enter Remarks" autocomplete="off" required=""></textarea>
+                                                        <!-- <input type="text" class="form-control" ng-model="$ctrl.jv.remarks" name="remarks" placeholder="Enter Remarks" autocomplete="off" required="" /> -->
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
                                                 <div class="col-md-12">
