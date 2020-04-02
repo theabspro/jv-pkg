@@ -74,7 +74,9 @@
                             <div class="tab-pane fade in active" id="general-information" data-animation="fadeInUp" data-animation-delay="300">
                                 <div class="tab-pane-wrap">
                                     <div class="row">
-                                        <div class="col-md-4">
+                                        <div class="col-md-12">
+                                            <div class="row">
+                                                <div class="col-md-5">
                                             <div class="input-text form-group">
                                                 <label>
                                                     Type
@@ -93,9 +95,11 @@
                                                 <input type="hidden" name="type_id" value='{{$ctrl.jv.type.id}}' class="required">
                                             </div><!-- Feild -->
                                         </div>
+                                            </div>
+                                        </div>
                                         <!-- ------- -->
                                         <input type="hidden" value="{{$ctrl.jv.journal.id}}" name="journal_id" />
-                                        <div class="col-md-3" ng-if="$ctrl.jv.type && !$ctrl.jv.type.journal_editable">
+                                        <div class="col-md-4" ng-if="$ctrl.jv.type && !$ctrl.jv.type.journal_editable">
                                             <div class="input-text form-group">
                                                 <label>
                                                     Journal
@@ -125,7 +129,7 @@
                                         </div><!-- Column -->
                                         <!-- ------------------- -->
                                         <input type="hidden" name="from_account_type_id" id="from_account_type_id" value='{{$ctrl.jv.from_account_type.id}}' class="required">
-                                        <div class="col-md-3" ng-if="$ctrl.jv.type && !$ctrl.jv.type.from_account_type_editable">
+                                        <div class="col-md-4" ng-if="$ctrl.jv.type && !$ctrl.jv.type.from_account_type_editable">
                                             <div class="input-text form-group">
                                                 <label>
                                                     From Account Type
@@ -156,7 +160,7 @@
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
                                         <!-- ------------------- -->
-                                        <div class="col-md-2" ng-if="$ctrl.jv.type && !$ctrl.jv.type.to_account_type_editable">
+                                        <div class="col-md-4" ng-if="$ctrl.jv.type && !$ctrl.jv.type.to_account_type_editable">
                                         <input type="hidden" name="to_account_type_id" id="to_account_type_id" value='{{$ctrl.jv.to_account_type.id}}' class="required">
                                             <div class="input-text form-group">
                                                 <label>
@@ -211,13 +215,13 @@
                                             <jv-form-header jv="$ctrl.jv"></jv-form-header>
                                             <div class="row">
                                                 <!-- ------------------ -->
-                                                <div class="col-md-4" ng-if="$ctrl.jv.from_account_type">
+                                                <div class="col-md-3" ng-if="$ctrl.jv.from_account_type">
                                                     <div class="input-text form-group">
                                                         <label>
                                                             From A/C Code
                                                             <sup class="mandatory">*</sup>
                                                         </label>
-                                                        <div class="autocomplete-refresh">
+                                                        <!-- <div class="autocomplete-refresh"> -->
                                                             <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.fromCustomerSearchText)" md-selected-item="$ctrl.from_account" md-search-text="$ctrl.fromCustomerSearchText" md-selected-item-change="customerSelected('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
                                                                 <md-item-template>
                                                                     <span>
@@ -229,11 +233,11 @@
                                                                 </md-not-found>
                                                             </md-autocomplete>
                                                             <input type="hidden" name="from_account_id" value="{{$ctrl.jv.from_account.id}}" class="required ">
-                                                        </div>
+                                                        <!-- </div> -->
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
                                                 <!-- -------------- -->
-                                                <div class="col-md-6" ng-if="$ctrl.jv.from_account_type">
+                                                <div class="col-md-7" ng-if="$ctrl.jv.from_account_type">
                                                     <div class="input-text form-group">
                                                         <label>
                                                             Type of Transfer 
@@ -325,7 +329,7 @@
                                                             To A/C Code
                                                             <sup class="mandatory">*</sup>
                                                         </label>
-                                                        <div class="autocomplete-refresh">
+                                                        <!-- <div class="autocomplete-refresh"> -->
                                                             <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.toCustomerSearchText)" md-selected-item="$ctrl.to_account" md-search-text="$ctrl.toCustomerSearchText" md-selected-item-change="customerSelected('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
                                                                 <md-item-template>
                                                                     <span>
@@ -337,7 +341,7 @@
                                                                 </md-not-found>
                                                             </md-autocomplete>
                                                             <input type="hidden" name="to_account_id" value="{{$ctrl.jv.to_account.id}}" class="required">
-                                                        </div>
+                                                        <!-- </div> -->
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
                                                 <div class="col-md-2" ng-show="$ctrl.jv.to_account_type && $ctrl.jv.transfer_type == 'receipt'">
