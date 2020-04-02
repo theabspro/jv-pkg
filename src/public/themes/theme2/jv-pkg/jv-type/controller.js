@@ -221,21 +221,6 @@ app.component('jvTypeForm', {
 
         $("input:text:visible:first").focus();
 
-        /* Tab Funtion */
-        $('.btn-nxt').on("click", function() {
-            $('.cndn-tabs li.active').next().children('a').trigger("click");
-            tabPaneFooter();
-        });
-        $('.btn-prev').on("click", function() {
-            $('.cndn-tabs li.active').prev().children('a').trigger("click");
-            tabPaneFooter();
-        });
-        $('.btn-pills').on("click", function() {
-            tabPaneFooter();
-        });
-        $scope.btnNxt = function() {}
-        $scope.prev = function() {}
-
         $element.find('input').on('keydown', function(ev) {
             ev.stopPropagation();
         });
@@ -378,20 +363,5 @@ app.component('jvTypeView', {
             self.jv_fields = response.data.jv_fields;
             self.action = response.data.action;
         });
-
-        /* Tab Funtion */
-        $('.btn-nxt').on("click", function() {
-            $('.cndn-tabs li.active').next().children('a').trigger("click");
-            tabPaneFooter();
-        });
-        $('.btn-prev').on("click", function() {
-            $('.cndn-tabs li.active').prev().children('a').trigger("click");
-            tabPaneFooter();
-        });
-        $('.btn-pills').on("click", function() {
-            tabPaneFooter();
-        });
-        $scope.btnNxt = function() {}
-        $scope.prev = function() {}
     }
 });

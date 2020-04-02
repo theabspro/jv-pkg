@@ -33,8 +33,8 @@ class JvVerificationController extends Controller {
 
 	public function getJvVerificationList(Request $request) {
 		$approval_level = ApprovalLevel::where('id', $request->approval_level_id)
-			->leftJoin('approval_type_approval_level as atal', 'atal.approval_level_id', 'approval_levels.id')
-			->where('atal.approval_type_id', 2)
+		// ->leftJoin('approval_type_approval_level as atal', 'atal.approval_level_id', 'approval_levels.id')
+		// ->where('atal.approval_type_id', 2)
 			->first();
 		// dd($approval_level->current_status_id);
 		// dd($request->all());

@@ -175,7 +175,6 @@ class JournalVoucher extends Model {
 		}
 
 		$journal_voucher->fromAccount;
-		$journal_voucher->fromAccount;
 		$journal_voucher->toAccount;
 		$journal_voucher->action = 'View';
 
