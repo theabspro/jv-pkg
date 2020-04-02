@@ -303,6 +303,16 @@ app.component('jvTypeForm', {
                     required: true,
                 },
             },
+            messages: {
+                'name': {
+                    minlength: 'Minimum 3 Characters',
+                    maxlength: 'Maximum 64 Characters',
+                },
+                'short_name': {
+                    minlength: 'Minimum 2 Characters',
+                    maxlength: 'Maximum 24 Characters',
+                },
+            },
             invalidHandler: function(event, validator) {
                 custom_noty('error', 'You have errors, Please check all tabs');
             },

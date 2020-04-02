@@ -198,6 +198,20 @@ app.component('ledgerForm', {
                     maxlength: 255,
                 },
             },
+            messages: {
+                'name': {
+                    minlength: 'Minimum 3 Characters',
+                    maxlength: 'Maximum 191 Characters',
+                },
+                'code': {
+                    minlength: 'Minimum 2 Characters',
+                    maxlength: 'Maximum 64 Characters',
+                },
+                'description': {
+                    minlength: 'Minimum 3 Characters',
+                    maxlength: 'Maximum 255 Characters',
+                },
+            },
             submitHandler: function(form) {
                 let formData = new FormData($(form_id)[0]);
                 $('#submit').button('loading');
