@@ -31,6 +31,7 @@ class JournalVoucher extends Model {
 		'amount',
 		'reason',
 		'remarks',
+		'rejection_id',
 		'status_id',
 	];
 
@@ -41,6 +42,10 @@ class JournalVoucher extends Model {
 
 	public function type() {
 		return $this->belongsTo('Abs\JVPkg\JVType', 'type_id');
+	}
+
+	public function rejectionReasonDetails() {
+		return $this->belongsTo('App\Entity', 'rejection_id');
 	}
 
 	public function fromAccountType() {
@@ -147,6 +152,8 @@ class JournalVoucher extends Model {
 		$data['journal_voucher'] = $journal_voucher = JournalVoucher::with([
 			'attachments',
 			'type',
+			'type.verificationFlow',
+			'type.verificationFlow.approvalLevels',
 			'journal',
 			'fromAccountType',
 			'toAccountType',
@@ -157,6 +164,7 @@ class JournalVoucher extends Model {
 			'receipts.outlet',
 			'receipts.sbu',
 			'status',
+			'rejectionReasonDetails',
 		])
 			->find($request->id);
 		if (!$journal_voucher) {
@@ -166,6 +174,7 @@ class JournalVoucher extends Model {
 			]);
 		}
 
+		$journal_voucher->fromAccount;
 		$journal_voucher->fromAccount;
 		$journal_voucher->toAccount;
 		$journal_voucher->action = 'View';
@@ -195,9 +204,12 @@ class JournalVoucher extends Model {
 			DB::raw('DATE_FORMAT(activity_logs.date_time,"%d %b %Y") as activity_date'),
 			DB::raw('DATE_FORMAT(activity_logs.date_time,"%h:%i %p") as activity_time'),
 			'users.ecode as created_user',
+			'users.name as created_user_name',
+			'roles.name as user_role',
 			'activity_logs.details',
 		])
 			->leftJoin('users', 'users.id', 'activity_logs.user_id')
+			->leftJoin('roles', 'roles.id', 'users.role_id')
 			->where('activity_logs.entity_type_id', 384)
 			->where('activity_logs.entity_id', $journal_voucher->id)
 			->get();

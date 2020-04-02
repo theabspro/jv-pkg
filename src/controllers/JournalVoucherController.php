@@ -63,7 +63,7 @@ class JournalVoucherController extends Controller {
 				'states.code as state_code',
 				DB::raw('DATE_FORMAT(journal_vouchers.date,"%d-%m-%Y") as jv_date'),
 				DB::raw('IF(regions.code IS NULL,"--",regions.code) as region_code'),
-				DB::raw('CONCAT(employees.code," / ",users.name) as created_by'),
+				DB::raw('CONCAT(users.ecode," / ",users.name) as created_by'),
 				DB::raw('IF(journal_vouchers.deleted_at IS NULL, "Active","Inactive") as status'),
 			])
 		// ->where('journal_vouchers.company_id', Auth::user()->company_id)
@@ -147,6 +147,8 @@ class JournalVoucherController extends Controller {
 				//GET NEXT LEVEL OF STATUS FOR APPROVAL
 				$journal_voucher_status = JournalVoucher::with(['type'])->find($journal_vouchers->id);
 				$next_status = $journal_voucher_status->type->verificationFlow->approvalLevels()->orderBy('approval_order')->first()->current_status_id;
+				$reject_status = $journal_voucher_status->type->verificationFlow->approvalLevels()->orderBy('approval_order')->first()->reject_status_id;
+				// dd($reject_status);
 
 				$img1 = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow.svg');
 				$img1_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow-active.svg');
@@ -159,17 +161,17 @@ class JournalVoucherController extends Controller {
 				$img_tick_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/tick.svg');
 
 				$output = '';
-				if (Entrust::can('edit-journal-voucher') && $journal_vouchers->status_id == $journal_vouchers->initial_status_id) {
+				if (Entrust::can('edit-journal-voucher') && ($journal_vouchers->status_id == $journal_vouchers->initial_status_id || $journal_vouchers->status_id == $reject_status)) {
 					$output .= '<a href="#!/jv-pkg/journal-voucher/edit/' . $journal_vouchers->id . '" id = "" title="Edit"><img src="' . $img1 . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img1_active . '" onmouseout=this.src="' . $img1 . '"></a>';
 				}
 				if (Entrust::can('view-journal-voucher')) {
 					$output .= '<a href="#!/jv-pkg/journal-voucher/view/' . $journal_vouchers->id . '" id = "" title="View"><img src="' . $img_view . '" alt="View" class="img-responsive" onmouseover=this.src="' . $img_view_active . '" onmouseout=this.src="' . $img_view . '"></a>';
 				}
-				if (Entrust::can('delete-journal-voucher') && $journal_vouchers->status_id == $journal_vouchers->initial_status_id) {
+				if (Entrust::can('delete-journal-voucher') && ($journal_vouchers->status_id == $journal_vouchers->initial_status_id || $journal_vouchers->status_id == $reject_status)) {
 					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#journal-voucher-delete-modal" onclick="angular.element(this).scope().deleteJournalVoucher(' . $journal_vouchers->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>
 					';
 				}
-				if (Entrust::can('approve-journal-voucher') && $journal_vouchers->status_id == $journal_vouchers->initial_status_id) {
+				if (Entrust::can('approve-journal-voucher') && ($journal_vouchers->status_id == $journal_vouchers->initial_status_id || $journal_vouchers->status_id == $reject_status)) {
 					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#approve-popup" onclick="angular.element(this).scope().deleteJournalVoucherApprove(' . $journal_vouchers->id . ',' . $next_status . ')" title="Approve"><img src="' . $img_tick . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_tick_active . '" onmouseout=this.src="' . $img_tick . '"></a>
 					';
 				}

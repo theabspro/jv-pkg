@@ -95,7 +95,7 @@
                                         </div>
                                         <!-- ------- -->
                                         <input type="hidden" value="{{$ctrl.jv.journal.id}}" name="journal_id" />
-                                        <div class="col-md-4" ng-if="$ctrl.jv.type && !$ctrl.jv.type.journal_editable">
+                                        <div class="col-md-3" ng-if="$ctrl.jv.type && !$ctrl.jv.type.journal_editable">
                                             <div class="input-text form-group">
                                                 <label>
                                                     Journal
@@ -125,7 +125,7 @@
                                         </div><!-- Column -->
                                         <!-- ------------------- -->
                                         <input type="hidden" name="from_account_type_id" id="from_account_type_id" value='{{$ctrl.jv.from_account_type.id}}' class="required">
-                                        <div class="col-md-4" ng-if="$ctrl.jv.type && !$ctrl.jv.type.from_account_type_editable">
+                                        <div class="col-md-3" ng-if="$ctrl.jv.type && !$ctrl.jv.type.from_account_type_editable">
                                             <div class="input-text form-group">
                                                 <label>
                                                     From Account Type
@@ -156,7 +156,7 @@
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
                                         <!-- ------------------- -->
-                                        <div class="col-md-4" ng-if="$ctrl.jv.type && !$ctrl.jv.type.to_account_type_editable">
+                                        <div class="col-md-2" ng-if="$ctrl.jv.type && !$ctrl.jv.type.to_account_type_editable">
                                         <input type="hidden" name="to_account_type_id" id="to_account_type_id" value='{{$ctrl.jv.to_account_type.id}}' class="required">
                                             <div class="input-text form-group">
                                                 <label>

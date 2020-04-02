@@ -14,6 +14,18 @@
         <span class="grid-col-value">{{$ctrl.jv.remarks ? $ctrl.jv.remarks : 'N/A'}}</span>
     </li>
 </ul>
+<div class="mb-30" ng-if="$ctrl.jv.rejection_reason_details"></div><!-- Space -->
+<h6 class="tab-pane-title color-light mb-10" ng-if="$ctrl.jv.rejection_reason_details">Rejected Reason</h6>
+<ul class="grid-row" ng-if="$ctrl.jv.rejection_reason_details">
+    <li class="grid-col-3">
+        <span class="grid-col-label">JV Rejected Reason</span>
+        <span class="grid-col-value">{{$ctrl.jv.rejection_reason_details.name}}</span>
+    </li>
+    <li class="grid-col-3">
+        <span class="grid-col-label">Rejected Remarks</span>
+        <span class="grid-col-value">{{$ctrl.jv.rejection_reason}}</span>
+    </li>
+</ul>
 <div class="mb-30"></div><!-- Space -->
 <h6 class="tab-pane-title color-light mb-10" ng-if="$ctrl.jv.attachments">Attachments</h6>
 <div class="jva-attachments" ng-if="$ctrl.jv.attachments.length == 0">
