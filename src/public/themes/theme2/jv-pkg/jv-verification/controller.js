@@ -287,6 +287,18 @@ app.component('jvVerificationView', {
             self.approval_level = response.data.approval_level;
             self.ref_attachements_url_link = jv_attachements_url;
             $rootScope.loading = false;
+
+            //ATTACHMENTS
+             if (self.jv.attachments.length) {
+                 $(self.jv.attachments).each(function(key, attachment) {
+                     var design = '<div class="imageuploadify-container" data-attachment_id="' + attachment.id + '" style="margin-left: 0px; margin-right: 0px;">' +
+                         ' <div class="imageuploadify-details"><div class="imageuploadify-file-icon"></div><span class="imageuploadify-file-name"><a href="' + jv_attachements_url + '/' + attachment.name + '">' + attachment.name + '' +
+                         '</span><span class="imageuploadify-file-type">image/jpeg</span>' +
+                         '</a><span class="imageuploadify-file-size">369960</span></div>' +
+                         '</div></div>';
+                     $('.imageuploadify-images-list').append(design);
+                 });
+             }
         });
 
         $element.find('input').on('keydown', function(ev) {

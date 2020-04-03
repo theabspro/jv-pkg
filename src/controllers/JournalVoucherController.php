@@ -213,7 +213,7 @@ class JournalVoucherController extends Controller {
 
 			$this->data['invoices'] = [];
 			$journal_voucher->date = date('d-m-Y');
-			$journal_voucher->action = 'Create';
+			$journal_voucher->action = 'Initiate';
 		} else {
 			$journal_voucher = JournalVoucher::withTrashed()->with([
 				'attachments',
@@ -228,6 +228,7 @@ class JournalVoucherController extends Controller {
 				'receipts.outlet',
 				'receipts.sbu',
 			])->find($r->id);
+
 			$permanent_number = $journal_voucher->receipts->pluck('permanent_receipt_no')->toArray();
 			$journal_voucher->fromAccount;
 			$journal_voucher->toAccount;
@@ -242,6 +243,9 @@ class JournalVoucherController extends Controller {
 					$invoice->selected = false;
 					$total_invoice_amount[] = '';
 				}
+				//DONT REVORT -> FOR GETTING OUTLET AND SBU
+				$invoice->outlet;
+				$invoice->sbu;
 			}
 			foreach ($journal_voucher->receipts as $receipt) {
 				$balance_amount[] = $receipt->balance_amount;
@@ -422,9 +426,14 @@ class JournalVoucherController extends Controller {
 				foreach ($request->journal_attachments as $key => $journal_attachment) {
 					$value = rand(1, 100);
 					$image = $journal_attachment;
+
+					$file_name_with_extension = $image->getClientOriginalName();
+					$file_name = pathinfo($file_name_with_extension, PATHINFO_FILENAME);
 					$extension = $image->getClientOriginalExtension();
+					// dd($file_name, $extension);
 					//ISSUE : file name should be stored
-					$name = $journal_voucher->id . 'journal_voucher_attachment' . $value . '.' . $extension;
+					$name = $journal_voucher->id . '_' . $file_name . '.' . $extension;
+
 					$journal_attachment->move(storage_path('app/public/journal-vouchers/attachments/'), $name);
 					$attachement = new Attachment;
 					$attachement->attachment_of_id = 223;
@@ -450,12 +459,12 @@ class JournalVoucherController extends Controller {
 			if (!($request->id)) {
 				return response()->json([
 					'success' => true,
-					'message' => 'Journal Voucher Created Successfully',
+					'message' => 'JV Request Initiated Successfully',
 				]);
 			} else {
 				return response()->json([
 					'success' => true,
-					'message' => 'Journal Voucher Updated Successfully',
+					'message' => 'JV Request Updated Successfully',
 				]);
 			}
 		} catch (Exceprion $e) {
@@ -493,7 +502,7 @@ class JournalVoucherController extends Controller {
 				$activity->save();
 				$journal_voucher = JournalVoucher::withTrashed()->where('id', $request->id)->first();
 				DB::commit();
-				return response()->json(['success' => true, 'message' => 'Journal Voucher Deleted Successfully']);
+				return response()->json(['success' => true, 'message' => 'JV Request Deleted Successfully']);
 			}
 		} catch (Exception $e) {
 			DB::rollBack();
@@ -560,7 +569,7 @@ class JournalVoucherController extends Controller {
 					$activity->save();
 				}
 				DB::commit();
-				return response()->json(['success' => true, 'message' => 'Journal Vouchers Approved successfully']);
+				return response()->json(['success' => true, 'message' => 'Approved successfully']);
 			} catch (Exception $e) {
 				DB::rollBack();
 				return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);

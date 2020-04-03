@@ -42,9 +42,6 @@
                 </b>
             </div>
         </li>
-        <li>
-            1000162 AL19ST0254452 AL19ST0253878
-        </li>
     </ul>
     <ul class="flex-row">
         <li class="flex-col-3" ng-if="$ctrl.jv.from_account">
@@ -90,7 +87,7 @@
                 <div class="grey-box-header">
                     <b>
                         {{$ctrl.jv.receipts.length}}
-                        Receipts (Rs: {{$ctrl.jv.total_receipt_amount}})
+                        Receipts (₹{{$ctrl.jv.total_receipt_amount}}.00)
                     </b>
                 </div>
                 <div class="grey-box-body">
@@ -107,7 +104,7 @@
                 <div class="grey-box-header">
                     <b>
                         {{$ctrl.jv.invoices_length}}
-                        Invoices (Rs: {{$ctrl.jv.total_invoice_amount}})
+                        Invoices (₹{{$ctrl.jv.total_invoice_amount}}.00)
                     </b>
                 </div>
                 <div class="grey-box-body">

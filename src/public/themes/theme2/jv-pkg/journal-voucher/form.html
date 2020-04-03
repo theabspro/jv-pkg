@@ -12,10 +12,10 @@
                         </a>
                     </div><!-- Page Header Content -->
                     <div class="page-header-content title-block">
-                        <h1 class="title"><b>{{$ctrl.jv.action}} Journal Voucher</b></h1>
+                        <h1 class="title"><b>{{$ctrl.jv.action}} JV Request</b></h1>
                         <p class="subtitle">
                             <a href="#!/jv-pkg/journal-voucher/list">
-                                Journal Vouchers
+                                JV Requests
                             </a> /
                             {{$ctrl.jv.action}}
                         </p>
@@ -60,7 +60,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a data-target="#amount" data-toggle="tab" aria-expanded="true" class="filter">
+                                        <a data-target="#amount" data-toggle="tab" aria-expanded="true" class="filter compare_amount">
                                             Amount
                                         </a>
                                     </li>
@@ -286,11 +286,11 @@
                                                 </div>
                                                 </div>
                                                 <!-- -------------------- -->
-                                                <div class="col-md-12" ng-if="$ctrl.jv.transfer_type == 'invoice'">
+                                                <div class="col-md-12" ng-show="$ctrl.jv.transfer_type == 'invoice'">
                                                     <jv-invoices-table jv="$ctrl.jv">
                                                     </jv-invoices-table>
                                                 </div><!-- Column -->
-                                                <div class="col-md-12" ng-if="$ctrl.jv.transfer_type == 'receipt'">
+                                                <div class="col-md-12" ng-show="$ctrl.jv.transfer_type == 'receipt'">
                                                     <jv-receipts-table jv="$ctrl.jv">
                                                     </jv-receipts-table>
                                                 </div><!-- Column -->
@@ -388,7 +388,7 @@
                                                     <a class="btn btn-secondary btn-prev">
                                                         Previous
                                                     </a>
-                                                    <a class="btn btn-primary btn-min-wdth btn-nxt">
+                                                    <a class="btn btn-primary btn-min-wdth btn-nxt compare_amount">
                                                         Next
                                                     </a>
                                                     <button type="submit" class="btn btn-primary submit">
