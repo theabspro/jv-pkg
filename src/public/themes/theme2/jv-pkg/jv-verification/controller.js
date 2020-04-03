@@ -1,6 +1,6 @@
 app.component('jvVerificationList', {
     templateUrl: jv_verification_list_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $window, $mdSelect) {
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $window, $mdSelect,$element) {
         $scope.loading = true;
         $('#search_jv_verification').focus();
         var self = this;
@@ -66,6 +66,8 @@ app.component('jvVerificationList', {
                         d.type_id = $('#type_id').val();
                         d.outlet_id = $('#outlet_id').val();
                         d.state_id = $('#state_id').val();
+                        d.from_account_type_id = $('#from_account_type_id').val();
+                        d.to_account_type_id = $('#to_account_type_id').val();
                         d.region_id = $('#region_id').val();
                         d.status_id = $('#status_id').val();
                     },
@@ -171,6 +173,18 @@ app.component('jvVerificationList', {
                  dataTable.draw();
              }, 900);
          }
+         $scope.onSelectedFromAccType = function(selected_from_acc_type) {
+            setTimeout(function() {
+                $('#from_account_type_id').val(selected_from_acc_type);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.onSelectedToAccType = function(selected_to_acc_type) {
+            setTimeout(function() {
+                $('#to_account_type_id').val(selected_to_acc_type);
+                dataTable.draw();
+            }, 900);
+        }
         $scope.getSelectedStatus = function(selected_status_id) {
             setTimeout(function() {
                 $('#status_id').val(selected_status_id);
@@ -199,6 +213,8 @@ app.component('jvVerificationList', {
             $('#outlet_id').val('');
             $('#state_id').val('');
             $('#region_id').val('');
+            $('#from_account_type_id').val('');
+            $('#to_account_type_id').val('');
             $('#status_id').val('');
             self.extras.regions = [];
             dataTable.draw();

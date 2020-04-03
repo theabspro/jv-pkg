@@ -1,6 +1,6 @@
  app.component('journalVoucherList', {
      templateUrl: journal_voucher_list_template_url,
-     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect, $timeout) {
+     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect, $timeout,$element) {
          $scope.loading = true;
          $('#search_journal_voucher').focus();
          var self = this;
@@ -61,6 +61,8 @@
                          d.type_id = $('#type_id').val();
                          d.outlet_id = $('#outlet_id').val();
                          d.state_id = $('#state_id').val();
+                         d.from_account_type_id = $('#from_account_type_id').val();
+                        d.to_account_type_id = $('#to_account_type_id').val();
                          d.region_id = $('#region_id').val();
                          d.status_id = $('#status_id').val();
                      },
@@ -153,6 +155,18 @@
                  dataTable.draw();
              }, 900);
          }
+         $scope.onSelectedFromAccType = function(selected_from_acc_type) {
+            setTimeout(function() {
+                $('#from_account_type_id').val(selected_from_acc_type);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.onSelectedToAccType = function(selected_to_acc_type) {
+            setTimeout(function() {
+                $('#to_account_type_id').val(selected_to_acc_type);
+                dataTable.draw();
+            }, 900);
+        }
          $scope.onSelectedOutlet = function(selected_outlet_id) {
              setTimeout(function() {
                  $('#outlet_id').val(selected_outlet_id);
@@ -194,6 +208,8 @@
              $('#state_id').val('');
              $('#region_id').val('');
              $('#status_id').val('');
+             $('#from_account_type_id').val('');
+            $('#to_account_type_id').val('');
              self.extras.regions = [];
              dataTable.draw();
          }

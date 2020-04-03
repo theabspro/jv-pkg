@@ -130,6 +130,34 @@
                         </div><!-- Column -->
                         <div class="col-md-6">
                             <div class="input-text form-group">
+                                <label>From A/c Type</label>
+                                <md-select ng-model="$ctrl.from_account_type_id" placeholder="Select From A/c Type" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedFromAccType($ctrl.from_account_type_id)">
+                                    <md-select-header class="demo-select-header ng-hide">
+                                        <input ng-model="searchCategory" type="search" placeholder="Search for a From A/c Type" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                    </md-select-header>
+                                    <md-optgroup label="Travel List">
+                                        <md-option ng-value="from_acc_type.id" ng-repeat="from_acc_type in $ctrl.extras.from_acc_list | filter:searchTravel">{{from_acc_type.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" name="from_account_type_id" id="from_account_type_id" value="">
+                            </div><!-- Feild -->
+                        </div><!-- Column -->
+                        <div class="col-md-6">
+                            <div class="input-text form-group">
+                                <label>To A/c Type</label>
+                                <md-select ng-model="$ctrl.to_account_type_id" placeholder="Select To A/c Type" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedToAccType($ctrl.to_account_type_id)">
+                                    <md-select-header class="demo-select-header ng-hide">
+                                        <input ng-model="searchCategory" type="search" placeholder="Search for a To A/c Type" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                    </md-select-header>
+                                    <md-optgroup label="Travel List">
+                                        <md-option ng-value="to_acc_type.id" ng-repeat="to_acc_type in $ctrl.extras.to_acc_list | filter:searchTravel">{{to_acc_type.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" name="to_account_type_id" id="to_account_type_id" value="">
+                            </div><!-- Feild -->
+                        </div><!-- Column -->
+                        <div class="col-md-6">
+                            <div class="input-text form-group">
                                 <label>Outlet</label>
                                 <md-select ng-model="$ctrl.outlet.id" placeholder="Select Outlet" md-on-close="clearSearchOutlet()" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedOutlet($ctrl.outlet.id)">
                                     <md-select-header class="demo-select-header">
@@ -187,7 +215,7 @@
                     </div>
                     <div class="row modal-row">
                         <div class="col-md-6">
-                            <button type="button" class="btn btn-rose my-tooltip" ng-click="reset_filter(); $ctrl.type_id=''; $ctrl.from_account_type_id=''; $ctrl.to_account_type_id=''; $ctrl.status_id=''; $ctrl.outlet.id=''; $ctrl.state.id=''; $ctrl.region.id=''" ng-shortcut="'meta+shift+t'" ng-shortcut-click data-title="ctrl+shift+t">Reset Filter</button>
+                            <button type="button" class="btn btn-rose my-tooltip" ng-click="reset_filter(); $ctrl.type_id=''; $ctrl.from_account_type_id=''; $ctrl.to_account_type_id=''; $ctrl.status_id=''; $ctrl.outlet.id=''; $ctrl.state.id=''; $ctrl.region.id=''; $ctrl.from_account_type_id=''; $ctrl.to_account_type_id=''" ng-shortcut="'meta+shift+t'" ng-shortcut-click data-title="ctrl+shift+t">Reset Filter</button>
                         </div>
                     </div><!-- Row -->
                 </div><!-- Modal Form -->
@@ -226,7 +254,6 @@
             <div class="modal-footer text-right">
                 <input type="hidden" name="journal_vouchers_id" id="journal_vouchers_id" value="">
                 <input type="hidden" name="journal_voucher_status_id" id="journal_voucher_status_id" value="">
-
                 <a href="#!" class="btn btn-cancel my-tooltip" data-dismiss="modal" ng-shortcut="'meta+shift+c'" ng-shortcut-click data-title="ctrl+shift+c">
                     Cancel
                 </a>

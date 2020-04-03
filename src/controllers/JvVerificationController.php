@@ -8,8 +8,8 @@ use Abs\LocationPkg\State;
 use App\ActivityLog;
 use App\Config;
 use App\Entity;
-use App\Outlet;
 use App\Http\Controllers\Controller;
+use App\Outlet;
 use Auth;
 use Carbon\Carbon;
 use DB;
@@ -25,6 +25,8 @@ class JvVerificationController extends Controller {
 
 	public function getVerificationFilter() {
 		$this->data['extras'] = [
+			'from_acc_list' => collect(Config::select('id', 'name')->where('config_type_id', 27)->get())->prepend(['id' => '', 'name' => 'Select From A/c Type']),
+			'to_acc_list' => collect(Config::select('id', 'name')->where('config_type_id', 27)->get())->prepend(['id' => '', 'name' => 'Select To A/c Type']),
 			'outlets' => collect(Outlet::select('id', 'code')->where('company_id', Auth::user()->company_id)->get())->prepend(['id' => '', 'code' => 'Select Outlet']),
 			'states' => collect(State::select('id', 'name')->where('country_id', 1)->get())->prepend(['id' => '', 'name' => 'Select State']),
 			'regions' => [],
@@ -55,8 +57,8 @@ class JvVerificationController extends Controller {
 			->select([
 				'journal_vouchers.*',
 				'jv_types.short_name as jv_type',
-				// 'from_account_types.name as from_account_type',
-				// 'to_account_types.name as to_account_type',
+				'from_account_types.name as from_account_type',
+				'to_account_types.name as to_account_type',
 				'es.name as jv_status',
 				'outlets.code as outlet_code',
 				'states.code as state_code',
@@ -68,8 +70,8 @@ class JvVerificationController extends Controller {
 
 			->leftJoin('jv_types', 'jv_types.id', 'journal_vouchers.type_id')
 			->leftJoin('entity_statuses as es', 'es.id', 'journal_vouchers.status_id')
-		// ->leftJoin('configs as from_account_types', 'from_account_types.id', 'journal_vouchers.from_account_type_id')
-		// ->leftJoin('configs as to_account_types', 'to_account_types.id', 'journal_vouchers.to_account_type_id')
+			->leftJoin('configs as from_account_types', 'from_account_types.id', 'journal_vouchers.from_account_type_id')
+			->leftJoin('configs as to_account_types', 'to_account_types.id', 'journal_vouchers.to_account_type_id')
 			->join('users', 'users.id', 'journal_vouchers.created_by_id')
 			->join('employees', 'employees.id', 'users.entity_id')
 			->join('outlets', 'outlets.id', 'employees.outlet_id')
@@ -113,7 +115,18 @@ class JvVerificationController extends Controller {
 					$query->where('journal_vouchers.status_id', $request->status_id);
 				}
 			})
-		->orderby('journal_vouchers.id', 'desc')
+			->where(function ($query) use ($request) {
+				if (!empty($request->from_account_type_id)) {
+					$query->where('journal_vouchers.from_account_type_id', $request->from_account_type_id);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->to_account_type_id)) {
+					$query->where('journal_vouchers.to_account_type_id', $request->to_account_type_id);
+				}
+			})
+
+			->orderby('journal_vouchers.id', 'desc')
 		// ->get()
 		;
 
@@ -138,7 +151,7 @@ class JvVerificationController extends Controller {
 				return $jv_verification->voucher_number;
 			})
 			->addColumn('amount', function ($jv_verification) {
-				$amount = '₹ '. $jv_verification->amount ;
+				$amount = '₹ ' . $jv_verification->amount;
 				return $amount;
 			})
 		// ->addColumn('from_ac_code', function ($jv_verification) {
