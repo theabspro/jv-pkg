@@ -37,13 +37,13 @@
                 </td>
                 <td>{{invoice.invoice_date}}</td>
                 <td class="text-right">
-                    {{invoice.invoice_amount}}
+                    ₹{{invoice.invoice_amount}}
                 </td>
                 <td class="text-right">
-                    {{invoice.received_amount}}
+                    ₹{{invoice.received_amount}}
                 </td>
                 <td class="text-right">
-                    {{invoice.invoice_amount - invoice.received_amount}}
+                    ₹{{invoice.invoice_amount - invoice.received_amount}}.00
                 </td>
                 <td>{{invoice.outlet.code}}</td>
                 <td>{{invoice.sbu.name}}</td>

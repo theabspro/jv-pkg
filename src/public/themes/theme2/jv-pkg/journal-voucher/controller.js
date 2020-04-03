@@ -232,8 +232,8 @@
                      custom_noty('error', response.data.error);
                      return;
                  }
-                $('#journal_vouchers_list').DataTable().ajax.reload(function(json) {});
-                $location.path('/jv-pkg/journal-voucher/list');
+                 $('#journal_vouchers_list').DataTable().ajax.reload(function(json) {});
+                 $location.path('/jv-pkg/journal-voucher/list');
              });
          }
 
@@ -297,6 +297,7 @@
      templateUrl: journal_voucher_form_template_url,
      controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $q) {
          var self = this;
+         // var transfer_amount = [];
          self.hasPermission = HelperService.hasPermission;
          if (!self.hasPermission('add-journal-voucher') || !self.hasPermission('edit-journal-voucher')) {
              window.location = "#!/page-permission-denied";
@@ -313,7 +314,7 @@
                  'id': typeof($routeParams.id) == 'undefined' ? null : $routeParams.id,
              }
          }).then(function(response) {
-             // console.log(response.data);
+             console.log(response.data);
              self.jv = response.data.journal_voucher;
              self.jv.invoices = response.data.invoices;
              self.from_account = self.jv.from_account;
@@ -357,7 +358,7 @@
                  } else {
                      // console.log('journal list');
                      self.jv.type.journal_editable = self.jv.type.journal_editable;
-                     self.jv.journal = '';
+                     // self.jv.journal = '';
                  }
                  if (!self.jv.type.from_account_type_editable) {
                      // console.log('from');
@@ -365,7 +366,7 @@
                  } else {
                      // console.log('from List');
                      self.jv.type.from_account_type_editable = self.jv.type.from_account_type_editable;
-                     self.jv.from_account_type = '';
+                     // self.jv.from_account_type = '';
                  }
                  if (!self.jv.type.to_account_type_editable) {
                      // console.log('to');
@@ -373,7 +374,7 @@
                  } else {
                      // console.log('to list');
                      self.jv.type.to_account_type_editable = self.jv.type.to_account_type_editable;
-                     self.jv.to_account_type = '';
+                     // self.jv.to_account_type = '';
                  }
              });
          }
@@ -466,10 +467,12 @@
 
                      self.jv.total_receipt_amount = parseFloat(self.jv.total_receipt_amount) + parseFloat(response.data.receipt.balance_amount);
                      // console.log(self.jv.total_receipt_amount);
-                     if (self.jv.transfer_type == 'receipt') {
-                         self.jv.amount = self.jv.total_receipt_amount.toFixed(2);
-                         // $('#transfer_amount').prop('readonly', true);
-                     }
+                     // if (self.jv.transfer_type == 'receipt') {
+                     // $("#total_receipt_amount").val(self.jv.total_receipt_amount.toFixed(2));
+                     self.jv.total_receipt_amount = self.jv.total_receipt_amount;
+                     // $('#transfer_amount').prop('readonly', true);
+                     // }
+                     // console.log(self.jv.transfer_amount);
 
                      self.from_receipt_no = '';
                      self.to_receipt_no = '';
@@ -560,34 +563,59 @@
              }
          });
 
+         //GET MINIMUM SELECTED AMOUNT TO APPEND ON TRANSFER AMOUNT IN AMOUNT TAB
+         $(document).on('click', '.compare_amount', function() {
+             var total_invoice_amount = parseInt(self.jv.total_invoice_amount).toFixed(2);
+             var total_receipt_amount = parseInt(self.jv.total_receipt_amount).toFixed(2);
+             self.transfer_amount = Math.min(total_receipt_amount, total_invoice_amount);
+             $("#transfer_amount").val(self.transfer_amount.toFixed(2));
+         });
+
          $("#transfer_amount").on('change', function() {
-             if (self.jv.transfer_type == 'invoice') {
-                 if ($(this).val() > self.jv.total_invoice_amount) {
-                     $noty = new Noty({
-                         type: 'error',
-                         layout: 'topRight',
-                         text: 'Transfer Amount Not More then Invoice Total Amount!',
-                     }).show();
-                     $('.submit').button('loading');
-                     return;
-                 } else {
-                     $('.submit').button('reset');
-                 }
-             }
-             if (self.jv.transfer_type == 'receipt') {
-                 if ($(this).val() > self.jv.total_receipt_amount) {
-                     $noty = new Noty({
-                         type: 'error',
-                         layout: 'topRight',
-                         text: 'Transfer Amount Not More then Recepit Total Amount!',
-                     }).show();
-                     $('.submit').button('loading');
-                     return;
-                 } else {
-                     $('.submit').button('reset');
-                 }
+             if ($(this).val() > self.transfer_amount) {
+                 $noty = new Noty({
+                     type: 'error',
+                     layout: 'topRight',
+                     text: 'Transfer Amount Not More then ' + self.transfer_amount + '!',
+                 }).show();
+                 $('.submit').button('loading');
+                 return;
+             } else {
+                 $('.submit').button('reset');
              }
          });
+
+         //BASED ON TRANSFER OF TYPE CHOOSE
+         // $("#transfer_amount").on('change', function() {
+         //INVOICE
+         //     if (self.jv.transfer_type == 'invoice') {
+         //         if ($(this).val() > self.jv.total_invoice_amount) {
+         //             $noty = new Noty({
+         //                 type: 'error',
+         //                 layout: 'topRight',
+         //                 text: 'Transfer Amount Not More then Invoice Total Amount!',
+         //             }).show();
+         //             $('.submit').button('loading');
+         //             return;
+         //         } else {
+         //             $('.submit').button('reset');
+         //         }
+         //     }
+         //RECEIPT
+         //     if (self.jv.transfer_type == 'receipt') {
+         //         if ($(this).val() > self.jv.total_receipt_amount) {
+         //             $noty = new Noty({
+         //                 type: 'error',
+         //                 layout: 'topRight',
+         //                 text: 'Transfer Amount Not More then Recepit Total Amount!',
+         //             }).show();
+         //             $('.submit').button('loading');
+         //             return;
+         //         } else {
+         //             $('.submit').button('reset');
+         //         }
+         //     }
+         // });
 
          var form_id = '#form';
          var v = jQuery(form_id).validate({
@@ -786,12 +814,13 @@
                      self.jv.invoices_length++;
                      self.jv.total_invoice_amount += parseFloat(invoice.balance_amount);
                  }
-                 if (self.jv.transfer_type == 'invoice') {
-                     self.jv.amount = self.jv.total_invoice_amount.toFixed(2);
-                     // $('#transfer_amount').prop('readonly', true);
-                 }
+                 // if (self.jv.transfer_type == 'invoice') {
+                 // $("#total_invice_amount").val(self.jv.total_invoice_amount.toFixed(2));
+                 self.jv.total_invoice_amount = self.jv.total_invoice_amount;
+                 // $('#transfer_amount').prop('readonly', true);
+                 // }
              });
-             // console.log(self.jv.total_invoice_amount);
+             // console.log(self.jv.transfer_amount);
          }
 
      }
