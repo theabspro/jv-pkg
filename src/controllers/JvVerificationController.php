@@ -2,11 +2,13 @@
 
 namespace Abs\JVPkg;
 use Abs\ApprovalPkg\ApprovalLevel;
-use Abs\ApprovalPkg\ApprovalTypeStatus;
+use Abs\ApprovalPkg\EntityStatus;
 use Abs\JVPkg\JournalVoucher;
+use Abs\LocationPkg\State;
 use App\ActivityLog;
 use App\Config;
 use App\Entity;
+use App\Outlet;
 use App\Http\Controllers\Controller;
 use Auth;
 use Carbon\Carbon;
@@ -23,9 +25,10 @@ class JvVerificationController extends Controller {
 
 	public function getVerificationFilter() {
 		$this->data['extras'] = [
-			'from_acc_list' => collect(Config::select('id', 'name')->where('config_type_id', 27)->get())->prepend(['id' => '', 'name' => 'Select From A/c Type']),
-			'to_acc_list' => collect(Config::select('id', 'name')->where('config_type_id', 27)->get())->prepend(['id' => '', 'name' => 'Select To A/c Type']),
-			'jv_statuses' => collect(ApprovalTypeStatus::select('id', 'status')->where('approval_type_id', 2)->orderBy('id', 'asc')->get())->prepend(['id' => '', 'status' => 'Select JV Status']),
+			'outlets' => collect(Outlet::select('id', 'code')->where('company_id', Auth::user()->company_id)->get())->prepend(['id' => '', 'code' => 'Select Outlet']),
+			'states' => collect(State::select('id', 'name')->where('country_id', 1)->get())->prepend(['id' => '', 'name' => 'Select State']),
+			'regions' => [],
+			'jv_statuses' => collect(EntityStatus::select('id', 'name')->where('company_id', Auth::user()->company_id)->where('entity_id', 7221)->orderBy('id', 'asc')->get())->prepend(['id' => '', 'name' => 'Select JV Status']),
 			'type_list' => collect(JVType::where('company_id', Auth::user()->company_id)->select('id', 'short_name')->get())->prepend(['id' => '', 'short_name' => 'Select JV Type']),
 		];
 		return response()->json($this->data);
@@ -91,13 +94,18 @@ class JvVerificationController extends Controller {
 				}
 			})
 			->where(function ($query) use ($request) {
-				if (!empty($request->from_account_type_id)) {
-					$query->where('journal_vouchers.from_account_type_id', $request->from_account_type_id);
+				if (!empty($request->outlet_id)) {
+					$query->where('employees.outlet_id', $request->outlet_id);
 				}
 			})
 			->where(function ($query) use ($request) {
-				if (!empty($request->to_account_type_id)) {
-					$query->where('journal_vouchers.to_account_type_id', $request->to_account_type_id);
+				if (!empty($request->state_id)) {
+					$query->where('outlets.state_id', $request->state_id);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->region_id)) {
+					$query->where('outlets.region_id', $request->region_id);
 				}
 			})
 			->where(function ($query) use ($request) {
@@ -105,7 +113,7 @@ class JvVerificationController extends Controller {
 					$query->where('journal_vouchers.status_id', $request->status_id);
 				}
 			})
-		// ->orderby('journal_vouchers.id', 'desc')
+		->orderby('journal_vouchers.id', 'desc')
 		// ->get()
 		;
 
@@ -128,6 +136,10 @@ class JvVerificationController extends Controller {
 				$status = $jv_verification->status == 'Active' ? 'green' : 'red';
 				// return '<span class="status-indicator ' . $status . '"></span>' . $jv_verification->voucher_number;
 				return $jv_verification->voucher_number;
+			})
+			->addColumn('amount', function ($jv_verification) {
+				$amount = '₹ '. $jv_verification->amount ;
+				return $amount;
 			})
 		// ->addColumn('from_ac_code', function ($jv_verification) {
 		// 	if ($jv_verification->from_account_type_id == 1440) {
@@ -161,7 +173,7 @@ class JvVerificationController extends Controller {
 
 				return $output;
 			})
-			->rawColumns(['child_checkbox', 'action'])
+			->rawColumns(['child_checkbox', 'action', 'amount'])
 			->make(true);
 	}
 

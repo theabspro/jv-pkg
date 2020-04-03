@@ -83,16 +83,21 @@ class JournalVoucherController extends Controller {
 					$query->where('journal_vouchers.type_id', $request->type_id);
 				}
 			})
-		// ->where(function ($query) use ($request) {
-		// 	if (!empty($request->from_account_type_id)) {
-		// 		$query->where('journal_vouchers.from_account_type_id', $request->from_account_type_id);
-		// 	}
-		// })
-		// ->where(function ($query) use ($request) {
-		// 	if (!empty($request->to_account_type_id)) {
-		// 		$query->where('journal_vouchers.to_account_type_id', $request->to_account_type_id);
-		// 	}
-		// })
+			->where(function ($query) use ($request) {
+				if (!empty($request->outlet_id)) {
+					$query->where('employees.outlet_id', $request->outlet_id);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->state_id)) {
+					$query->where('outlets.state_id', $request->state_id);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->region_id)) {
+					$query->where('outlets.region_id', $request->region_id);
+				}
+			})
 			->where(function ($query) use ($request) {
 				if (!empty($request->status_id)) {
 					$query->where('journal_vouchers.status_id', $request->status_id);
@@ -100,7 +105,7 @@ class JournalVoucherController extends Controller {
 			})
 
 		// ->get()
-		// ->orderby('journal_vouchers.id', 'desc')
+		->orderby('journal_vouchers.id', 'desc')
 		;
 
 		if (Entrust::can('view-all-jv')) {
@@ -122,6 +127,10 @@ class JournalVoucherController extends Controller {
 				$status = $journal_vouchers->status == 'Active' ? 'green' : 'red';
 				// return '<span class="status-indicator ' . $status . '"></span>' . $journal_vouchers->voucher_number;
 				return $journal_vouchers->voucher_number;
+			})
+			->addColumn('amount', function ($jv_verification) {
+				$amount = '₹ '. $jv_verification->amount ;
+				return $amount;
 			})
 		// ->addColumn('from_ac_code', function ($journal_vouchers) {
 		// 	if ($journal_vouchers->from_account_type_id == 1440) {

@@ -47,7 +47,7 @@
                  serverSide: true,
                  paging: true,
                  stateSave: true,
-                 ordering: true,
+                 ordering: false,
                  scrollY: table_scroll + "px",
                  scrollX: true,
                  scrollCollapse: true,
@@ -59,8 +59,9 @@
                          d.voucher_number = $('#voucher_number').val();
                          d.jv_date = $('#jv_date').val();
                          d.type_id = $('#type_id').val();
-                         d.from_account_type_id = $('#from_account_type_id').val();
-                         d.to_account_type_id = $('#to_account_type_id').val();
+                         d.outlet_id = $('#outlet_id').val();
+                         d.state_id = $('#state_id').val();
+                         d.region_id = $('#region_id').val();
                          d.status_id = $('#status_id').val();
                      },
                  },
@@ -80,13 +81,13 @@
                      { data: 'outlet_code', name: 'outlets.code', searchable: true },
                      { data: 'region_code', name: 'regions.code', searchable: true },
                      { data: 'state_code', name: 'states.code', searchable: true },
-                     { data: 'amount', name: 'journal_vouchers.amount', searchable: true },
+                     { data: 'amount', name: 'journal_vouchers.amount', searchable: true, class: 'text-right' },
                  ],
                  "initComplete": function(settings, json) {
                      $('.dataTables_length select').select2();
                  },
                  "infoCallback": function(settings, start, end, max, total, pre) {
-                     $('#table_info').html(total)
+                     // $('#table_info').html(total)
                      $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
                  },
                  rowCallback: function(row, data) {
@@ -152,31 +153,48 @@
                  dataTable.draw();
              }, 900);
          }
-         $scope.onSelectedFromAccType = function(selected_from_acc_type) {
+         $scope.onSelectedOutlet = function(selected_outlet_id) {
              setTimeout(function() {
-                 $('#from_account_type_id').val(selected_from_acc_type);
+                 $('#outlet_id').val(selected_outlet_id);
                  dataTable.draw();
              }, 900);
          }
-         $scope.onSelectedToAccType = function(selected_to_acc_type) {
+         $scope.onSelectedRegion = function(selected_region_id) {
              setTimeout(function() {
-                 $('#to_account_type_id').val(selected_to_acc_type);
+                 $('#region_id').val(selected_region_id);
                  dataTable.draw();
              }, 900);
          }
-         $scope.getSelectedStatus = function(selected_status_id) {
-             setTimeout(function() {
-                 $('#status_id').val(selected_status_id);
-                 dataTable.draw();
-             }, 900);
-         }
+        $scope.getSelectedStatus = function(selected_status_id) {
+            setTimeout(function() {
+                $('#status_id').val(selected_status_id);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.onSelectedState = function(state_id) {
+            self.extras.regions = [];
+            if (state_id == '') {
+                $('#region_id').val('');
+            }
+            $('#state_id').val(state_id);
+            dataTable.draw();
+                $http.post(
+                    laravel_routes['getRegions'], {
+                        id: state_id,
+                    }
+                ).then(function(response) {
+                    self.extras.regions = response.data.regions;
+                });
+        }
          $scope.reset_filter = function() {
              $('#voucher_number').val('');
              $('#jv_date').val('');
              $('#type_id').val('');
-             $('#from_account_type_id').val('');
-             $('#to_account_type_id').val('');
+             $('#outlet_id').val('');
+             $('#state_id').val('');
+             $('#region_id').val('');
              $('#status_id').val('');
+             self.extras.regions = [];
              dataTable.draw();
          }
 
@@ -243,7 +261,7 @@
                  $('input[name="child_boxes"]:checked').each(function() {
                      send_for_approval.push(this.value);
                  });
-                 console.log(send_for_approval);
+                 // console.log(send_for_approval);
                  // return false;
                  $http.post(
                      laravel_routes['journalVoucherMultipleApproval'], {
@@ -266,10 +284,8 @@
                  custom_noty('error', 'Please Select Checkbox');
              }
          })
-         // $('.refresh_table').on("click", function() {
-         //     RefreshTable();
-         // });
-         $('#parent').on('click', function() {
+         
+         $('#parent').on('click', function() {//alert('sd');
              if (this.checked) {
                  $('.journal_voucher_checkbox').each(function() {
                      this.checked = true;

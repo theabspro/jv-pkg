@@ -127,30 +127,44 @@
                         </div><!-- Column -->
                         <div class="col-md-6">
                             <div class="input-text form-group">
-                                <label>From A/c Type</label>
-                                <md-select ng-model="$ctrl.from_account_type_id" placeholder="Select From A/c Type" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedFromAccType($ctrl.from_account_type_id)">
-                                    <md-select-header class="demo-select-header ng-hide">
-                                        <input ng-model="searchCategory" type="search" placeholder="Search for a From A/c Type" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                <label>Outlet</label>
+                                <md-select ng-model="$ctrl.outlet.id" placeholder="Select Outlet" md-on-close="clearSearchOutlet()" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedOutlet($ctrl.outlet.id)">
+                                    <md-select-header class="demo-select-header">
+                                        <input ng-model="searchCategory" type="search" placeholder="Search for a Outlet" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                                     </md-select-header>
-                                    <md-optgroup label="Travel List">
-                                        <md-option ng-value="from_acc_type.id" ng-repeat="from_acc_type in $ctrl.extras.from_acc_list | filter:searchTravel">{{from_acc_type.name}}</md-option>
+                                    <md-optgroup label="outlet">
+                                        <md-option ng-value="outlet.id" ng-repeat="outlet in $ctrl.extras.outlets | filter:searchCategory">{{outlet.code}}</md-option>
                                     </md-optgroup>
                                 </md-select>
-                                <input type="hidden" name="from_account_type_id" id="from_account_type_id" value="">
+                                <input type="hidden" name="outlet_id" id="outlet_id" value="">
                             </div><!-- Feild -->
                         </div><!-- Column -->
                         <div class="col-md-6">
                             <div class="input-text form-group">
-                                <label>To A/c Type</label>
-                                <md-select ng-model="$ctrl.to_account_type_id" placeholder="Select To A/c Type" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedToAccType($ctrl.to_account_type_id)">
-                                    <md-select-header class="demo-select-header ng-hide">
-                                        <input ng-model="searchCategory" type="search" placeholder="Search for a To A/c Type" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                <label>State</label>
+                                <md-select ng-model="$ctrl.state.id" placeholder="Select State" md-on-close="clearSearchState()" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedState($ctrl.state.id); $ctrl.extras.regions=''; $ctrl.region.id=''">
+                                    <md-select-header class="demo-select-header">
+                                        <input ng-model="searchState" type="search" placeholder="Search for a State" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                                     </md-select-header>
-                                    <md-optgroup label="Travel List">
-                                        <md-option ng-value="to_acc_type.id" ng-repeat="to_acc_type in $ctrl.extras.to_acc_list | filter:searchTravel">{{to_acc_type.name}}</md-option>
+                                    <md-optgroup label="state">
+                                        <md-option ng-value="state.id" ng-repeat="state in $ctrl.extras.states | filter:searchState">{{state.name}}</md-option>
                                     </md-optgroup>
                                 </md-select>
-                                <input type="hidden" name="to_account_type_id" id="to_account_type_id" value="">
+                                <input type="hidden" name="state_id" id="state_id" value="">
+                            </div><!-- Feild -->
+                        </div><!-- Column -->
+                        <div class="col-md-6">
+                            <div class="input-text form-group">
+                                <label>Region</label>
+                                <md-select ng-model="$ctrl.region.id" placeholder="Select Region" md-on-close="clearSearchRegion()" data-md-container-class="selectdemoSelectHeader" ng-change="onSelectedRegion($ctrl.region.id)">
+                                    <md-select-header class="demo-select-header">
+                                        <input ng-model="searchRegion" type="search" placeholder="Search for a Region" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                    </md-select-header>
+                                    <md-optgroup label="region">
+                                        <md-option ng-value="region.id" ng-repeat="region in $ctrl.extras.regions | filter:searchRegion">{{region.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" name="region_id" id="region_id" value="">
                             </div><!-- Feild -->
                         </div><!-- Column -->
                         <div class="col-md-6">
@@ -161,7 +175,7 @@
                                         <input ng-model="searchCategory" type="search" placeholder="Search for a JV Status" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
                                     </md-select-header>
                                     <md-optgroup label="Travel List">
-                                        <md-option ng-value="jv_status.id" ng-repeat="jv_status in $ctrl.extras.jv_statuses | filter:searchTravel">{{jv_status.status}}</md-option>
+                                        <md-option ng-value="jv_status.id" ng-repeat="jv_status in $ctrl.extras.jv_statuses | filter:searchTravel">{{jv_status.name}}</md-option>
                                     </md-optgroup>
                                 </md-select>
                                 <input type="hidden" name="status_id" id="status_id" value="">
@@ -170,7 +184,7 @@
                     </div>
                     <div class="row modal-row">
                         <div class="col-md-6">
-                            <button type="button" class="btn btn-rose my-tooltip" ng-click="reset_filter(); $ctrl.type_id=''; $ctrl.from_account_type_id=''; $ctrl.to_account_type_id=''; $ctrl.status_id=''" ng-shortcut="'meta+shift+t'" ng-shortcut-click data-title="ctrl+shift+t">Reset Filter</button>
+                            <button type="button" class="btn btn-rose my-tooltip" ng-click="reset_filter(); $ctrl.type_id=''; $ctrl.from_account_type_id=''; $ctrl.to_account_type_id=''; $ctrl.status_id=''; $ctrl.outlet.id=''; $ctrl.state.id=''; $ctrl.region.id=''" ng-shortcut="'meta+shift+t'" ng-shortcut-click data-title="ctrl+shift+t">Reset Filter</button>
                         </div>
                     </div><!-- Row -->
                 </div><!-- Modal Form -->

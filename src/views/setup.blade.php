@@ -43,19 +43,19 @@
 	    //JOURNAL VOUCHER
 	    when('/jv-pkg/journal-voucher/list', {
 	        template: '<journal-voucher-list></journal-voucher-list>',
-	        title: 'Journal Vouchers',
+	        title: 'JV Requests',
 	    }).
 	    when('/jv-pkg/journal-voucher/add', {
 	        template: '<journal-voucher-form></journal-voucher-form>',
-	        title: 'Add Journal Voucher',
+	        title: ' Add JV Request',
 	    }).
 	    when('/jv-pkg/journal-voucher/edit/:id', {
 	        template: '<journal-voucher-form></journal-voucher-form>',
-	        title: 'Edit Journal Voucher',
+	        title: 'Edit JV Request',
 	    }).
 	    when('/jv-pkg/journal-voucher/view/:id', {
 	        template: '<journal-voucher-view></journal-voucher-view>',
-	        title: 'View Journal Voucher',
+	        title: 'View JV Request',
 	    }).
 
 	    //JOURNAL VOUCHER VERIFICATION
