@@ -4,6 +4,8 @@ app.component('ledgerList', {
         $scope.loading = true;
         $('#search_ledger').focus();
         var self = this;
+         $('li').removeClass('active');
+        $('.master_link').addClass('active').trigger('click');
         self.hasPermission = HelperService.hasPermission;
          if (!self.hasPermission('ledgers')) {
             window.location = "#!/page-permission-denied";

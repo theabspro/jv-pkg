@@ -1,7 +1,6 @@
 <?php
 
 namespace Abs\JVPkg;
-use Abs\ApprovalPkg\ApprovalLevel;
 use Abs\BasicPkg\Attachment;
 use Abs\BasicPkg\Config;
 use Abs\CustomerPkg\Customer;
@@ -66,6 +65,8 @@ class JournalVoucherController extends Controller {
 				DB::raw('CONCAT(users.ecode," / ",users.name) as created_by'),
 				DB::raw('IF(journal_vouchers.deleted_at IS NULL, "Active","Inactive") as status'),
 			])
+		//HIDE NOW WE WILL ENABLE LATER
+		// ->where('journal_vouchers.created_at', '>=', Carbon::now()->subDays(3)) //SHOW ONLY LAST 3 DAYS FROM NOW
 		// ->where('journal_vouchers.company_id', Auth::user()->company_id)
 			->where('users.user_type_id', 1) //FOR EMPLOYEE
 			->where(function ($query) use ($first_date_this_month, $last_date_this_month) {
@@ -460,7 +461,7 @@ class JournalVoucherController extends Controller {
 			$activity->module = 'Journal Voucher';
 			$activity->entity_id = $journal_voucher->id;
 			$activity->entity_type_id = 384;
-			$activity->activity_id = $request->id == NULL ? 280 : 281;
+			$activity->activity_id = $request->id == NULL ? 280 : 281; //ADD : UPDATE
 			$activity->activity = $request->id == NULL ? 280 : 281;
 			$activity->details = json_encode($journal_voucher);
 			$activity->save();
@@ -500,13 +501,18 @@ class JournalVoucherController extends Controller {
 		try {
 			$jornal_voucher = JournalVoucher::withTrashed()->where('id', $request->id)->forceDelete();
 			if ($jornal_voucher) {
+				$attachement = Attachment::where([
+					'entity_id' => $request->id,
+					'attachment_type_id' => 244, //JV ATTACHMENT
+					'attachment_of_id' => 223,
+				])->forceDelete();
 				$activity = new ActivityLog;
 				$activity->date_time = Carbon::now();
 				$activity->user_id = Auth::user()->id;
 				$activity->module = 'Journal Voucher';
 				$activity->entity_id = $request->id;
 				$activity->entity_type_id = 384;
-				$activity->activity_id = 282;
+				$activity->activity_id = 282; //DELETE
 				$activity->activity = 282;
 				$activity->details = json_encode($activity);
 				$activity->save();
@@ -537,7 +543,7 @@ class JournalVoucherController extends Controller {
 		$activity->module = 'Journal Voucher';
 		$activity->entity_id = $jv->id;
 		$activity->entity_type_id = 384;
-		$activity->activity_id = 281;
+		$activity->activity_id = 281; //UPDATE
 		$activity->activity = 281;
 		$activity->details = json_encode($jv);
 		$activity->save();
@@ -549,24 +555,29 @@ class JournalVoucherController extends Controller {
 	}
 
 	public function journalVoucherMultipleApproval(Request $request) {
-		$send_for_approvals = JournalVoucher::withTrashed()->whereIn('id', $request->send_for_approval)->where('status_id', 7)->pluck('id')->toArray();
-		$approval_level = ApprovalLevel::where('id', 7)
-			->leftJoin('approval_type_approval_level as atal', 'atal.approval_level_id', 'approval_levels.id')
-			->where('atal.approval_type_id', 2)
-			->first();
+		// dd($request->all());
+		$send_for_approvals = JournalVoucher::withTrashed()->whereIn('id', $request->send_for_approval)->where('status_id', 1)->pluck('id')->toArray();
+		// dd($send_for_approvals);
+		// $approval_level = ApprovalLevel::where('id', 7)
+		// 	->leftJoin('approval_type_approval_level as atal', 'atal.approval_level_id', 'approval_levels.id')
+		// 	->where('atal.approval_type_id', 2)
+		// 	->first();
 		if (count($send_for_approvals) == 0) {
 			return response()->json(['success' => false, 'errors' => ['No New Status in the list!']]);
 		} else {
 			DB::beginTransaction();
 			try {
 				foreach ($send_for_approvals as $key => $value) {
-					$journal_voucher = JournalVoucher::withTrashed()->find($value);
-					$journal_voucher->status_id = $approval_level->next_status_id;
+					$journal_voucher = JournalVoucher::withTrashed()->with(['type'])->find($value);
+					// dd($journal_voucher);
+					$next_status_id = $journal_voucher->type->verificationFlow->approvalLevels()->orderBy('approval_order')->first()->current_status_id;
+					// $journal_voucher->status_id = $approval_level->next_status_id;
+					$journal_voucher->status_id = $next_status_id;
 					$journal_voucher->updated_by_id = Auth()->user()->id;
 					$journal_voucher->updated_at = date("Y-m-d H:i:s");
 					$journal_voucher->save();
 
-					$status_id = $approval_level->next_status_id;
+					$status_id = $next_status_id;
 					$activity = new ActivityLog;
 					$activity->date_time = Carbon::now();
 					$activity->user_id = Auth::user()->id;

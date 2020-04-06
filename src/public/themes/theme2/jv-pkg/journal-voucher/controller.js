@@ -1,8 +1,10 @@
  app.component('journalVoucherList', {
      templateUrl: journal_voucher_list_template_url,
-     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect, $timeout,$element) {
+     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $mdSelect, $timeout,$element) {
          $scope.loading = true;
          $('#search_journal_voucher').focus();
+        $('li').removeClass('active');
+        $('.jv_request_flink').addClass('active').trigger('click');
          var self = this;
          self.hasPermission = HelperService.hasPermission;
          if (!self.hasPermission('journal-vouchers')) {
@@ -271,8 +273,9 @@
              });
          }
 
-         $('#send_for_approval').on('click', function() { //alert('dsf');
-             if ($('.journal_voucher_checkbox:checked').length > 0) {
+         $scope.submitForApproval = function(){
+            if ($('.journal_voucher_checkbox:checked').length > 0) {
+                console.log(1);
                  var send_for_approval = []
                  $('input[name="child_boxes"]:checked').each(function() {
                      send_for_approval.push(this.value);
@@ -288,7 +291,9 @@
                      if (response.data.success == true) {
                          custom_noty('success', response.data.message);
                          $('#journal_vouchers_list').DataTable().ajax.reload();
-                         $scope.$apply();
+                        $location.path('/jv-pkg/journal-voucher/list');
+                         
+                         // $scope.$apply();
                          // $timeout(function() {
                          //     RefreshTable();
                          // }, 1000);
@@ -297,11 +302,44 @@
                      }
                  });
              } else {
+                console.log(2);
                  custom_noty('error', 'Please Select Checkbox');
              }
-         })
+         }
+
+         // $('#send_for_approval').on('click', function() { 
+         // alert('dsf');
+         //     if ($('.journal_voucher_checkbox:checked').length > 0) {
+         //         var send_for_approval = []
+         //         $('input[name="child_boxes"]:checked').each(function() {
+         //             send_for_approval.push(this.value);
+         //         });
+         //         // console.log(send_for_approval);
+         //         // return false;
+         //         $http.post(
+         //             laravel_routes['journalVoucherMultipleApproval'], {
+         //                 send_for_approval: send_for_approval,
+         //                 // approval_level_id: $routeParams.level_id,
+         //             }
+         //         ).then(function(response) {
+         //             if (response.data.success == true) {
+         //                 custom_noty('success', response.data.message);
+         //                 $('#journal_vouchers_list').DataTable().ajax.reload();
+         //                 $scope.$apply();
+         //                 // $timeout(function() {
+         //                 //     RefreshTable();
+         //                 // }, 1000);
+         //             } else {
+         //                 custom_noty('error', response.data.errors);
+         //             }
+         //         });
+         //     } else {
+         //         custom_noty('error', 'Please Select Checkbox');
+         //     }
+         // })
          
-         $('#parent').on('click', function() {//alert('sd');
+         $(document).on('click', '#parent',function() {
+         // alert('sd');
              if (this.checked) {
                  $('.journal_voucher_checkbox').each(function() {
                      this.checked = true;

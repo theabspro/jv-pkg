@@ -4,6 +4,8 @@ app.component('journalList', {
         $scope.loading = true;
         var self = this;
         $('#search_journal').focus();
+         $('li').removeClass('active');
+        $('.master_link').addClass('active').trigger('click');
         self.hasPermission = HelperService.hasPermission;
         if (!self.hasPermission('journals')) {
             window.location = "#!/page-permission-denied";

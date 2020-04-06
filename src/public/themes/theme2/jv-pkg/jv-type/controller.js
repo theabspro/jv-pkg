@@ -4,6 +4,8 @@ app.component('jvTypeList', {
         $scope.loading = true;
         $('#search_jv_type').focus();
         var self = this;
+         $('li').removeClass('active');
+        $('.master_link').addClass('active').trigger('click');
         self.hasPermission = HelperService.hasPermission;
         if (!self.hasPermission('journal-voucher-types')) {
             window.location = "#!/page-permission-denied";

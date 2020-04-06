@@ -3,7 +3,7 @@
         <div class="page-header-inner">
             <div class="page-header-content-left">
                 <div class="page-header-content title-block">
-                    <h1 class="title type-2">JV Requests <span id="table_info"></span></h1>
+                    <h1 class="title type-2">JV Requests <!-- <span id="table_info"></span> --></h1>
                 </div><!-- Page Header Content -->
                 <div class="page-header-content button-block">
                     <button class="btn btn-bordered my-tooltip" data-toggle="modal" data-target="#journal-voucher-filter-modal" ng-shortcut="'meta+shift+f'" ng-shortcut-click data-title="ctrl+shift+f"><i class="icon ion-md-funnel"></i>Filter</button>
@@ -41,7 +41,7 @@
                                 <a href="#!/jv-pkg/journal-voucher/add">Initiate</a>
                             </li>
                             <li ng-if="$ctrl.approve_permission">
-                                <a href="javascript:;" type="submit" id="send_for_approval" class="send_for_approval">
+                                <a href="" type="submit" id="send_for_approval" ng-click="submitForApproval()">
                                     Submit For Approval
                                 </a>
                             </li>

@@ -1,8 +1,10 @@
 app.component('jvVerificationList', {
     templateUrl: jv_verification_list_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $window, $mdSelect,$element) {
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $window, $mdSelect, $element) {
         $scope.loading = true;
         $('#search_jv_verification').focus();
+        $('li').removeClass('active');
+        $('.verification_flink').addClass('active').trigger('click');
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         self.level_id = $routeParams.level_id;
@@ -11,9 +13,14 @@ app.component('jvVerificationList', {
         //     return false;
         // }
         $http.get(
-            laravel_routes['getVerificationFilter'],
+            laravel_routes['getVerificationFilter'],{
+                params:{
+                    level_id: self.level_id,
+                }
+            }
         ).then(function(response) {
             console.log(response.data);
+            self.approval_level = response.data.approval_level;
             self.extras = response.data.extras;
             $rootScope.loading = false;
             //console.log(self.extras);
@@ -81,14 +88,14 @@ app.component('jvVerificationList', {
                     { data: 'jv_date', searchable: false },
                     { data: 'jv_type', name: 'journal_vouchers.type_id', searchable: false },
                     // { data: 'from_account_type', name: 'from_account_types.name', searchable: false },
-                     // { data: 'from_ac_code', searchable: false },
-                     // { data: 'to_account_type', name: 'to_account_types.name', searchable: false },
-                     // { data: 'to_ac_code', searchable: false },
-                     { data: 'created_by', name: 'created_by', searchable: false },
-                     { data: 'outlet_code', name: 'outlets.code', searchable: true },
-                     { data: 'region_code', name: 'regions.code', searchable: true },
-                     { data: 'state_code', name: 'states.code', searchable: true },
-                     { data: 'amount', name: 'journal_vouchers.amount', searchable: true, class: 'text-right' },
+                    // { data: 'from_ac_code', searchable: false },
+                    // { data: 'to_account_type', name: 'to_account_types.name', searchable: false },
+                    // { data: 'to_ac_code', searchable: false },
+                    { data: 'created_by', name: 'created_by', searchable: false },
+                    { data: 'outlet_code', name: 'outlets.code', searchable: true },
+                    { data: 'region_code', name: 'regions.code', searchable: true },
+                    { data: 'state_code', name: 'states.code', searchable: true },
+                    { data: 'amount', name: 'journal_vouchers.amount', searchable: true, class: 'text-right' },
                 ],
                 "initComplete": function(settings, json) {
                     $('.dataTables_length select').select2();
@@ -162,18 +169,18 @@ app.component('jvVerificationList', {
             }, 900);
         }
         $scope.onSelectedOutlet = function(selected_outlet_id) {
-             setTimeout(function() {
-                 $('#outlet_id').val(selected_outlet_id);
-                 dataTable.draw();
-             }, 900);
-         }
-         $scope.onSelectedRegion = function(selected_region_id) {
-             setTimeout(function() {
-                 $('#region_id').val(selected_region_id);
-                 dataTable.draw();
-             }, 900);
-         }
-         $scope.onSelectedFromAccType = function(selected_from_acc_type) {
+            setTimeout(function() {
+                $('#outlet_id').val(selected_outlet_id);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.onSelectedRegion = function(selected_region_id) {
+            setTimeout(function() {
+                $('#region_id').val(selected_region_id);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.onSelectedFromAccType = function(selected_from_acc_type) {
             setTimeout(function() {
                 $('#from_account_type_id').val(selected_from_acc_type);
                 dataTable.draw();
@@ -198,13 +205,13 @@ app.component('jvVerificationList', {
             }
             $('#state_id').val(state_id);
             dataTable.draw();
-                $http.post(
-                    laravel_routes['getRegions'], {
-                        id: state_id,
-                    }
-                ).then(function(response) {
-                    self.extras.regions = response.data.regions;
-                });
+            $http.post(
+                laravel_routes['getRegions'], {
+                    id: state_id,
+                }
+            ).then(function(response) {
+                self.extras.regions = response.data.regions;
+            });
         }
         $scope.reset_filter = function() {
             $('#voucher_number').val('');
@@ -220,7 +227,8 @@ app.component('jvVerificationList', {
             dataTable.draw();
         }
 
-        $('#send_for_approval').on('click', function() { //alert('dsf');
+        // $('#send_for_approval').on('click', function() { //alert('dsf');
+        $scope.submitForApproval = function() {
             if ($('.jv_verfication_checkbox:checked').length > 0) {
                 var send_for_approval = []
                 $('input[name="child_boxes"]:checked').each(function() {
@@ -236,8 +244,10 @@ app.component('jvVerificationList', {
                 ).then(function(response) {
                     if (response.data.success == true) {
                         custom_noty('success', response.data.message);
-                        $('#jv_verification_list').DataTable().ajax.reload();
-                        $scope.$apply();
+                        $('#jv_verification_list').DataTable().ajax.reload(function(json) {});
+                        $location.path('/verification/7221/level/' + $routeParams.level_id + '/list');
+                        // $('#jv_verification_list').DataTable().ajax.reload();
+                        // $scope.$apply();
                         // $timeout(function() {
                         //     RefreshTable();
                         // }, 1000);
@@ -248,11 +258,12 @@ app.component('jvVerificationList', {
             } else {
                 custom_noty('error', 'Please Select Checkbox');
             }
-        })
+        }
+        // })
         // $('.refresh_table').on("click", function() {
         //     RefreshTable();
         // });
-        $('#parent').on('click', function() {
+        $(document).on('click','#parent', function() {
             if (this.checked) {
                 $('.jv_verfication_checkbox').each(function() {
                     this.checked = true;
@@ -287,6 +298,19 @@ app.component('jvVerificationView', {
         // }
         self.angular_routes = angular_routes;
         self.level_id = $routeParams.level_id;
+        // $http.get(
+        //     laravel_routes['getVerificationFilter'],{
+        //         params:{
+        //             level_id: self.level_id,
+        //         }
+        //     }
+        // ).then(function(response) {
+        //     console.log(response.data);
+        //     self.approval_level = response.data.approval_level;
+        //     $rootScope.loading = false;
+        //     //console.log(self.extras);
+        // });
+
         self.ref_attachements_url_link = ref_attachements_url;
         $http({
             url: laravel_routes['viewJvVerification'],
@@ -305,16 +329,16 @@ app.component('jvVerificationView', {
             $rootScope.loading = false;
 
             //ATTACHMENTS
-             if (self.jv.attachments.length) {
-                 $(self.jv.attachments).each(function(key, attachment) {
-                     var design = '<div class="imageuploadify-container" data-attachment_id="' + attachment.id + '" style="margin-left: 0px; margin-right: 0px;">' +
-                         ' <div class="imageuploadify-details"><div class="imageuploadify-file-icon"></div><span class="imageuploadify-file-name"><a href="' + jv_attachements_url + '/' + attachment.name + '">' + attachment.name + '' +
-                         '</span><span class="imageuploadify-file-type">image/jpeg</span>' +
-                         '</a><span class="imageuploadify-file-size">369960</span></div>' +
-                         '</div></div>';
-                     $('.imageuploadify-images-list').append(design);
-                 });
-             }
+            if (self.jv.attachments.length) {
+                $(self.jv.attachments).each(function(key, attachment) {
+                    var design = '<div class="imageuploadify-container" data-attachment_id="' + attachment.id + '" style="margin-left: 0px; margin-right: 0px;">' +
+                        ' <div class="imageuploadify-details"><div class="imageuploadify-file-icon"></div><span class="imageuploadify-file-name"><a href="' + jv_attachements_url + '/' + attachment.name + '">' + attachment.name + '' +
+                        '</span><span class="imageuploadify-file-type">image/jpeg</span>' +
+                        '</a><span class="imageuploadify-file-size">369960</span></div>' +
+                        '</div></div>';
+                    $('.imageuploadify-images-list').append(design);
+                });
+            }
         });
 
         $element.find('input').on('keydown', function(ev) {

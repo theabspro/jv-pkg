@@ -23,7 +23,10 @@ class JvVerificationController extends Controller {
 		$this->data['theme'] = config('custom.admin_theme');
 	}
 
-	public function getVerificationFilter() {
+	public function getVerificationFilter(Request $request) {
+		// dd($request->all());
+		$this->data['approval_level'] = ApprovalLevel::find($request->level_id);
+		// dd($approval_level);
 		$this->data['extras'] = [
 			'from_acc_list' => collect(Config::select('id', 'name')->where('config_type_id', 27)->get())->prepend(['id' => '', 'name' => 'Select From A/c Type']),
 			'to_acc_list' => collect(Config::select('id', 'name')->where('config_type_id', 27)->get())->prepend(['id' => '', 'name' => 'Select To A/c Type']),
