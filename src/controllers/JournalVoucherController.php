@@ -251,6 +251,7 @@ class JournalVoucherController extends Controller {
 			$selected_invoice_ids = $journal_voucher->invoices()->pluck('id')->toArray();
 			// dd($selected_invoice_ids);
 			$this->data['invoices'] = $journal_voucher->toAccount->invoices;
+			$total_invoice_amount = [];
 			foreach ($journal_voucher->toAccount->invoices as $invoice) {
 				if (in_array($invoice->id, $selected_invoice_ids)) {
 					$invoice->selected = true;
