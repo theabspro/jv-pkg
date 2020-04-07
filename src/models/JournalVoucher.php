@@ -185,7 +185,7 @@ class JournalVoucher extends Model {
 			// dd($invoice);
 			if (in_array($invoice->id, $selected_invoice_ids)) {
 				$invoice->selected = true;
-				$total_invoice_amount[] = $invoice->invoice_amount;
+				$total_invoice_amount[] = $invoice->invoice_amount - $invoice->received_amount;
 			} else {
 				$invoice->selected = false;
 				$total_invoice_amount[] = '';
