@@ -180,6 +180,7 @@ class JournalVoucher extends Model {
 
 		$selected_invoice_ids = $journal_voucher->invoices()->pluck('id')->toArray();
 		// dd($selected_invoice_ids);
+		$total_invoice_amount = [];
 		$data['invoices'] = $journal_voucher->toAccount->invoices;
 		foreach ($journal_voucher->toAccount->invoices as $invoice) {
 			// dd($invoice);
