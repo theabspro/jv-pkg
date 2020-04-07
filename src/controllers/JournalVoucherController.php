@@ -3,7 +3,6 @@
 namespace Abs\JVPkg;
 use Abs\BasicPkg\Attachment;
 use Abs\BasicPkg\Config;
-use Abs\CustomerPkg\Customer;
 use Abs\InvoicePkg\Invoice;
 use Abs\JVPkg\JournalVoucher;
 use Abs\JVPkg\JVType;
@@ -30,7 +29,7 @@ class JournalVoucherController extends Controller {
 	}
 
 	public function getJournalVoucherList(Request $request) {
-		//dd('sdfad');
+		// dd($request->all());
 		if (!empty($request->jv_date)) {
 			$jv_date = explode('to', $request->jv_date);
 			$first_date_this_month = date('Y-m-d', strtotime($jv_date[0]));
@@ -55,6 +54,7 @@ class JournalVoucherController extends Controller {
 				'journal_vouchers.*',
 				'jv_types.short_name as jv_type',
 				'jv_types.initial_status_id',
+				'jv_types.final_approved_status_id',
 				'from_account_types.name as from_account_type',
 				'to_account_types.name as to_account_type',
 				'es.name as jv_status',
@@ -102,6 +102,8 @@ class JournalVoucherController extends Controller {
 			->where(function ($query) use ($request) {
 				if (!empty($request->status_id)) {
 					$query->where('journal_vouchers.status_id', $request->status_id);
+				} else {
+					$query->whereRaw('journal_vouchers.status_id != jv_types.final_approved_status_id');
 				}
 			})
 			->where(function ($query) use ($request) {
@@ -116,6 +118,7 @@ class JournalVoucherController extends Controller {
 			})
 
 		// ->get()
+			->where('es.company_id', Auth::user()->company_id)
 			->orderby('journal_vouchers.id', 'desc')
 		;
 
@@ -135,8 +138,10 @@ class JournalVoucherController extends Controller {
 				return $checkbox;
 			})
 			->addColumn('voucher_number', function ($journal_vouchers) {
+				// dd($journal_vouchers->final_approved_status_id);
 				$status = $journal_vouchers->status == 'Active' ? 'green' : 'red';
-				// return '<span class="status-indicator ' . $status . '"></span>' . $journal_vouchers->voucher_number;
+				// return '<span class="status-indicator ' . $status . '"></span>' .
+
 				return $journal_vouchers->voucher_number;
 			})
 			->addColumn('amount', function ($jv_verification) {
@@ -216,7 +221,7 @@ class JournalVoucherController extends Controller {
 			$invoices_length = '';
 
 			//For Testing only
-			$journal_voucher->from_account = $journal_voucher->to_account = Customer::where('code', '1000162')->first();
+			// $journal_voucher->from_account = $journal_voucher->to_account = Customer::where('code', '1000162')->first();
 			// $journal_voucher->transfer_type = 'receipt';
 			// $journal_voucher->amount = '100.40';
 			// $journal_voucher->remarks = 'some remarks';
@@ -249,7 +254,7 @@ class JournalVoucherController extends Controller {
 			foreach ($journal_voucher->toAccount->invoices as $invoice) {
 				if (in_array($invoice->id, $selected_invoice_ids)) {
 					$invoice->selected = true;
-					$total_invoice_amount[] = $invoice->invoice_amount;
+					$total_invoice_amount[] = $invoice->invoice_amount - $invoice->received_amount;
 				} else {
 					$invoice->selected = false;
 					$total_invoice_amount[] = '';
@@ -556,20 +561,20 @@ class JournalVoucherController extends Controller {
 
 	public function journalVoucherMultipleApproval(Request $request) {
 		// dd($request->all());
-		$send_for_approvals = JournalVoucher::withTrashed()->whereIn('id', $request->send_for_approval)->where('status_id', 1)->pluck('id')->toArray();
+		$send_for_approvals = JournalVoucher::withTrashed()->whereIn('id', $request->send_for_approval)->get();
 		// dd($send_for_approvals);
-		// $approval_level = ApprovalLevel::where('id', 7)
-		// 	->leftJoin('approval_type_approval_level as atal', 'atal.approval_level_id', 'approval_levels.id')
-		// 	->where('atal.approval_type_id', 2)
-		// 	->first();
-		if (count($send_for_approvals) == 0) {
-			return response()->json(['success' => false, 'errors' => ['No New Status in the list!']]);
-		} else {
-			DB::beginTransaction();
-			try {
-				foreach ($send_for_approvals as $key => $value) {
-					$journal_voucher = JournalVoucher::withTrashed()->with(['type'])->find($value);
-					// dd($journal_voucher);
+
+		// if (count($send_for_approvals) == 0) {
+		// 	return response()->json(['success' => false, 'errors' => ['No New Status in the list!']]);
+		// } else {
+		DB::beginTransaction();
+		try {
+			$i = 0;
+			foreach ($send_for_approvals as $key => $value) {
+				$journal_voucher = JournalVoucher::withTrashed()->with(['type'])->find($value->id);
+				if ($journal_voucher->type->initial_status_id == $value->status_id) {
+					// dd($journal_voucher->type->initial_status_id);
+					$i++;
 					$next_status_id = $journal_voucher->type->verificationFlow->approvalLevels()->orderBy('approval_order')->first()->current_status_id;
 					// $journal_voucher->status_id = $approval_level->next_status_id;
 					$journal_voucher->status_id = $next_status_id;
@@ -588,13 +593,20 @@ class JournalVoucherController extends Controller {
 					$activity->activity = 7221;
 					$activity->details = json_encode($journal_voucher);
 					$activity->save();
+				} else {
+					continue;
 				}
-				DB::commit();
-				return response()->json(['success' => true, 'message' => 'Approved successfully']);
-			} catch (Exception $e) {
-				DB::rollBack();
-				return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
 			}
+			DB::commit();
+			if ($i == 0) {
+				return response()->json(['success' => false, 'errors' => ['No New Status in the list!']]);
+			} else {
+				return response()->json(['success' => true, 'message' => 'Approved successfully']);
+			}
+		} catch (Exception $e) {
+			DB::rollBack();
+			return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
 		}
+		// }
 	}
 }

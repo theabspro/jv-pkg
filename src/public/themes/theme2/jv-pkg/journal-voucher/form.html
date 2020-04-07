@@ -77,24 +77,24 @@
                                         <div class="col-md-12">
                                             <div class="row">
                                                 <div class="col-md-5">
-                                            <div class="input-text form-group">
-                                                <label>
-                                                    Type
-                                                    <sup class="mandatory">*</sup>
-                                                </label>
-                                                <md-select ng-model="$ctrl.jv.type" ng-change="jvTypeChanged($ctrl.jv.type.id);" placeholder="Select JV Type" md-on-close="clearSearchJvType()" data-md-container-class="selectdemoSelectHeader" ng-model-options="{trackBy: '$value.id' }">
-                                                    <md-select-header class="demo-select-header">
-                                                        <input ng-model="searchJVType" type="search" placeholder="Search JV Type" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
-                                                    </md-select-header>
-                                                    <md-optgroup label="type">
-                                                        <md-option ng-value="type" ng-repeat="type in $ctrl.jv_type_list | filter:searchJVType">
-                                                            {{type.name}}
-                                                        </md-option>
-                                                    </md-optgroup>
-                                                </md-select>
-                                                <input type="hidden" name="type_id" value='{{$ctrl.jv.type.id}}' class="required">
-                                            </div><!-- Feild -->
-                                        </div>
+                                                    <div class="input-text form-group">
+                                                        <label>
+                                                            Type
+                                                            <sup class="mandatory">*</sup>
+                                                        </label>
+                                                        <md-select ng-model="$ctrl.jv.type" ng-change="jvTypeChanged($ctrl.jv.type.id);" placeholder="Select JV Type" md-on-close="clearSearchJvType()" data-md-container-class="selectdemoSelectHeader" ng-model-options="{trackBy: '$value.id' }">
+                                                            <md-select-header class="demo-select-header">
+                                                                <input ng-model="searchJVType" type="search" placeholder="Search JV Type" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                                            </md-select-header>
+                                                            <md-optgroup label="type">
+                                                                <md-option ng-value="type" ng-repeat="type in $ctrl.jv_type_list | filter:searchJVType">
+                                                                    {{type.name}}
+                                                                </md-option>
+                                                            </md-optgroup>
+                                                        </md-select>
+                                                        <input type="hidden" name="type_id" value='{{$ctrl.jv.type.id}}' class="required">
+                                                    </div><!-- Feild -->
+                                                </div>
                                             </div>
                                         </div>
                                         <!-- ------- -->
@@ -161,7 +161,7 @@
                                         </div><!-- Column -->
                                         <!-- ------------------- -->
                                         <div class="col-md-4" ng-if="$ctrl.jv.type && !$ctrl.jv.type.to_account_type_editable">
-                                        <input type="hidden" name="to_account_type_id" id="to_account_type_id" value='{{$ctrl.jv.to_account_type.id}}' class="required">
+                                            <input type="hidden" name="to_account_type_id" id="to_account_type_id" value='{{$ctrl.jv.to_account_type.id}}' class="required">
                                             <div class="input-text form-group">
                                                 <label>
                                                     To Account Type
@@ -222,17 +222,40 @@
                                                             <sup class="mandatory">*</sup>
                                                         </label>
                                                         <!-- <div class="autocomplete-refresh"> -->
-                                                            <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.fromCustomerSearchText)" md-selected-item="$ctrl.from_account" md-search-text="$ctrl.fromCustomerSearchText" md-selected-item-change="customerSelected('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
-                                                                <md-item-template>
-                                                                    <span>
-                                                                        {{option.name}} - {{option.code}}
-                                                                    </span>
-                                                                </md-item-template>
-                                                                <md-not-found>
-                                                                    No Customers matching "{{ctrl.fromCustomerSearchText}}" were found.
-                                                                </md-not-found>
-                                                            </md-autocomplete>
-                                                            <input type="hidden" name="from_account_id" value="{{$ctrl.jv.from_account.id}}" class="required ">
+                                                            <!-- FOR CUSTOMER SEARCH -->
+                                                        <md-autocomplete ng-if="$ctrl.jv.from_account_type.id == 1440" md-items="option in $ctrl.searchCustomer($ctrl.fromCustomerSearchText)" md-selected-item="$ctrl.from_account" md-search-text="$ctrl.fromCustomerSearchText" md-selected-item-change="customerSelected('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
+                                                            <md-item-template>
+                                                                <span>
+                                                                    {{option.name}} - {{option.code}}
+                                                                </span>
+                                                            </md-item-template>
+                                                            <md-not-found>
+                                                                No Customers matching "{{$ctrl.fromCustomerSearchText}}" were found.
+                                                            </md-not-found>
+                                                        </md-autocomplete>
+                                                         <!-- FOR VENDOR SEARCH -->
+                                                        <md-autocomplete ng-if="$ctrl.jv.from_account_type.id == 1441" md-items="option in $ctrl.searchVendor($ctrl.fromVendorSearchText)" md-selected-item="$ctrl.from_account" md-search-text="$ctrl.fromVendorSearchText" md-selected-item-change="vendorSelected('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Vendor code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
+                                                            <md-item-template>
+                                                                <span>
+                                                                    {{option.name}} - {{option.code}}
+                                                                </span>
+                                                            </md-item-template>
+                                                            <md-not-found>
+                                                                No Vendors matching "{{$ctrl.fromVendorSearchText}}" were found.
+                                                            </md-not-found>
+                                                        </md-autocomplete>
+                                                        <!-- FOR LEDGER SEARCH -->
+                                                        <md-autocomplete ng-if="$ctrl.jv.from_account_type.id == 1442" md-items="option in $ctrl.searchLedger($ctrl.fromLedgerSearchText)" md-selected-item="$ctrl.from_account" md-search-text="$ctrl.fromLedgerSearchText" md-selected-item-change="ledgerSelected('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Ledger code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
+                                                            <md-item-template>
+                                                                <span>
+                                                                    {{option.name}} - {{option.code}}
+                                                                </span>
+                                                            </md-item-template>
+                                                            <md-not-found>
+                                                                No Ledger matching "{{$ctrl.fromLedgerSearchText}}" were found.
+                                                            </md-not-found>
+                                                        </md-autocomplete>
+                                                        <input type="hidden" name="from_account_id" value="{{$ctrl.jv.from_account.id}}" class="required ">
                                                         <!-- </div> -->
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
@@ -240,7 +263,7 @@
                                                 <div class="col-md-7" ng-if="$ctrl.jv.from_account_type">
                                                     <div class="input-text form-group">
                                                         <label>
-                                                            Type of Transfer 
+                                                            Type of Transfer
                                                             <sup class="mandatory">*</sup>
                                                         </label>
                                                         <div class="common-radio-button type-3">
@@ -277,13 +300,13 @@
                                                 </div><!-- Column -->
                                                 <div class="col-md-3" ng-show="$ctrl.jv.transfer_type == 'receipt'">
                                                     <div class="input-text form-group">
-                                                    <label style="visibility: hidden;">
+                                                        <label style="visibility: hidden;">
                                                             Receipt No
-                                                    </label>
-                                                    <button type="button" class="btn btn-primary btn-square button" ng-click="$ctrl.getReceipt('from')">
+                                                        </label>
+                                                        <button type="button" class="btn btn-primary btn-square button" ng-click="$ctrl.getReceipt('from')">
                                                             Search / Add
-                                                    </button>
-                                                </div>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                                 <!-- -------------------- -->
                                                 <div class="col-md-12" ng-show="$ctrl.jv.transfer_type == 'invoice'">
@@ -330,17 +353,40 @@
                                                             <sup class="mandatory">*</sup>
                                                         </label>
                                                         <!-- <div class="autocomplete-refresh"> -->
-                                                            <md-autocomplete md-items="option in $ctrl.searchCustomer($ctrl.toCustomerSearchText)" md-selected-item="$ctrl.to_account" md-search-text="$ctrl.toCustomerSearchText" md-selected-item-change="customerSelected('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
-                                                                <md-item-template>
-                                                                    <span>
-                                                                        {{option.name}} - {{option.code}}
-                                                                    </span>
-                                                                </md-item-template>
-                                                                <md-not-found>
-                                                                    No Customers matching "{{ctrl.toCustomerSearchText}}" were found.
-                                                                </md-not-found>
-                                                            </md-autocomplete>
-                                                            <input type="hidden" name="to_account_id" value="{{$ctrl.jv.to_account.id}}" class="required">
+                                                        <!-- FOR CUSTOMER SEARCH -->
+                                                        <md-autocomplete ng-if="$ctrl.jv.to_account_type.id == 1440" md-items="option in $ctrl.searchCustomer($ctrl.toCustomerSearchText)" md-selected-item="$ctrl.to_account" md-search-text="$ctrl.toCustomerSearchText" md-selected-item-change="customerSelected('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
+                                                            <md-item-template>
+                                                                <span>
+                                                                    {{option.name}} - {{option.code}}
+                                                                </span>
+                                                            </md-item-template>
+                                                            <md-not-found>
+                                                                No Customers matching "{{ctrl.toCustomerSearchText}}" were found.
+                                                            </md-not-found>
+                                                        </md-autocomplete>
+                                                        <!-- FOR VENDOR SEARCH -->
+                                                        <md-autocomplete ng-if="$ctrl.jv.to_account_type.id == 1441" md-items="option in $ctrl.searchVendor($ctrl.toVendorSearchText)" md-selected-item="$ctrl.to_account" md-search-text="$ctrl.toVendorSearchText" md-selected-item-change="vendorSelected('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Vendor code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
+                                                            <md-item-template>
+                                                                <span>
+                                                                    {{option.name}} - {{option.code}}
+                                                                </span>
+                                                            </md-item-template>
+                                                            <md-not-found>
+                                                                No Vendors matching "{{$ctrl.toVendorSearchText}}" were found.
+                                                            </md-not-found>
+                                                        </md-autocomplete>
+                                                        <!-- FOR LEDGER SEARCH -->
+                                                        <md-autocomplete ng-if="$ctrl.jv.to_account_type.id == 1442" md-items="option in $ctrl.searchLedger($ctrl.toLedgerSearchText)" md-selected-item="$ctrl.to_account" md-search-text="$ctrl.toLedgerSearchText" md-selected-item-change="ledgerSelected('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Ledger code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
+                                                            <md-item-template>
+                                                                <span>
+                                                                    {{option.name}} - {{option.code}}
+                                                                </span>
+                                                            </md-item-template>
+                                                            <md-not-found>
+                                                                No Ledger matching "{{$ctrl.toLedgerSearchText}}" were found.
+                                                            </md-not-found>
+                                                        </md-autocomplete>
+                                                        <input type="hidden" name="to_account_id" value="{{$ctrl.jv.to_account.id}}" class="required">
                                                         <!-- </div> -->
                                                     </div><!-- Form Group -->
                                                 </div><!-- Column -->
@@ -367,10 +413,10 @@
                                                         <label style="visibility: hidden;">
                                                             Receipt No
                                                         </label>
-                                                    <button type="button" class="btn btn-primary btn-square button" ng-click="$ctrl.getReceipt('to')">
-                                                        Search / Add
-                                                    </button>
-                                                </div>
+                                                        <button type="button" class="btn btn-primary btn-square button" ng-click="$ctrl.getReceipt('to')">
+                                                            Search / Add
+                                                        </button>
+                                                    </div>
                                                 </div><!-- Column -->
                                                 <div class="col-md-12" ng-show="$ctrl.jv.transfer_type == 'receipt'">
                                                     <jv-invoices-table jv="$ctrl.jv">

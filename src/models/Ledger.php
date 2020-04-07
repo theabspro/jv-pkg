@@ -5,6 +5,7 @@ namespace Abs\JVPkg;
 use Abs\HelperPkg\Traits\SeederTrait;
 use App\Company;
 use App\Config;
+use Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -53,6 +54,35 @@ class Ledger extends Model {
 		$record->created_by_id = $admin->id;
 		$record->save();
 		return $record;
+	}
+
+	public static function searchLedger($request) {
+		$key = $request->key;
+		$list = self::where('company_id', Auth::user()->company_id)
+			->select(
+				'id',
+				'name',
+				'code'
+			)
+			->where(function ($q) use ($key) {
+				$q->where('name', 'like', $key . '%')
+					->orWhere('code', 'like', $key . '%')
+				;
+			})
+			->get();
+		return response()->json($list);
+	}
+
+	public static function getLedger($request) {
+		$ledger = self::find($request->id);
+
+		if (!$ledger) {
+			return response()->json(['success' => false, 'error' => 'Ledger not found']);
+		}
+		return response()->json([
+			'success' => true,
+			'ledger' => $ledger,
+		]);
 	}
 
 }

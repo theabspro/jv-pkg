@@ -36,6 +36,8 @@ Route::group(['namespace' => 'Abs\JVPkg', 'middleware' => ['web', 'auth'], 'pref
 	Route::get('/ledger/get-form-data', 'LedgerController@getLedgerFormData')->name('getLedgerFormData');
 	Route::post('/ledger/save', 'LedgerController@saveLedger')->name('saveLedger');
 	Route::get('/ledger/delete', 'LedgerController@deleteLedger')->name('deleteLedger');
+	Route::post('/ledger/search', 'LedgerController@searchLedger')->name('searchLedger');
+	Route::post('/ledger/get', 'LedgerController@getLedger')->name('getLedger');
 
 	//VERIFICATION
 	Route::post('/verification/get-list/', 'JvVerificationController@getJvVerificationList')->name('getJvVerificationList');

@@ -198,4 +198,12 @@ class LedgerController extends Controller {
 			return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
 		}
 	}
+
+	public function searchLedger(Request $request) {
+		return Ledger::searchLedger($request);
+	}
+
+	public function getLedger(Request $request) {
+		return Ledger::getLedger($request);
+	}
 }

@@ -99,10 +99,10 @@ class JournalVoucher extends Model {
 		if ($this->to_account_type_id == 1440) {
 			//customer
 			return $this->belongsTo('Abs\CustomerPkg\Customer', 'to_account_id');
-		} elseif ($this->from_account_type_id == 1441) {
+		} elseif ($this->to_account_type_id == 1441) {
 			//vendor
 			return $this->belongsTo('App\Vendor', 'to_account_id');
-		} elseif ($this->from_account_type_id == 1442) {
+		} elseif ($this->to_account_type_id == 1442) {
 			//ledger
 			return $this->belongsTo('Abs\JVPkg\Ledger', 'to_account_id');
 		}
