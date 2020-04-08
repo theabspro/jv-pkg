@@ -87,7 +87,7 @@
                 <div class="grey-box-header">
                     <b>
                         {{$ctrl.jv.receipts.length}}
-                        Receipts (₹{{$ctrl.jv.total_receipt_amount}}.00)
+                        Receipts (₹{{$ctrl.jv.total_receipt_amount | number:2}})
                     </b>
                 </div>
                 <div class="grey-box-body">
@@ -104,7 +104,7 @@
                 <div class="grey-box-header">
                     <b>
                         {{$ctrl.jv.invoices_length}}
-                        Invoices (₹{{$ctrl.jv.total_invoice_amount}}.00)
+                        Invoices (₹{{$ctrl.jv.total_invoice_amount | number:2}})
                     </b>
                 </div>
                 <div class="grey-box-body">

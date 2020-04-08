@@ -250,32 +250,61 @@ class JournalVoucherController extends Controller {
 			$journal_voucher->toAccount;
 			$selected_invoice_ids = $journal_voucher->invoices()->pluck('id')->toArray();
 			// dd($selected_invoice_ids);
-			$this->data['invoices'] = $journal_voucher->toAccount->invoices;
-			$total_invoice_amount = [];
-			foreach ($journal_voucher->toAccount->invoices as $invoice) {
-				if (in_array($invoice->id, $selected_invoice_ids)) {
-					$invoice->selected = true;
-					$total_invoice_amount[] = $invoice->invoice_amount - $invoice->received_amount;
-				} else {
-					$invoice->selected = false;
-					$total_invoice_amount[] = '';
-				}
-				//DONT REVORT -> FOR GETTING OUTLET AND SBU
-				$invoice->outlet;
-				$invoice->sbu;
-			}
+			// $this->data['invoices'] = $journal_voucher->toAccount->invoices;
+			// $total_invoice_amount = [];
+			// foreach ($journal_voucher->toAccount->invoices as $invoice) {
+			// 	if (in_array($invoice->id, $selected_invoice_ids)) {
+			// 		$invoice->selected = true;
+			// 		$total_invoice_amount[] = $invoice->invoice_amount - $invoice->received_amount;
+			// 	} else {
+			// 		$invoice->selected = false;
+			// 		$total_invoice_amount[] = '';
+			// 	}
+			// 	//DONT REVORT -> FOR GETTING OUTLET AND SBU
+			// 	$invoice->outlet;
+			// 	$invoice->sbu;
+			// }
 			foreach ($journal_voucher->receipts as $receipt) {
 				$balance_amount[] = $receipt->balance_amount;
+			}
+
+			if ($journal_voucher->transfer_type == 1) {
+				$journal_voucher->transfer_type = 'receipt';
+				$this->data['invoices'] = $journal_voucher->toAccount->invoices;
+				$total_invoice_amount = [];
+				foreach ($journal_voucher->toAccount->invoices as $invoice) {
+					if (in_array($invoice->id, $selected_invoice_ids)) {
+						$invoice->selected = true;
+						$total_invoice_amount[] = $invoice->invoice_amount - $invoice->received_amount;
+					} else {
+						$invoice->selected = false;
+						$total_invoice_amount[] = '';
+					}
+					//DONT REVORT -> FOR GETTING OUTLET AND SBU
+					$invoice->outlet;
+					$invoice->sbu;
+				}
+			} else {
+				$journal_voucher->transfer_type = 'invoice';
+				$this->data['invoices'] = $journal_voucher->fromAccount->invoices;
+				$total_invoice_amount = [];
+				foreach ($journal_voucher->fromAccount->invoices as $invoice) {
+					if (in_array($invoice->id, $selected_invoice_ids)) {
+						$invoice->selected = true;
+						$total_invoice_amount[] = $invoice->invoice_amount - $invoice->received_amount;
+					} else {
+						$invoice->selected = false;
+						$total_invoice_amount[] = '';
+					}
+					//DONT REVORT -> FOR GETTING OUTLET AND SBU
+					$invoice->outlet;
+					$invoice->sbu;
+				}
 			}
 			$journal_voucher->invoices_length = count($selected_invoice_ids);
 			$journal_voucher->total_invoice_amount = array_sum($total_invoice_amount);
 			$journal_voucher->total_receipt_amount = array_sum($balance_amount);
 
-			if ($journal_voucher->transfer_type == 1) {
-				$journal_voucher->transfer_type = 'receipt';
-			} else {
-				$journal_voucher->transfer_type = 'invoice';
-			}
 			$journal_voucher->action = 'Edit';
 			$journal_voucher->date = date('d-m-Y', strtotime($journal_voucher->date));
 		}

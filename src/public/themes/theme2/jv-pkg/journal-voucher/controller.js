@@ -712,8 +712,8 @@ app.component('journalVoucherForm', {
 
         //GET MINIMUM SELECTED AMOUNT TO APPEND ON TRANSFER AMOUNT IN AMOUNT TAB
         $(document).on('click', '.compare_amount', function() {
-            var total_invoice_amount = parseInt(self.jv.total_invoice_amount).toFixed(2);
-            var total_receipt_amount = parseInt(self.jv.total_receipt_amount).toFixed(2);
+            var total_invoice_amount = parseFloat(self.jv.total_invoice_amount).toFixed(2);
+            var total_receipt_amount = parseFloat(self.jv.total_receipt_amount).toFixed(2);
             self.transfer_amount = Math.min(total_receipt_amount, total_invoice_amount);
             $("#transfer_amount").val(self.transfer_amount.toFixed(2));
         });

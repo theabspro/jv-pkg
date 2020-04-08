@@ -181,19 +181,34 @@ class JournalVoucher extends Model {
 		$selected_invoice_ids = $journal_voucher->invoices()->pluck('id')->toArray();
 		// dd($selected_invoice_ids);
 		$total_invoice_amount = [];
-		$data['invoices'] = $journal_voucher->toAccount->invoices;
-		foreach ($journal_voucher->toAccount->invoices as $invoice) {
-			// dd($invoice);
-			if (in_array($invoice->id, $selected_invoice_ids)) {
-				$invoice->selected = true;
-				$total_invoice_amount[] = $invoice->invoice_amount - $invoice->received_amount;
-			} else {
-				$invoice->selected = false;
-				$total_invoice_amount[] = '';
-			}
-		}
+
 		foreach ($journal_voucher->receipts as $receipt) {
 			$balance_amount[] = $receipt->balance_amount;
+		}
+		if ($journal_voucher->transfer_type == 1) {
+			// dd($invoice);
+			$data['invoices'] = $journal_voucher->toAccount->invoices;
+			foreach ($journal_voucher->toAccount->invoices as $invoice) {
+				if (in_array($invoice->id, $selected_invoice_ids)) {
+					$invoice->selected = true;
+					$total_invoice_amount[] = $invoice->invoice_amount - $invoice->received_amount;
+				} else {
+					$invoice->selected = false;
+					$total_invoice_amount[] = '';
+				}
+			}
+		} else {
+			// dd($invoice);
+			$data['invoices'] = $journal_voucher->fromAccount->invoices;
+			foreach ($journal_voucher->fromAccount->invoices as $invoice) {
+				if (in_array($invoice->id, $selected_invoice_ids)) {
+					$invoice->selected = true;
+					$total_invoice_amount[] = $invoice->invoice_amount - $invoice->received_amount;
+				} else {
+					$invoice->selected = false;
+					$total_invoice_amount[] = '';
+				}
+			}
 		}
 		$journal_voucher->invoices_length = count($selected_invoice_ids);
 		$journal_voucher->total_invoice_amount = array_sum($total_invoice_amount);
