@@ -13,7 +13,6 @@ use App\Outlet;
 use Auth;
 use Carbon\Carbon;
 use DB;
-use Entrust;
 use Illuminate\Http\Request;
 use Yajra\Datatables\Datatables;
 
@@ -80,7 +79,7 @@ class JvVerificationController extends Controller {
 			->join('outlets', 'outlets.id', 'employees.outlet_id')
 			->leftJoin('regions', 'regions.id', 'outlets.region_id')
 			->join('states', 'states.id', 'outlets.state_id')
-			->where('users.user_type_id', 1) //FOR EMPLOYEE
+		// ->where('users.user_type_id', 1) //FOR EMPLOYEE
 		// ->where('journal_vouchers.company_id', Auth::user()->company_id)
 			->where('journal_vouchers.status_id', $approval_level->current_status_id)
 			->where(function ($query) use ($first_date_this_month, $last_date_this_month) {
@@ -133,13 +132,13 @@ class JvVerificationController extends Controller {
 		// ->get()
 		;
 
-		if (Entrust::can('view-all-jv')) {
-			$jv_verification = $jv_verification->where('journal_vouchers.company_id', Auth::user()->company_id);
-		} elseif (Entrust::can('view-own-jv')) {
-			$jv_verification = $jv_verification->where('journal_vouchers.created_by_id', Auth::user()->id);
-		} else {
-			$jv_verification = [];
-		}
+		// if (Entrust::can('view-all-jv')) {
+		// 	$jv_verification = $jv_verification->where('journal_vouchers.company_id', Auth::user()->company_id);
+		// } elseif (Entrust::can('view-own-jv')) {
+		// 	$jv_verification = $jv_verification->where('journal_vouchers.created_by_id', Auth::user()->id);
+		// } else {
+		// 	$jv_verification = [];
+		// }
 
 		// dd($jv_verification);
 		return Datatables::of($jv_verification)

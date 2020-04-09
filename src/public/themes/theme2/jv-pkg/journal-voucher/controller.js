@@ -875,6 +875,16 @@ app.component('journalVoucherView', {
             self.reject_reasons = response.data.reject_reasons;
             self.jv.activity_logs = response.data.activity_logs;
             self.status_id = response.data.status_id;
+            self.reject_status_ids = response.data.reject_statuses;
+            
+            if ((self.jv.type.initial_status_id == self.jv.status_id) || (jQuery.inArray(self.jv.status_id, self.reject_status_ids) != -1)) {
+                $(".edit_button").removeClass('ng-hide');
+                $(".sebmit_button").removeClass('ng-hide');
+            } else {
+                $(".edit_button").addClass('ng-hide');
+                $(".sebmit_button").addClass('ng-hide');
+            }
+
             //ATTACHMENTS
             if (self.jv.attachments.length) {
                 $(self.jv.attachments).each(function(key, attachment) {

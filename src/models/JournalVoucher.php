@@ -174,6 +174,8 @@ class JournalVoucher extends Model {
 			]);
 		}
 
+		$data['reject_statuses'] = $journal_voucher->type->verificationFlow->approvalLevels()->orderBy('approval_order')->pluck('reject_status_id')->toArray();
+
 		$journal_voucher->fromAccount;
 		$journal_voucher->toAccount;
 		$journal_voucher->action = 'View';
@@ -218,7 +220,7 @@ class JournalVoucher extends Model {
 			'activity_logs.user_id',
 			DB::raw('DATE_FORMAT(activity_logs.date_time,"%d %b %Y") as activity_date'),
 			DB::raw('DATE_FORMAT(activity_logs.date_time,"%h:%i %p") as activity_time'),
-			'users.ecode as created_user',
+			'users.ecode as created_user_code',
 			'users.name as created_user_name',
 			'roles.name as user_role',
 			'activity_logs.details',
