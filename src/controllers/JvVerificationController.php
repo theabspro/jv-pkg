@@ -298,6 +298,8 @@ class JvVerificationController extends Controller {
 			foreach ($send_for_approvals as $key => $value) {
 				$journal_voucher = JournalVoucher::find($value);
 				$journal_voucher->status_id = $approval_level->next_status_id;
+				$journal_voucher->rejection_id = NULL;
+				$journal_voucher->rejection_reason = NULL;
 				$journal_voucher->updated_by_id = Auth()->user()->id;
 				$journal_voucher->updated_at = date("Y-m-d H:i:s");
 				$journal_voucher->save();
