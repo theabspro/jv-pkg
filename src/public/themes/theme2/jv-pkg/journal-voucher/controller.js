@@ -712,8 +712,8 @@ app.component('journalVoucherForm', {
 
         //GET MINIMUM SELECTED AMOUNT TO APPEND ON TRANSFER AMOUNT IN AMOUNT TAB
         $(document).on('click', '.compare_amount', function() {
-            var total_invoice_amount = parseInt(self.jv.total_invoice_amount).toFixed(2);
-            var total_receipt_amount = parseInt(self.jv.total_receipt_amount).toFixed(2);
+            var total_invoice_amount = parseFloat(self.jv.total_invoice_amount).toFixed(2);
+            var total_receipt_amount = parseFloat(self.jv.total_receipt_amount).toFixed(2);
             self.transfer_amount = Math.min(total_receipt_amount, total_invoice_amount);
             $("#transfer_amount").val(self.transfer_amount.toFixed(2));
         });
@@ -875,6 +875,16 @@ app.component('journalVoucherView', {
             self.reject_reasons = response.data.reject_reasons;
             self.jv.activity_logs = response.data.activity_logs;
             self.status_id = response.data.status_id;
+            self.reject_status_ids = response.data.reject_statuses;
+            
+            if ((self.jv.type.initial_status_id == self.jv.status_id) || (jQuery.inArray(self.jv.status_id, self.reject_status_ids) != -1)) {
+                $(".edit_button").removeClass('ng-hide');
+                $(".sebmit_button").removeClass('ng-hide');
+            } else {
+                $(".edit_button").addClass('ng-hide');
+                $(".sebmit_button").addClass('ng-hide');
+            }
+
             //ATTACHMENTS
             if (self.jv.attachments.length) {
                 $(self.jv.attachments).each(function(key, attachment) {

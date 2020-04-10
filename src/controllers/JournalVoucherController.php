@@ -68,7 +68,6 @@ class JournalVoucherController extends Controller {
 		//HIDE NOW WE WILL ENABLE LATER
 		// ->where('journal_vouchers.created_at', '>=', Carbon::now()->subDays(3)) //SHOW ONLY LAST 3 DAYS FROM NOW
 		// ->where('journal_vouchers.company_id', Auth::user()->company_id)
-			->where('users.user_type_id', 1) //FOR EMPLOYEE
 			->where(function ($query) use ($first_date_this_month, $last_date_this_month) {
 				if (!empty($first_date_this_month) && !empty($last_date_this_month)) {
 					$query->whereRaw("DATE(journal_vouchers.date) BETWEEN '" . $first_date_this_month . "' AND '" . $last_date_this_month . "'");
@@ -172,8 +171,10 @@ class JournalVoucherController extends Controller {
 				//GET NEXT LEVEL OF STATUS FOR APPROVAL
 				$journal_voucher_status = JournalVoucher::with(['type'])->find($journal_vouchers->id);
 				$next_status = $journal_voucher_status->type->verificationFlow->approvalLevels()->orderBy('approval_order')->first()->current_status_id;
-				$reject_status = $journal_voucher_status->type->verificationFlow->approvalLevels()->orderBy('approval_order')->first()->reject_status_id;
-				// dd($reject_status);
+				// $reject_status = $journal_voucher_status->type->verificationFlow->approvalLevels()->orderBy('approval_order')->first()->reject_status_id;
+				$reject_statuses = $journal_voucher_status->type->verificationFlow->approvalLevels()->orderBy('approval_order')->pluck('reject_status_id')->toArray(); //->reject_status_id;
+
+				// dd($reject_statuses);
 
 				$img1 = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow.svg');
 				$img1_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/edit-yellow-active.svg');
@@ -186,17 +187,17 @@ class JournalVoucherController extends Controller {
 				$img_tick_active = asset('public/themes/' . $this->data['theme'] . '/img/content/table/tick.svg');
 
 				$output = '';
-				if (Entrust::can('edit-journal-voucher') && ($journal_vouchers->status_id == $journal_vouchers->initial_status_id || $journal_vouchers->status_id == $reject_status)) {
+				if (Entrust::can('edit-journal-voucher') && ($journal_vouchers->status_id == $journal_vouchers->initial_status_id || in_array($journal_vouchers->status_id, $reject_statuses))) {
 					$output .= '<a href="#!/jv-pkg/journal-voucher/edit/' . $journal_vouchers->id . '" id = "" title="Edit"><img src="' . $img1 . '" alt="Edit" class="img-responsive" onmouseover=this.src="' . $img1_active . '" onmouseout=this.src="' . $img1 . '"></a>';
 				}
 				if (Entrust::can('view-journal-voucher')) {
 					$output .= '<a href="#!/jv-pkg/journal-voucher/view/' . $journal_vouchers->id . '" id = "" title="View"><img src="' . $img_view . '" alt="View" class="img-responsive" onmouseover=this.src="' . $img_view_active . '" onmouseout=this.src="' . $img_view . '"></a>';
 				}
-				if (Entrust::can('delete-journal-voucher') && ($journal_vouchers->status_id == $journal_vouchers->initial_status_id || $journal_vouchers->status_id == $reject_status)) {
+				if (Entrust::can('delete-journal-voucher') && ($journal_vouchers->status_id == $journal_vouchers->initial_status_id || in_array($journal_vouchers->status_id, $reject_statuses))) {
 					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#journal-voucher-delete-modal" onclick="angular.element(this).scope().deleteJournalVoucher(' . $journal_vouchers->id . ')" title="Delete"><img src="' . $img_delete . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_delete_active . '" onmouseout=this.src="' . $img_delete . '"></a>
 					';
 				}
-				if (Entrust::can('approve-journal-voucher') && ($journal_vouchers->status_id == $journal_vouchers->initial_status_id || $journal_vouchers->status_id == $reject_status)) {
+				if (Entrust::can('approve-journal-voucher') && ($journal_vouchers->status_id == $journal_vouchers->initial_status_id || in_array($journal_vouchers->status_id, $reject_statuses))) {
 					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#approve-popup" onclick="angular.element(this).scope().deleteJournalVoucherApprove(' . $journal_vouchers->id . ',' . $next_status . ')" title="Approve"><img src="' . $img_tick . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_tick_active . '" onmouseout=this.src="' . $img_tick . '"></a>
 					';
 				}
@@ -250,32 +251,61 @@ class JournalVoucherController extends Controller {
 			$journal_voucher->toAccount;
 			$selected_invoice_ids = $journal_voucher->invoices()->pluck('id')->toArray();
 			// dd($selected_invoice_ids);
-			$this->data['invoices'] = $journal_voucher->toAccount->invoices;
-			$total_invoice_amount = [];
-			foreach ($journal_voucher->toAccount->invoices as $invoice) {
-				if (in_array($invoice->id, $selected_invoice_ids)) {
-					$invoice->selected = true;
-					$total_invoice_amount[] = $invoice->invoice_amount - $invoice->received_amount;
-				} else {
-					$invoice->selected = false;
-					$total_invoice_amount[] = '';
-				}
-				//DONT REVORT -> FOR GETTING OUTLET AND SBU
-				$invoice->outlet;
-				$invoice->sbu;
-			}
+			// $this->data['invoices'] = $journal_voucher->toAccount->invoices;
+			// $total_invoice_amount = [];
+			// foreach ($journal_voucher->toAccount->invoices as $invoice) {
+			// 	if (in_array($invoice->id, $selected_invoice_ids)) {
+			// 		$invoice->selected = true;
+			// 		$total_invoice_amount[] = $invoice->invoice_amount - $invoice->received_amount;
+			// 	} else {
+			// 		$invoice->selected = false;
+			// 		$total_invoice_amount[] = '';
+			// 	}
+			// 	//DONT REVORT -> FOR GETTING OUTLET AND SBU
+			// 	$invoice->outlet;
+			// 	$invoice->sbu;
+			// }
 			foreach ($journal_voucher->receipts as $receipt) {
 				$balance_amount[] = $receipt->balance_amount;
+			}
+
+			if ($journal_voucher->transfer_type == 1) {
+				$journal_voucher->transfer_type = 'receipt';
+				$this->data['invoices'] = $journal_voucher->toAccount->invoices;
+				$total_invoice_amount = [];
+				foreach ($journal_voucher->toAccount->invoices as $invoice) {
+					if (in_array($invoice->id, $selected_invoice_ids)) {
+						$invoice->selected = true;
+						$total_invoice_amount[] = $invoice->invoice_amount - $invoice->received_amount;
+					} else {
+						$invoice->selected = false;
+						$total_invoice_amount[] = '';
+					}
+					//DONT REVORT -> FOR GETTING OUTLET AND SBU
+					$invoice->outlet;
+					$invoice->sbu;
+				}
+			} else {
+				$journal_voucher->transfer_type = 'invoice';
+				$this->data['invoices'] = $journal_voucher->fromAccount->invoices;
+				$total_invoice_amount = [];
+				foreach ($journal_voucher->fromAccount->invoices as $invoice) {
+					if (in_array($invoice->id, $selected_invoice_ids)) {
+						$invoice->selected = true;
+						$total_invoice_amount[] = $invoice->invoice_amount - $invoice->received_amount;
+					} else {
+						$invoice->selected = false;
+						$total_invoice_amount[] = '';
+					}
+					//DONT REVORT -> FOR GETTING OUTLET AND SBU
+					$invoice->outlet;
+					$invoice->sbu;
+				}
 			}
 			$journal_voucher->invoices_length = count($selected_invoice_ids);
 			$journal_voucher->total_invoice_amount = array_sum($total_invoice_amount);
 			$journal_voucher->total_receipt_amount = array_sum($balance_amount);
 
-			if ($journal_voucher->transfer_type == 1) {
-				$journal_voucher->transfer_type = 'receipt';
-			} else {
-				$journal_voucher->transfer_type = 'invoice';
-			}
 			$journal_voucher->action = 'Edit';
 			$journal_voucher->date = date('d-m-Y', strtotime($journal_voucher->date));
 		}

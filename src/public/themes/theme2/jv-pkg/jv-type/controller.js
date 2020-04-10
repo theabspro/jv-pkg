@@ -215,7 +215,7 @@ app.component('jvTypeForm', {
                     }
                     $scope.onChangedIsEditable(is_editable, key);
                 });
-                $scope.onSelectedApprovalType(self.jv_type.approval_type_id);
+                // $scope.onSelectedApprovalType(self.jv_type.approval_type_id);
             } else {
                 self.switch_value = 'Active';
             }
