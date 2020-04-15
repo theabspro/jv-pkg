@@ -376,7 +376,7 @@ app.component('journalVoucherForm', {
         self.angular_routes = angular_routes;
         var attachment_removal_ids = [];
         // var permanent_number = [];
-        $("input:text:visible:first").focus();
+        // $("input:text:visible:first").focus();
         $http({
             url: laravel_routes['getJournalVoucherFormData'],
             method: "GET",
