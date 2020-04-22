@@ -605,6 +605,10 @@ app.component('journalVoucherForm', {
                     }
                 ).then(function(response) {
                     // console.log(response.data);
+                    if (!response.data.success) {
+                        custom_noty('error', response.data.error);
+                        return;
+                    }
                     var receipt_amount = (response.data.receipt['amount'] < 0) ? response.data.receipt['amount'] * -1 : response.data.receipt['amount']; 
                     var balance_amount = (response.data.receipt['balance_amount'] < 0) ? response.data.receipt['balance_amount'] * -1 : response.data.receipt['balance_amount']; 
                     var settled_amount = (response.data.receipt['settled_amount'] < 0) ? response.data.receipt['settled_amount'] * -1 : response.data.receipt['settled_amount']; 
@@ -612,11 +616,6 @@ app.component('journalVoucherForm', {
                     response.data.receipt['amount'] = receipt_amount;
                     response.data.receipt['balance_amount'] = balance_amount;
                     response.data.receipt['settled_amount'] = settled_amount;
-                    
-                    if (!response.data.success) {
-                        custom_noty('error', response.data.error);
-                        return;
-                    }
                     self.jv.receipts.push(response.data.receipt);
                     permanent_number.push(response.data.receipt.permanent_receipt_no);
 
