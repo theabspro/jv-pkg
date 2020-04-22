@@ -479,7 +479,7 @@ class JournalVoucherController extends Controller {
 					$extension = $image->getClientOriginalExtension();
 					// dd($file_name, $extension);
 					//ISSUE : file name should be stored
-					$name = $journal_voucher->id . '_' . $file_name . '.' . $extension;
+					$name = $journal_voucher->id . '_' . $file_name . '_' . rand(10, 1000) . '.' . $extension;
 
 					$journal_attachment->move(storage_path('app/public/journal-vouchers/attachments/'), $name);
 					$attachement = new Attachment;
