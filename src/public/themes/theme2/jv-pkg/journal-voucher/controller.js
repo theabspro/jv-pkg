@@ -401,7 +401,7 @@ app.component('journalVoucherForm', {
                     $(self.jv.attachments).each(function(key, attachment) {
                         var design = '<div class="imageuploadify-container" data-attachment_id="' + attachment.id + '" style="margin-left: 0px; margin-right: 0px;">' +
                             '<div class="imageuploadify-btn-remove"><button type="button" class="btn btn-danger glyphicon glyphicon-remove"></button> ' +
-                            ' <div class="imageuploadify-details"><div class="imageuploadify-file-icon"></div><span class="imageuploadify-file-name"><a href="' + jv_attachements_url + '/' + attachment.name + '">' + attachment.name + '' +
+                            ' <div class="imageuploadify-details"><div class="imageuploadify-file-icon"></div><span class="imageuploadify-file-name"><a target="blank" href="' + jv_attachements_url + '/' + attachment.name + '">' + attachment.name + '' +
                             '</span><span class="imageuploadify-file-type">image/jpeg</span>' +
                             '</a><span class="imageuploadify-file-size">369960</span></div>' +
                             '</div></div>';
