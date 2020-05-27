@@ -45,5 +45,6 @@ Route::group(['namespace' => 'Abs\JVPkg', 'middleware' => ['web', 'auth'], 'pref
 	Route::get('/verification/filter', 'JvVerificationController@getVerificationFilter')->name('getVerificationFilter');
 	Route::post('/verification/save', 'JvVerificationController@saveJvVerification')->name('saveJvVerification');
 	Route::get('/verification/delete', 'JvVerificationController@deleteJvVerification')->name('deleteJvVerification');
+	Route::get('/verification/attachment-view-status', 'JvVerificationController@jvAttachmentViewedCheck')->name('jvAttachmentViewedCheck');
 	Route::post('/verification/jv-multiple-approvals', 'JvVerificationController@jvMultipleApproval')->name('jvMultipleApproval');
 });

@@ -13,8 +13,8 @@ app.component('jvVerificationList', {
         //     return false;
         // }
         $http.get(
-            laravel_routes['getVerificationFilter'],{
-                params:{
+            laravel_routes['getVerificationFilter'], {
+                params: {
                     level_id: self.level_id,
                 }
             }
@@ -263,7 +263,7 @@ app.component('jvVerificationList', {
         // $('.refresh_table').on("click", function() {
         //     RefreshTable();
         // });
-        $(document).on('click','#parent', function() {
+        $(document).on('click', '#parent', function() {
             if (this.checked) {
                 $('.jv_verfication_checkbox').each(function() {
                     this.checked = true;
@@ -289,7 +289,7 @@ app.component('jvVerificationList', {
 //------------------------------------------------------------------------------------------------------------------------
 app.component('jvVerificationView', {
     templateUrl: jv_verification_form_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element, $mdSelect, $timeout) {
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element, $mdSelect, $timeout, $compile) {
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         // if (!self.hasPermission('add-lob') || !self.hasPermission('edit-lob')) {
@@ -332,11 +332,12 @@ app.component('jvVerificationView', {
             if (self.jv.attachments.length) {
                 $(self.jv.attachments).each(function(key, attachment) {
                     var design = '<div class="imageuploadify-container" data-attachment_id="' + attachment.id + '" style="margin-left: 0px; margin-right: 0px;">' +
-                        ' <div class="imageuploadify-details"><div class="imageuploadify-file-icon"></div><span class="imageuploadify-file-name"><a href="' + jv_attachements_url + '/' + attachment.name + '">' + attachment.name + '' +
+                        ' <div class="imageuploadify-details"><div class="imageuploadify-file-icon"></div><span class="imageuploadify-file-name"><a target="_blank" ng-click="jvAttachmentViewed(' + attachment.id + ')" href="' + jv_attachements_url + '/' + attachment.name + '">' + attachment.name + '' +
                         '</span><span class="imageuploadify-file-type">image/jpeg</span>' +
                         '</a><span class="imageuploadify-file-size">369960</span></div>' +
                         '</div></div>';
-                    $('.imageuploadify-images-list').append(design);
+                    // $('.imageuploadify-images-list').append(design);
+                    $('.imageuploadify-images-list').append($compile(design)($scope));
                 });
             }
         });
@@ -353,6 +354,20 @@ app.component('jvVerificationView', {
                 $mdSelect.hide();
             }
         });
+
+        //CHECK JV Attachment COPIES ARE VIEWD
+        $scope.jvAttachmentViewed = function(id) {
+            console.log(id);
+            $http.get(
+                laravel_routes['jvAttachmentViewedCheck'],{
+                    params:{
+                        attachment_id : id,
+                    }
+                }
+            ).then(function(response) {
+                console.log(response);
+            });
+        }
 
         var from_approve = '#approve';
         var v = jQuery(from_approve).validate({

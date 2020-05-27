@@ -6,6 +6,7 @@ use Abs\ApprovalPkg\EntityStatus;
 use Abs\JVPkg\JournalVoucher;
 use Abs\LocationPkg\State;
 use App\ActivityLog;
+use App\Attachment;
 use App\Config;
 use App\Entity;
 use App\Http\Controllers\Controller;
@@ -199,6 +200,14 @@ class JvVerificationController extends Controller {
 		return response()->json($this->data);
 	}
 
+	public function jvAttachmentViewedCheck(Request $request) {
+		// dd($request->all());
+		$journal_voucher_id = Attachment::where('id', $request->attachment_id)->pluck('entity_id')->first();
+		$attachment_jv_user = DB::table('jv_attachment_view_status')
+			->updateOrInsert(['attachment_id' => $request->attachment_id, 'journal_voucher_id' => $journal_voucher_id], ['viewed_by' => Auth::user()->id]);
+		return response()->json(['success' => true]);
+	}
+
 	public function saveJvVerification(Request $request) {
 		// dd($request->all());
 		try {
@@ -212,6 +221,19 @@ class JvVerificationController extends Controller {
 			// dd($approval_level->reject_status_id);
 
 			if ($request->verification_type == 'approve') {
+				//CHECK IF ATTACHMENT VIEWED OR NOT
+				$attachments = Attachment::where('entity_id', $request->journal_voucher_id)->where('attachment_of_id', 223)->where('attachment_type_id', 244)->pluck('id')->toArray();
+				// dd($attachments);
+				foreach ($attachments as $key => $attachment_id) {
+					$viewed_jv_attachment = DB::table('jv_attachment_view_status')->where('attachment_id', $attachment_id)->where('journal_voucher_id', $request->journal_voucher_id)->where('viewed_by', Auth::user()->id)->first();
+					if (!$viewed_jv_attachment) {
+						return response()->json([
+							'success' => false,
+							'errors' => ['Please check whether all Journal Vouchers copies are viewed'],
+						]);
+					}
+				}
+
 				$jv = JournalVoucher::find($request->journal_voucher_id);
 				$jv->status_id = $approval_level->next_status_id;
 				$jv->rejection_id = NULL;
@@ -237,7 +259,7 @@ class JvVerificationController extends Controller {
 				} else {
 					return response()->json([
 						'success' => false,
-						'error' => ['Approval Error'],
+						'errors' => ['Approval Error'],
 					]);
 				}
 			} elseif ($request->verification_type == 'Reject') {
@@ -266,7 +288,7 @@ class JvVerificationController extends Controller {
 				} else {
 					return response()->json([
 						'success' => false,
-						'error' => ['Rejection Error'],
+						'errors' => ['Rejection Error'],
 					]);
 				}
 
@@ -275,7 +297,7 @@ class JvVerificationController extends Controller {
 			DB::rollBack();
 			return response()->json([
 				'success' => false,
-				'error' => $e->getMessage(),
+				'errors' => $e->getMessage(),
 			]);
 		}
 	}
@@ -296,6 +318,19 @@ class JvVerificationController extends Controller {
 		DB::beginTransaction();
 		try {
 			foreach ($send_for_approvals as $key => $value) {
+				// dump($value);
+				//CHECK IF ATTACHMENT VIEWED OR NOT
+				$attachments = Attachment::where('entity_id', $value)->where('attachment_of_id', 223)->where('attachment_type_id', 244)->pluck('id')->toArray();
+				foreach ($attachments as $key => $attachment_id) {
+					$viewed_jv_attachment = DB::table('jv_attachment_view_status')->where('attachment_id', $attachment_id)->where('journal_voucher_id', $value)->where('viewed_by', Auth::user()->id)->first();
+					if (!$viewed_jv_attachment) {
+						return response()->json([
+							'success' => false,
+							'errors' => ['Please check whether all Journal Vouchers copies are viewed'],
+						]);
+					}
+				}
+
 				$journal_voucher = JournalVoucher::find($value);
 				$journal_voucher->status_id = $approval_level->next_status_id;
 				$journal_voucher->rejection_id = NULL;
@@ -317,10 +352,16 @@ class JvVerificationController extends Controller {
 				$activity->save();
 			}
 			DB::commit();
-			return response()->json(['success' => true, 'message' => $approval_level->name . ' Approved successfully']);
+			return response()->json([
+				'success' => true,
+				'message' => $approval_level->name . ' Approved successfully',
+			]);
 		} catch (Exception $e) {
 			DB::rollBack();
-			return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
+			return response()->json([
+				'success' => false,
+				'errors' => ['Exception Error' => $e->getMessage()],
+			]);
 		}
 		// }
 	}
