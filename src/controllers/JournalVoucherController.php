@@ -198,7 +198,7 @@ class JournalVoucherController extends Controller {
 					';
 				}
 				if (Entrust::can('approve-journal-voucher') && ($journal_vouchers->status_id == $journal_vouchers->initial_status_id || in_array($journal_vouchers->status_id, $reject_statuses))) {
-					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#approve-popup" onclick="angular.element(this).scope().deleteJournalVoucherApprove(' . $journal_vouchers->id . ',' . $next_status . ')" title="Approve"><img src="' . $img_tick . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_tick_active . '" onmouseout=this.src="' . $img_tick . '"></a>
+					$output .= '<a href="javascript:;" data-toggle="modal" data-target="#approve-popup" onclick="angular.element(this).scope().deleteJournalVoucherApprove(' . $journal_vouchers->id . ',' . $next_status . ')" title="Submit For Approval"><img src="' . $img_tick . '" alt="Delete" class="img-responsive delete" onmouseover=this.src="' . $img_tick_active . '" onmouseout=this.src="' . $img_tick . '"></a>
 					';
 				}
 
