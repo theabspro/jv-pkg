@@ -358,16 +358,17 @@ app.component('jvVerificationView', {
         //CHECK JV Attachment COPIES ARE VIEWD
         $scope.jvAttachmentViewed = function(id) {
             console.log(id);
-            alert(id);
-            $http.get(
-                laravel_routes['jvAttachmentViewedCheck'],{
-                    params:{
-                        attachment_id : id,
+            setTimeout(function() {
+                $http.get(
+                    laravel_routes['jvAttachmentViewedCheck'], {
+                        params: {
+                            attachment_id: id,
+                        }
                     }
-                }
-            ).then(function(response) {
-                console.log(response);
-            });
+                ).then(function(response) {
+                    console.log(response);
+                });
+            },200);
         }
 
         var from_approve = '#approve';
