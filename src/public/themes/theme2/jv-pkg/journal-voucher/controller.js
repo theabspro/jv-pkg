@@ -886,10 +886,10 @@ app.component('journalVoucherView', {
             
             if ((self.jv.type.initial_status_id == self.jv.status_id) || (jQuery.inArray(self.jv.status_id, self.reject_status_ids) != -1)) {
                 $(".edit_button").removeClass('ng-hide');
-                $(".sebmit_button").removeClass('ng-hide');
+                $(".submit_button").removeClass('ng-hide');
             } else {
                 $(".edit_button").addClass('ng-hide');
-                $(".sebmit_button").addClass('ng-hide');
+                $(".submit_button").addClass('ng-hide');
             }
 
             //ATTACHMENTS
