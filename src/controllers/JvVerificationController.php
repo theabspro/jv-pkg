@@ -1,6 +1,7 @@
 <?php
 
 namespace Abs\JVPkg;
+use Abs\ApprovalPkg\ApprovalFlowConfiguration;
 use Abs\ApprovalPkg\ApprovalLevel;
 use Abs\ApprovalPkg\EntityStatus;
 use Abs\JVPkg\JournalVoucher;
@@ -213,10 +214,32 @@ class JvVerificationController extends Controller {
 		try {
 			DB::beginTransaction();
 
+			$jv_amount_get = JournalVoucher::find($request->journal_voucher_id);
+			// dd($jv_amount_get->amount);
 			$approval_level = ApprovalLevel::where('id', $request->approval_level_id)
 			// ->leftJoin('approval_type_approval_level as atal', 'atal.approval_level_id', 'approval_levels.id')
 			// ->where('atal.approval_type_id', 2)
 				->first();
+
+			if ($approval_level->has_verification_flow == 1) {
+				// dd('in');
+				$verification_flow_configuration = ApprovalFlowConfiguration::where('approval_level_id', $approval_level->id)
+					->where('value', ">=", $jv_amount_get->amount)
+					->orderBy('value')
+					->first()
+				;
+				if (!$verification_flow_configuration) {
+					return response()->json([
+						'success' => false,
+						'errors' => ['Approval Flow Not Configured!. Check the Verification Flow Configuration Master!.'],
+					]);
+				}
+				$status_id = $verification_flow_configuration->next_status_id;
+			} else {
+				$status_id = $approval_level->next_status_id;
+			}
+			// dump($status_id);
+			// dd($approval_level);
 
 			// dd($approval_level->reject_status_id);
 
@@ -235,12 +258,12 @@ class JvVerificationController extends Controller {
 				}
 
 				$jv = JournalVoucher::find($request->journal_voucher_id);
-				$jv->status_id = $approval_level->next_status_id;
+				$jv->status_id = $status_id;
 				$jv->rejection_id = NULL;
 				$jv->rejection_reason = NULL;
 				$jv->save();
 				if ($jv) {
-					$status_id = $approval_level->next_status_id;
+					$status_id = $status_id;
 					$activity = new ActivityLog;
 					$activity->date_time = Carbon::now();
 					$activity->user_id = Auth::user()->id;
@@ -315,6 +338,24 @@ class JvVerificationController extends Controller {
 		// if (count($send_for_approvals) == 0) {
 		// 	return response()->json(['success' => false, 'errors' => ['No Approval 1 Pending Status in the list!']]);
 		// } else {
+
+		if ($approval_level->has_verification_flow == 1) {
+			// dd('in');
+			$verification_flow_configuration = ApprovalFlowConfiguration::where('approval_level_id', $approval_level->id)
+				->where('value', ">=", $jv_amount_get->amount)
+				->orderBy('value')
+				->first()
+			;
+			if (!$verification_flow_configuration) {
+				return response()->json([
+					'success' => false,
+					'errors' => ['Approval Flow Not Configured!. Check the Verification Flow Configuration Master!.'],
+				]);
+			}
+			$status_id = $verification_flow_configuration->next_status_id;
+		} else {
+			$status_id = $approval_level->next_status_id;
+		}
 		DB::beginTransaction();
 		try {
 			foreach ($send_for_approvals as $key => $value) {
@@ -332,14 +373,16 @@ class JvVerificationController extends Controller {
 				}
 
 				$journal_voucher = JournalVoucher::find($value);
-				$journal_voucher->status_id = $approval_level->next_status_id;
+				// $journal_voucher->status_id = $approval_level->next_status_id;
+				$journal_voucher->status_id = $status_id;
 				$journal_voucher->rejection_id = NULL;
 				$journal_voucher->rejection_reason = NULL;
 				$journal_voucher->updated_by_id = Auth()->user()->id;
 				$journal_voucher->updated_at = date("Y-m-d H:i:s");
 				$journal_voucher->save();
 
-				$status_id = $approval_level->next_status_id;
+				// $status_id = $approval_level->next_status_id;
+				$status_id = $status_id;
 				$activity = new ActivityLog;
 				$activity->date_time = Carbon::now();
 				$activity->user_id = Auth::user()->id;

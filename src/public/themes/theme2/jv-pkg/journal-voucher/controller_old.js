@@ -1,4 +1,4 @@
-app.component('journalVoucherList', {
+app.component('journalVoucherList1', {
     templateUrl: journal_voucher_list_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect) {
         $scope.loading = true;
@@ -261,7 +261,7 @@ app.component('journalVoucherList', {
 });
 //------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------
-app.component('journalVoucherForm', {
+app.component('journalVoucherForm1', {
     templateUrl: journal_voucher_form_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $q) {
         var self = this;
@@ -1173,7 +1173,7 @@ app.component('journalVoucherForm', {
 });
 //------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------
-app.component('journalVoucherView', {
+app.component('journalVoucherView1', {
     templateUrl: journal_voucher_view_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $element, $mdSelect, $timeout) {
         var self = this;
@@ -1348,7 +1348,7 @@ app.component('journalVoucherView', {
     }
 });
 
-app.component('jvFormHeader', {
+app.component('jvFormHeader1', {
     templateUrl: jv_form_header_template_url,
     bindings: {
         jv: '<',
@@ -1358,7 +1358,7 @@ app.component('jvFormHeader', {
     }
 });
 
-app.component('jvReceiptsTable', {
+app.component('jvReceiptsTable1', {
     templateUrl: jv_receipts_table_template_url,
     bindings: {
         jv: '<',
@@ -1368,7 +1368,7 @@ app.component('jvReceiptsTable', {
     }
 });
 
-app.component('jvInvoicesTable', {
+app.component('jvInvoicesTable1', {
     templateUrl: jv_invoices_table_template_url,
     bindings: {
         jv: '=',

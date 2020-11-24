@@ -223,7 +223,7 @@
                                                         </label>
                                                         <!-- <div class="autocomplete-refresh"> -->
                                                             <!-- FOR CUSTOMER SEARCH -->
-                                                        <md-autocomplete ng-if="$ctrl.jv.from_account_type.id == 1440" md-items="option in $ctrl.searchCustomer($ctrl.fromCustomerSearchText)" md-selected-item="$ctrl.from_account" md-search-text="$ctrl.fromCustomerSearchText" md-selected-item-change="customerSelected('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
+                                                        <md-autocomplete ng-if="$ctrl.jv.from_account_type.id == 1440" md-items="option in $ctrl.searchCustomerPkg($ctrl.fromCustomerSearchText)" md-selected-item="$ctrl.from_account" md-search-text="$ctrl.fromCustomerSearchText" md-selected-item-change="customerSelected('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
                                                             <md-item-template>
                                                                 <span>
                                                                     {{option.name}} - {{option.code}}
@@ -234,7 +234,7 @@
                                                             </md-not-found>
                                                         </md-autocomplete>
                                                          <!-- FOR VENDOR SEARCH -->
-                                                        <md-autocomplete ng-if="$ctrl.jv.from_account_type.id == 1441" md-items="option in $ctrl.searchVendor($ctrl.fromVendorSearchText)" md-selected-item="$ctrl.from_account" md-search-text="$ctrl.fromVendorSearchText" md-selected-item-change="vendorSelected('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Vendor code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
+                                                        <md-autocomplete ng-if="$ctrl.jv.from_account_type.id == 1441" md-items="option in $ctrl.searchVendorJv($ctrl.fromVendorSearchText)" md-selected-item="$ctrl.from_account" md-search-text="$ctrl.fromVendorSearchText" md-selected-item-change="vendorSelected('fromAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Vendor code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
                                                             <md-item-template>
                                                                 <span>
                                                                     {{option.name}} - {{option.code}}
@@ -354,7 +354,7 @@
                                                         </label>
                                                         <!-- <div class="autocomplete-refresh"> -->
                                                         <!-- FOR CUSTOMER SEARCH -->
-                                                        <md-autocomplete ng-if="$ctrl.jv.to_account_type.id == 1440" md-items="option in $ctrl.searchCustomer($ctrl.toCustomerSearchText)" md-selected-item="$ctrl.to_account" md-search-text="$ctrl.toCustomerSearchText" md-selected-item-change="customerSelected('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
+                                                        <md-autocomplete ng-if="$ctrl.jv.to_account_type.id == 1440" md-items="option in $ctrl.searchCustomerPkg($ctrl.toCustomerSearchText)" md-selected-item="$ctrl.to_account" md-search-text="$ctrl.toCustomerSearchText" md-selected-item-change="customerSelected('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Customer code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
                                                             <md-item-template>
                                                                 <span>
                                                                     {{option.name}} - {{option.code}}
@@ -365,7 +365,7 @@
                                                             </md-not-found>
                                                         </md-autocomplete>
                                                         <!-- FOR VENDOR SEARCH -->
-                                                        <md-autocomplete ng-if="$ctrl.jv.to_account_type.id == 1441" md-items="option in $ctrl.searchVendor($ctrl.toVendorSearchText)" md-selected-item="$ctrl.to_account" md-search-text="$ctrl.toVendorSearchText" md-selected-item-change="vendorSelected('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Vendor code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
+                                                        <md-autocomplete ng-if="$ctrl.jv.to_account_type.id == 1441" md-items="option in $ctrl.searchVendorJv($ctrl.toVendorSearchText)" md-selected-item="$ctrl.to_account" md-search-text="$ctrl.toVendorSearchText" md-selected-item-change="vendorSelected('toAcc')" md-item-text="option.code" md-min-length="3" md-escape-options="clear" placeholder="Vendor code / name" input-aria-labelledby="favoriteStateLabel" md-no-cache="false" ng-model-options="{trackBy: '$value.id' }">
                                                             <md-item-template>
                                                                 <span>
                                                                     {{option.name}} - {{option.code}}

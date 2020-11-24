@@ -116,8 +116,8 @@
     var ledger_list_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/ledger/list.html')}}";
     var ledger_form_template_url = "{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/ledger/form.html')}}";
 </script>
-<script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal/controller.js')}}"></script>
-<script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-type/controller.js')}}"></script>
-<script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/controller.js')}}"></script>
-<script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/ledger/controller.js')}}"></script>
-<script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-verification/controller.js')}}"></script>
+<!-- <script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal/controller.js')}}"></script> -->
+<!-- <script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-type/controller.js')}}"></script> -->
+<!-- <script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/journal-voucher/controller.js')}}"></script> -->
+<!-- <script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/ledger/controller.js')}}"></script> -->
+<!-- <script type="text/javascript" src="{{asset($jv_pkg_prefix.'/public/themes/'.$theme.'/jv-pkg/jv-verification/controller.js')}}"></script> -->

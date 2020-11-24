@@ -459,15 +459,15 @@ app.component('journalVoucherForm', {
         //     console.log($id);
         // }
 
-        self.searchCustomer = $rootScope.searchCustomer;
+        self.searchCustomerPkg = $rootScope.searchCustomerPkg;
 
         //GET CUSTOMER DETAILS
         $scope.customerSelected = function(type) {
             if (type == 'fromAcc') {
-                // console.log(self.from_account);
+                console.log(self.from_account);
                 if (self.from_account || self.from_account != null) {
-                    var res = $rootScope.getCustomer(self.from_account.id).then(function(res) {
-                        console.log(res.data);
+                    var res = $rootScope.getCustomerAddressPkg(self.from_account).then(function(res) {
+                        console.log(res);
                         if (!res.data.success) {
                             custom_noty('error', res.data.error);
                             return;
@@ -479,7 +479,7 @@ app.component('journalVoucherForm', {
                 }
             } else {
                 if (self.to_account || self.to_account != null) {
-                    var res = $rootScope.getCustomer(self.to_account.id).then(function(res) {
+                    var res = $rootScope.getCustomerAddressPkg(self.to_account).then(function(res) {
                         if (!res.data.success) {
                             custom_noty('error', res.data.error);
                             return;
@@ -492,14 +492,14 @@ app.component('journalVoucherForm', {
             }
         }
 
-        self.searchVendor = $rootScope.searchVendor;
+        self.searchVendorJv = $rootScope.searchVendorJv;
 
         //GET VENDOR DETAILS
         $scope.vendorSelected = function(type) {
             if (type == 'fromAcc') {
                 // console.log(self.from_account);
                 if (self.from_account || self.from_account != null) {
-                    var res = $rootScope.getVendor(self.from_account.id).then(function(res) {
+                    var res = $rootScope.getVendorJv(self.from_account.id).then(function(res) {
                         console.log(res.data);
                         if (!res.data.success) {
                             custom_noty('error', res.data.error);
@@ -512,7 +512,7 @@ app.component('journalVoucherForm', {
                 }
             } else {
                 if (self.to_account || self.to_account != null) {
-                    var res = $rootScope.getVendor(self.to_account.id).then(function(res) {
+                    var res = $rootScope.getVendorJv(self.to_account.id).then(function(res) {
                         if (!res.data.success) {
                             custom_noty('error', res.data.error);
                             return;
